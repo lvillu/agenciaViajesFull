@@ -1,11 +1,11 @@
-# Usa la imagen oficial de KrakenD
-FROM krakend:latest
+# Imagen oficial de KrakenD (~50MB, ya basada en Alpine)
+# Pinear versión para builds reproducibles
+FROM devopsfaith/krakend:2.7
 
-# Copia el archivo de configuraci�n de KrakenD
+# Copiar configuración
 COPY krakend.json /etc/krakend/krakend.json
 
-# Expone el puerto 5050 para acceder a KrakenD
-EXPOSE 5050
+EXPOSE 8080
 
-# Comando para ejecutar KrakenD con la configuraci�n copiada
+# Validar configuración antes de arrancar
 CMD ["krakend", "run", "-dc", "/etc/krakend/krakend.json"]

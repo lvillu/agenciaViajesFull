@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   # PostgreSQL 16 Database
-  # Almacena la información de usuarios, viajes, reservas, etc.
   database:
     image: postgres:16-alpine
     container_name: agencia_viajes_db
@@ -24,20 +23,22 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
   # .NET 8 API Backend
-  # Backend principal de la API: autenticación, viajes, reservas, etc.
-  # Usa arquitectura Vertical Slice + CQRS
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      cache_from:
-        - type=registry,ref=localhost:5000/agencia_viajes_api
     image: agencia_viajes_api:latest
     container_name: agencia_viajes_api
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__IbarraTravelDB: "Host=database;Port=5432;Database=${POSTGRES_DB:-ibarratravel};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};"
       AppSettings__SecretKey: ${SECRET_KEY:-GiveASecretKeyHavingAtLeast32Characters}
       AppSettings__ExperiesInMinutes: ${EXPIRES_IN_MINUTES:-2}
@@ -52,9 +53,14 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
   # KrakenD API Gateway
-  # API Gateway que gestiona enrutamiento, autenticación y políticas
   krakend:
     build:
       context: ./deploy/KrakenD
@@ -70,9 +76,14 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
 
-  # Next.js Frontend
-  # Frontend de la aplicación construido con Next.js 15 + React 19
+  # Next.js Frontend (standalone mode)
   frontend:
     build:
       context: ./frontend
@@ -90,6 +101,12 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
 volumes:
   postgres_data:
