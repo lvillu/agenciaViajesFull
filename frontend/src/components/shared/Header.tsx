@@ -53,8 +53,8 @@ export const Header: React.FC = () => {
       text: '¿Estás seguro de que deseas cerrar sesión?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#1976d2',
-      cancelButtonColor: '#d32f2f',
+      confirmButtonColor: '#2F80ED',
+      cancelButtonColor: '#EB5757',
       confirmButtonText: 'Sí, cerrar sesión',
       cancelButtonText: 'Cancelar',
     });
@@ -99,7 +99,7 @@ export const Header: React.FC = () => {
               sx={{
                 width: 40,
                 height: 40,
-                bgcolor: '#1976d2',
+                bgcolor: 'primary.main',
                 cursor: 'pointer',
               }}
               src={user?.userIconUrl || undefined}
@@ -127,7 +127,7 @@ export const Header: React.FC = () => {
             ⚙️ Settings
           </MenuItem>
           <Divider />
-          <MenuItem onClick={handleLogout} sx={{ color: '#d32f2f' }}>
+          <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
             🚪 Logout
           </MenuItem>
         </Menu>

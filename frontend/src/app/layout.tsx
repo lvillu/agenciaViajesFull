@@ -11,37 +11,103 @@ import { ReactNode } from 'react';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#2F80ED',
+      light: 'rgba(47,128,237,0.1)',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#00B4D8',
+    },
+    background: {
+      default: '#F7F9FC',
+      paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#1F2937',
+      secondary: '#6B7280',
+      disabled: '#9CA3AF',
+    },
+    success: {
+      main: '#27AE60',
+    },
+    warning: {
+      main: '#F2C94C',
+    },
+    error: {
+      main: '#EB5757',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: 'Inter, system-ui, sans-serif',
     h1: {
-      fontSize: '2.5rem',
-      fontWeight: 700,
+      fontSize: '20px',
+      fontWeight: 600,
+      lineHeight: 1.2,
     },
     h2: {
-      fontSize: '2rem',
-      fontWeight: 700,
+      fontSize: '18px',
+      fontWeight: 600,
+      lineHeight: 1.2,
     },
     h3: {
-      fontSize: '1.75rem',
-      fontWeight: 700,
-    },
-    h4: {
-      fontSize: '1.5rem',
+      fontSize: '16px',
       fontWeight: 600,
+      lineHeight: 1.2,
     },
-    h5: {
-      fontSize: '1.25rem',
-      fontWeight: 600,
+    subtitle1: {
+      fontSize: '14px',
+      fontWeight: 500,
+      lineHeight: 1.4,
     },
-    h6: {
-      fontSize: '1rem',
-      fontWeight: 600,
+    body1: {
+      fontSize: '13px',
+      fontWeight: 400,
+      lineHeight: 1.4,
+    },
+    body2: {
+      fontSize: '12px',
+      fontWeight: 400,
+      lineHeight: 1.4,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          height: 40,
+          borderRadius: 8,
+          textTransform: 'none',
+        },
+      },
+    },
+    MuiCard: {
+      defaultProps: {
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          borderRight: 'none',
+        },
+      },
     },
   },
 });

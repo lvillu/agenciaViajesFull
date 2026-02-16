@@ -54,8 +54,8 @@ export default function SettingsPage() {
     <Box>
       <Header />
       <Container maxWidth="md">
-        <Paper elevation={0} sx={{ p: 4, bgcolor: '#fff' }}>
-          <Typography variant="h2" sx={{ mb: 3, fontWeight: 'bold' }}>
+        <Paper elevation={0} sx={{ p: 4, bgcolor: 'background.paper' }}>
+          <Typography variant="h2" sx={{ mb: 3 }}>
             Mi Perfil
           </Typography>
 
@@ -69,7 +69,7 @@ export default function SettingsPage() {
                   sx={{
                     width: 120,
                     height: 120,
-                    bgcolor: user.userIconUrl ? 'transparent' : '#1976d2',
+                    bgcolor: user.userIconUrl ? 'transparent' : 'primary.main',
                     fontSize: '3rem',
                   }}
                 >
@@ -80,7 +80,7 @@ export default function SettingsPage() {
               {/* Detalles del Usuario */}
               <Grid item xs={12} sm>
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  <Typography variant="h3" sx={{ mb: 1 }}>
                     {user.fullName}
                   </Typography>
                   <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
@@ -95,7 +95,7 @@ export default function SettingsPage() {
               {/* Información Detallada */}
               <Grid item xs={12}>
                 <Divider sx={{ my: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                <Typography variant="h5" sx={{ mb: 2 }}>
                   Información de Cuenta
                 </Typography>
 

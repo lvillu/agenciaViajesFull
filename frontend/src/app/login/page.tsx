@@ -55,11 +55,11 @@ export default function LoginPage() {
           minHeight: '100vh',
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h2" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+        <Paper elevation={0} sx={{ p: 4, width: '100%' }}>
+          <Typography variant="h2" sx={{ mb: 3, textAlign: 'center' }}>
             Iniciar Sesión
           </Typography>
-          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: '#666' }}>
+          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
             Agencia Viajes
           </Typography>
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
               <MuiLink
                 href="/signup"
                 underline="hover"
-                sx={{ cursor: 'pointer', fontWeight: 'bold', color: '#1976d2' }}
+                sx={{ cursor: 'pointer', fontWeight: 600, color: 'primary.main' }}
               >
                 Crear cuenta
               </MuiLink>

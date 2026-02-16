@@ -57,11 +57,11 @@ export default function SignUpPage() {
           py: 4,
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h2" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+        <Paper elevation={0} sx={{ p: 4, width: '100%' }}>
+          <Typography variant="h2" sx={{ mb: 3, textAlign: 'center' }}>
             Crear Cuenta
           </Typography>
-          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: '#666' }}>
+          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
             Únete a Agencia Viajes
           </Typography>
 
@@ -166,7 +166,7 @@ export default function SignUpPage() {
               <MuiLink
                 href="/login"
                 underline="hover"
-                sx={{ cursor: 'pointer', fontWeight: 'bold', color: '#1976d2' }}
+                sx={{ cursor: 'pointer', fontWeight: 600, color: 'primary.main' }}
               >
                 Inicia sesión
               </MuiLink>
