@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 16 Database
+  # Almacena la información de usuarios, viajes, reservas, etc.
+  database:
+    image: postgres:16-alpine
+    container_name: agencia_viajes_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ibarratravel}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - agencia_viajes_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  # .NET 8 API Backend
+  # Backend principal de la API: autenticación, viajes, reservas, etc.
+  # Usa arquitectura Vertical Slice + CQRS
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      cache_from:
+        - type=registry,ref=localhost:5000/agencia_viajes_api
+    image: agencia_viajes_api:latest
+    container_name: agencia_viajes_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__IbarraTravelDB: "Host=database;Port=5432;Database=${POSTGRES_DB:-ibarratravel};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};"
+      AppSettings__SecretKey: ${SECRET_KEY:-GiveASecretKeyHavingAtLeast32Characters}
+      AppSettings__ExperiesInMinutes: ${EXPIRES_IN_MINUTES:-2}
+      AppSettings__RefreshTokenExpiresInMinutes: ${REFRESH_TOKEN_EXPIRES_IN_MINUTES:-60}
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - agencia_viajes_network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  # KrakenD API Gateway
+  # API Gateway que gestiona enrutamiento, autenticación y políticas
+  krakend:
+    build:
+      context: ./deploy/KrakenD
+      dockerfile: Dockerfile
+    image: agencia_viajes_krakend:latest
+    container_name: agencia_viajes_krakend
+    ports:
+      - "5050:8080"
+    depends_on:
+      - api
+    networks:
+      - agencia_viajes_network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  # Next.js Frontend
+  # Frontend de la aplicación construido con Next.js 15 + React 19
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: agencia_viajes_frontend:latest
+    container_name: agencia_viajes_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://krakend:8080"
+    depends_on:
+      - krakend
+    networks:
+      - agencia_viajes_network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  agencia_viajes_network:
+    driver: bridge

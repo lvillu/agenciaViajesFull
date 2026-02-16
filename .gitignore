@@ -1,0 +1,198 @@
+# ==========================================
+# .NET / Backend
+# ==========================================
+
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+
+# Visual Studio cache/options directory
+.vs/
+.vscode/
+*.code-workspace
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+launch.json
+settings.json
+tasks.json
+
+# Rider
+.idea/
+*.sln.iml
+*.sln.DotSettings
+*.sln.DotSettings.user
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test Results
+TestResults/
+*.trx
+**/bin/Debug/
+**/bin/Release/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Entity Framework
+**/Migrations/*.Designer.cs
+
+# Local database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+.env.*.production.local
+.env.*.staging.local
+# Pero permitir archivos de desarrollo
+!.env.example
+!.env.development.local
+
+# Logs
+logs/
+*.log
+*.logs
+
+# ==========================================
+# Frontend / Next.js / Node.js
+# ==========================================
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+/.nyc_output
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Production
+/build
+/.next/production
+
+# Misc
+.DS_Store
+*.pem
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Turbo
+.turbo/
+
+# ==========================================
+# OS / Editor
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# IDE specific files
+*.sublime-workspace
+*.sublime-project
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IntelliJ
+*.iml
+*.iws
+*.ipr
+.idea/
+
+# ==========================================
+# Docker
+# ==========================================
+
+# Docker volumes
+data/
+postgres_data/
+mysql_data/
+
+# ==========================================
+# Build and Distribution
+# ==========================================
+
+dist/
+build/
+release/
+
+# ==========================================
+# Temporary files
+# ==========================================
+
+*.tmp
+*.temp
+*.cache
+*.swp
+*.swo
+*~
+
+# ==========================================
+# Custom Directories
+# ==========================================
+
+# Local development
+local/
+temp/
+tmp/
+.local/
+
+# Documentation builds
+docs/_build/
+docs/generated/
+
+# API Documentation
+swagger-ui/
+swagger.json
+
+# Database snapshots
+db_snapshots/
+backups/

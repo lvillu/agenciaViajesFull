@@ -1,0 +1,48 @@
+# IDE y editores
+**/.vs/
+**/.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build y output
+**/bin/
+**/obj/
+**/dist/
+**/build/
+
+# Dependencies
+**/node_modules/
+**/packages/
+
+# VCS
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# Docker y deployment
+**/Dockerfile
+**/docker-compose*.yml
+**/.dockerignore
+
+# Documentación
+**/README.md
+DOCKER.md
+
+# Archivos de configuración
+**/.env
+**/.env.local
+**/.env.*.local
+*.user
+*.suo
+
+# Directorios de cache y test
+**/coverage/
+**/.nyc_output/
+**/.pytest_cache/
+
+# Logs
+**/logs/
+**/*.log
