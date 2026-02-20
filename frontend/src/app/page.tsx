@@ -1,16 +1,23 @@
 /**
  * Home Page
- * Página principal (vacía por ahora)
+ * Página principal con menú de navegación
  */
 
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Container, Grid, Typography } from '@mui/material';
+import {
+  Store as StoreIcon,
+  People as PeopleIcon,
+  EventNote as EventNoteIcon,
+  Dashboard as DashboardIcon,
+} from '@mui/icons-material';
 import { useAuthStore } from '@/store/authStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
+import { MenuCard } from '@/components/shared/MenuCard';
 
 export default function HomePage() {
   const router = useRouter();
@@ -56,14 +63,55 @@ export default function HomePage() {
   }
 
   return (
-    <Box>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       <Header />
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {/* Contenido principal vacío - será llenado más adelante */}
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Typography variant="h1" sx={{ mb: 4, color: 'text.primary' }}>
+              Menú Principal
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <MenuCard
+                  title="Proveedores"
+                  icon={<StoreIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
+                  color="#2F80ED"
+                  href="/proveedores"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <MenuCard
+                  title="Clientes"
+                  icon={<PeopleIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
+                  color="#00B4D8"
+                  href="/clientes"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <MenuCard
+                  title="Reservas"
+                  icon={<EventNoteIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
+                  color="#27AE60"
+                  href="/reservas"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <MenuCard
+                  title="Dashboard"
+                  icon={<DashboardIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
+                  color="#F2C94C"
+                  href="/dashboard"
+                />
+              </Grid>
+            </Grid>
+          </>
+        )}
+      </Container>
     </Box>
   );
 }
