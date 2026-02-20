@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
@@ -16,7 +16,7 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const login = async (credentials: LoginRequest) => {
+  const login = useCallback(async (credentials: LoginRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -30,9 +30,9 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setAuth]);
 
-  const signup = async (data: SignUpRequest) => {
+  const signup = useCallback(async (data: SignUpRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -54,9 +54,9 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setAuth]);
 
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -70,9 +70,9 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setUser]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -83,7 +83,7 @@ export const useAuth = () => {
       logout();
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   return {
     ...authState,

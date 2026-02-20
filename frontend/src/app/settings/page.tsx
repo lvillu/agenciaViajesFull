@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Container,
   Box,
@@ -22,10 +22,14 @@ import { Header } from '@/components/shared/Header';
 
 export default function SettingsPage() {
   const { user, loading, error, fetchUserInfo, isAuthenticated } = useAuth();
+  const hasFetchedUser = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      fetchUserInfo();
+    if (isAuthenticated && !user && !hasFetchedUser.current) {
+      hasFetchedUser.current = true;
+      fetchUserInfo().catch(() => {
+        hasFetchedUser.current = false; // Permitir reintentar si falla
+      });
     }
   }, [isAuthenticated, user, fetchUserInfo]);
 

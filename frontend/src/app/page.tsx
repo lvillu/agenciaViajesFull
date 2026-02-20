@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuthStore } from '@/store/authStore';
@@ -18,6 +18,7 @@ export default function HomePage() {
   const { fetchUserInfo } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const hasFetchedUser = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -31,15 +32,19 @@ export default function HomePage() {
       return;
     }
 
-    // Cargar información del usuario cuando entra a la home
-    setLoading(true);
-    fetchUserInfo()
-      .catch((err) => {
-        console.error('Error al cargar información del usuario:', err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    // Cargar información del usuario solo una vez
+    if (!hasFetchedUser.current) {
+      hasFetchedUser.current = true;
+      setLoading(true);
+      fetchUserInfo()
+        .catch((err) => {
+          console.error('Error al cargar información del usuario:', err);
+          hasFetchedUser.current = false; // Permitir reintentar si falla
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   }, [mounted, isAuthenticated, router, fetchUserInfo]);
 
   if (!mounted || !isAuthenticated) {
