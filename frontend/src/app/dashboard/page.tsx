@@ -8,12 +8,14 @@
 import React from 'react';
 import { Container, Box, Typography } from '@mui/material';
 import { Header } from '@/components/shared/Header';
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 
 export default function DashboardPage() {
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       <Header />
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Breadcrumbs items={[{ label: 'Dashboard' }]} />
         <Typography variant="h1" sx={{ mb: 3, color: 'text.primary' }}>
           Dashboard
         </Typography>
