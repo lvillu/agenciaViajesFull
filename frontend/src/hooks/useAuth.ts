@@ -36,9 +36,17 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.signup(data);
-      setAuth(response.token, response.userName);
-      return response;
+      // 1. Crear usuario
+      const userResponse = await authService.signup(data);
+      
+      // 2. Login automático después de crear la cuenta
+      const loginResponse = await authService.login({
+        userName: data.userName,
+        password: data.password,
+      });
+      
+      setAuth(loginResponse.token, loginResponse.userName);
+      return userResponse;
     } catch (err: any) {
       const message = err.message || 'Error al crear usuario';
       setError(message);
