@@ -15,11 +15,19 @@ namespace agenciaViajes.Application.Features.Auth.Login
         }
         public async Task<Result<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            string token = _authRepository.AuthLogin(request.request.username, request.request.password);
+            var (user, token) = await _authRepository.AuthLoginAsync(
+                request.request.username, 
+                request.request.password, 
+                cancellationToken);
+
+            if (user == null || string.IsNullOrEmpty(token))
+            {
+                return Result<AuthResponse>.Failure("Usuario o contraseña incorrectos");
+            }
 
             return Result<AuthResponse>.Success(new AuthResponse
             {
-                userName = request.request.username,
+                userName = user.UserName,
                 token = token
             });
         }

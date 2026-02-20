@@ -21,9 +21,30 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             _context = context;
         }
 
-        public string AuthLogin(string username, string password)
+        public async Task<(User? user, string token)> AuthLoginAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            return GenerateToken(username, GenerateRefreshToken());
+            // Obtener el usuario de la base de datos
+            var user = await GetUserByUserNameAsync(username, cancellationToken);
+            
+            if (user == null)
+            {
+                return (null, string.Empty);
+            }
+
+            // Verificar la contraseña
+            if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                return (null, string.Empty);
+            }
+
+            // Generar refresh token y guardarlo
+            var refreshToken = GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = GenerateRefreshTokenExpires();
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var token = GenerateToken(user, refreshToken);
+            return (user, token);
         }
 
         public bool AuthLogOut(string token)
@@ -31,17 +52,21 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return true;
         }
 
-        public string GenerateToken(string username, string refreshToken)
+        public string GenerateToken(User user, string refreshToken)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, username),
-                new Claim("RefreshToken", refreshToken)  // Incluir el refresh token en el JWT
+                new Claim("fullName", $"{user.Name} {user.LastName}"),
+                new Claim("userName", user.UserName),
+                new Claim("email", user.Email),
+                new Claim("userIcon", user.UserIconUrl ?? ""),
+                new Claim(ClaimTypes.Name, user.UserName),  // Mantener para compatibilidad
+                new Claim("RefreshToken", refreshToken)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddMinutes(_settings.ExperiesInMinutes);
+            var expires = DateTime.UtcNow.AddMinutes(_settings.ExperiesInMinutes);
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -70,6 +95,12 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .FirstOrDefaultAsync(u => u.UserName == userName, cancellationToken);
         }
 
+        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken, cancellationToken);
+        }
+
         private string GenerateRefreshToken()
         {
             return Guid.NewGuid().ToString();
@@ -77,7 +108,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
         public DateTime GenerateRefreshTokenExpires()
         {
-            return DateTime.Now.AddMinutes(_settings.RefreshTokenExpiresInMinutes);
+            return DateTime.UtcNow.AddMinutes(_settings.RefreshTokenExpiresInMinutes);
         }
     }
 }

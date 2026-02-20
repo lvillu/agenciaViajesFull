@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types/api';
 import { UserMeResponse, UpdateUserRequest } from '@/types/user';
 
 const USER_ENDPOINTS = {
-  ME: '/users/me',
+  ME: '/User/me',
   UPDATE: '/users',
 };
 

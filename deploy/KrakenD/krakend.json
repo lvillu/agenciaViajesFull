@@ -88,54 +88,16 @@
       ]
     },
     {
-      "endpoint": "/api/v1/auth/login",
-      "method": "POST",
-      "output_encoding": "json",
-      "backend": [
-        {
-          "url_pattern": "/api/Auth/login",
-          "host": ["http://api:8080"],
-          "disable_host_sanitize": false,
-          "method": "POST"
-        }
-      ]
-    },
-    {
-      "endpoint": "/api/v1/auth/signup",
-      "method": "POST",
-      "output_encoding": "json",
-      "backend": [
-        {
-          "url_pattern": "/api/Auth/signup",
-          "host": ["http://api:8080"],
-          "disable_host_sanitize": false,
-          "method": "POST"
-        }
-      ]
-    },
-    {
-      "endpoint": "/api/v1/auth/logout",
-      "method": "POST",
-      "output_encoding": "json",
-      "backend": [
-        {
-          "url_pattern": "/api/Auth/logout",
-          "host": ["http://api:8080"],
-          "disable_host_sanitize": false,
-          "method": "POST"
-        }
-      ]
-    },
-    {
-      "endpoint": "/api/v1/users/me",
+      "endpoint": "/User/me",
       "method": "GET",
-      "output_encoding": "json",
-      "cache_ttl": "60s",
+      "output_encoding": "no-op",
       "backend": [
         {
           "url_pattern": "/api/User/me",
           "host": ["http://api:8080"],
-          "disable_host_sanitize": false
+          "disable_host_sanitize": false,
+          "encoding": "no-op",
+          "method": "GET"
         }
       ]
     }

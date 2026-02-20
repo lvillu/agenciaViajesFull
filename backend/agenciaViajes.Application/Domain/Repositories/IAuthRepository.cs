@@ -4,9 +4,9 @@ namespace agenciaViajes.Application.Domain.Repositories
 {
     public interface IAuthRepository
     {
-        string AuthLogin(string username, string password);
+        Task<(User? user, string token)> AuthLoginAsync(string username, string password, CancellationToken cancellationToken = default);
         bool AuthLogOut(string token);
-        string GenerateToken(string username, string refreshToken);
+        string GenerateToken(User user, string refreshToken);
 
         // Métodos para Sign Up
         Task<bool> UserExistsAsync(string userName, CancellationToken cancellationToken = default);
@@ -14,5 +14,8 @@ namespace agenciaViajes.Application.Domain.Repositories
 
         // Métodos para obtener usuario
         Task<User?> GetUserByUserNameAsync(string userName, CancellationToken cancellationToken = default);
+        Task<User?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+
+        DateTime GenerateRefreshTokenExpires();
     }
 }
