@@ -2,6 +2,8 @@ using agenciaViajes.Application.Domain.Middleware;
 using agenciaViajes.Application.Features.Configurations;
 using agenciaViajes.Application.Features.Configurations.Modules;
 using agenciaViajes.Application.Infrastructure.Configurations;
+using agenciaViajes.Application.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,23 @@ Logging.AddLogging();
 //builder.Host.UseSerilog();
 
 var app = builder.Build();
+
+// Aplicar migraciones automáticamente al iniciar
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+        Console.WriteLine("[OK] Migraciones aplicadas correctamente");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR] Error al aplicar migraciones: {ex.Message}");
+        throw;
+    }
+}
 
 app.ConfigureSwaggerExplorer();
 
