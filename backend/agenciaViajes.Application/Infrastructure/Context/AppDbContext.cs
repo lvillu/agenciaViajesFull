@@ -9,6 +9,7 @@ namespace agenciaViajes.Application.Infrastructure.Context
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Provider> Providers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
