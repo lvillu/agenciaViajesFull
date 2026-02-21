@@ -98,10 +98,11 @@ Sin esto, la ruta será inaccesible desde el API Gateway (puerto 5050).
 
 ### Checklist al crear una Feature:
 1. ✅ Crear Command/Query, Handler, Validator, DTOs
-2. ✅ Registrar en AuthRoutes o ModuleRoutes
-3. ⭐ **REGISTRAR EN KRAKEND** (mismo día)
-4. ✅ Reconstruir Docker: `docker-compose up -d --build`
-5. ✅ Verificar que funciona desde puerto 5050
+2. ✅ Crear archivo de rutas en `Routes/{Module}Routes.cs` (si es nuevo módulo)
+3. ✅ Registrar rutas en `ModulesConfiguration.cs` con `app.Add{Module}Routes()`
+4. ⭐ **REGISTRAR EN KRAKEND** (mismo día)
+5. ✅ Reconstruir Docker: `docker-compose up -d --build`
+6. ✅ Verificar que funciona desde puerto 5050
 
 **📖 Documentación completa:** [`KRAKEND-INTEGRATION.md`](./KRAKEND-INTEGRATION.md)
 
@@ -135,6 +136,60 @@ Features/{Module}/{FeatureName}/
 - Repository Pattern
 - Dependency Injection
 - Result Pattern
+
+**Sistema de Rutas Centralizadas:**
+
+Las rutas de la API están organizadas y centralizadas siguiendo este patrón:
+
+```
+Features/Configurations/
+├── Modules/
+│   └── ModulesConfiguration.cs    # ⭐ Punto central de registro
+└── Routes/
+    ├── AuthRoutes.cs               # Rutas de autenticación
+    ├── UserRoutes.cs               # Rutas de usuarios
+    ├── ProviderRoutes.cs           # Rutas de proveedores
+    └── {Module}Routes.cs           # Rutas de cada módulo
+```
+
+**Reglas importantes:**
+1. ✅ **Cada módulo tiene su propio archivo de rutas** en `Routes/{Module}Routes.cs`
+2. ✅ **Todas las rutas se registran** en `ModulesConfiguration.cs` con `app.Add{Module}Routes()`
+3. ✅ **NO crear endpoints directamente en Program.cs**
+4. ✅ **Agrupar rutas relacionadas** usando `app.MapGroup(BASE_URL)`
+5. ✅ **Aplicar autenticación por grupo** con `.RequireAuthorization()`
+
+**Ejemplo de implementación:**
+
+```csharp
+// En Routes/ProviderRoutes.cs
+public static class ProviderRoutes
+{
+    public const string ROUTE_TAGS = "Provider";
+    public const string BASE_URL = "/api/Provider";
+
+    public static void AddProviderRoutes(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup(BASE_URL)
+            .WithTags(ROUTE_TAGS)
+            .RequireAuthorization();
+
+        group.MapGet("/", GetProvidersList);
+        group.MapPost("/", CreateProvider);
+    }
+}
+
+// En ModulesConfiguration.cs
+app.AddAuthRoutes();
+app.AddUserRoutes();
+app.AddProviderRoutes();  // ⭐ Registro centralizado
+```
+
+**Beneficios:**
+- 📂 Organización clara y separación por módulos
+- 🔒 Seguridad centralizada (autenticación/autorización por grupo)
+- 🔍 Fácil de encontrar y mantener
+- ✅ Consistencia en toda la aplicación
 
 ---
 
