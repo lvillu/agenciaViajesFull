@@ -52,3 +52,34 @@ export const signupSchema = z
   });
 
 export type SignUpFormData = z.infer<typeof signupSchema>;
+
+// Esquema de validación para Provider
+export const providerSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres'),
+  acronym: z
+    .string()
+    .min(1, 'El acrónimo es requerido')
+    .min(2, 'El acrónimo debe tener al menos 2 caracteres')
+    .max(10, 'El acrónimo no puede exceder 10 caracteres'),
+  email: z
+    .string()
+    .min(1, 'El email es requerido')
+    .email('Email inválido'),
+  phone: z
+    .string()
+    .min(1, 'El teléfono es requerido')
+    .min(7, 'El teléfono debe tener al menos 7 caracteres')
+    .max(20, 'El teléfono no puede exceder 20 caracteres'),
+  providerContactName: z
+    .string()
+    .min(1, 'El nombre de contacto es requerido')
+    .min(2, 'El nombre de contacto debe tener al menos 2 caracteres')
+    .max(100, 'El nombre de contacto no puede exceder 100 caracteres'),
+  active: z.boolean().optional(),
+});
+
+export type ProviderFormData = z.infer<typeof providerSchema>;
