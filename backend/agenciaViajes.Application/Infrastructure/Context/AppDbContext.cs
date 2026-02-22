@@ -10,6 +10,7 @@ namespace agenciaViajes.Application.Infrastructure.Context
 
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Provider> Providers { get; set; } = null!;
+        public DbSet<Client> Clients { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -167,6 +167,73 @@
           "method": "DELETE"
         }
       ]
+    },
+    {
+      "endpoint": "/Client",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
     }
   ]
 }
