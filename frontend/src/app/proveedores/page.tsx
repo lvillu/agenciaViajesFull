@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Container,
   Box,
@@ -20,22 +20,25 @@ import {
   TableRow,
   IconButton,
   Alert,
-  Snackbar,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
   Chip,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 import { Header } from '@/components/shared/Header';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { ProviderFormModal } from '@/components/shared/ProviderFormModal';
 import { useProviders } from '@/hooks/useProviders';
+import { useAlert } from '@/hooks/useAlert';
 import { Provider } from '@/types/provider';
 import { ProviderFormData } from '@/lib/validationSchemas';
 
@@ -49,19 +52,28 @@ export default function ProveedoresPage() {
     deleteProvider,
   } = useProviders();
 
+  const { showSuccess, showError } = useAlert();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<Provider | null>(null);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-  }>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Filtrar proveedores según el término de búsqueda
+  const filteredProviders = useMemo(() => {
+    if (!searchTerm.trim()) return providers;
+
+    const term = searchTerm.toLowerCase();
+    return providers.filter(
+      (provider) =>
+        provider.name.toLowerCase().includes(term) ||
+        provider.acronym.toLowerCase().includes(term) ||
+        provider.email.toLowerCase().includes(term) ||
+        provider.phone.toLowerCase().includes(term) ||
+        provider.providerContactName.toLowerCase().includes(term)
+    );
+  }, [providers, searchTerm]);
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -91,31 +103,19 @@ export default function ProveedoresPage() {
           active: selectedProvider.active,
         });
         if (result) {
-          setSnackbar({
-            open: true,
-            message: 'Proveedor actualizado exitosamente',
-            severity: 'success',
-          });
           handleCloseModal();
+          await showSuccess('El proveedor ha sido actualizado exitosamente');
         }
       } else {
         // Crear
         const result = await createProvider(data);
         if (result) {
-          setSnackbar({
-            open: true,
-            message: 'Proveedor creado exitosamente',
-            severity: 'success',
-          });
           handleCloseModal();
+          await showSuccess('El proveedor ha sido creado exitosamente');
         }
       }
     } catch (err: any) {
-      setSnackbar({
-        open: true,
-        message: err.message || 'Error al guardar proveedor',
-        severity: 'error',
-      });
+      await showError(err.message || 'Error al guardar el proveedor');
     }
   };
 
@@ -136,25 +136,13 @@ export default function ProveedoresPage() {
     if (!providerToDelete) return;
 
     const success = await deleteProvider(providerToDelete.id);
-    if (success) {
-      setSnackbar({
-        open: true,
-        message: 'Proveedor eliminado exitosamente',
-        severity: 'success',
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: 'Error al eliminar proveedor',
-        severity: 'error',
-      });
-    }
     handleCloseDeleteDialog();
-  };
-
-  // Cerrar snackbar
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+    
+    if (success) {
+      await showSuccess('El proveedor ha sido dado de baja exitosamente');
+    } else {
+      await showError('Error al dar de baja al proveedor');
+    }
   };
 
   return (
@@ -193,9 +181,34 @@ export default function ProveedoresPage() {
         )}
 
         {/* Card con tabla de proveedores */}
-        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
-          <CardContent sx={{ p: 0 }}>
-            <TableContainer>
+        <Card 
+          sx={{ 
+            borderRadius: 3, 
+            boxShadow: 2,
+            my: '15px',
+          }}
+        >
+          <CardContent sx={{ p: 3 }}>
+            {/* Campo de búsqueda */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+              />
+            </Box>
+
+            {/* Tabla con scroll */}
+            <TableContainer sx={{ maxHeight: 600, overflowY: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'grey.50' }}>
@@ -221,18 +234,20 @@ export default function ProveedoresPage() {
                     </TableRow>
                   )}
 
-                  {!loading && providers.length === 0 && (
+                  {!loading && filteredProviders.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
-                          No hay proveedores registrados
+                          {searchTerm.trim() 
+                            ? 'No se encontraron proveedores que coincidan con la búsqueda'
+                            : 'No hay proveedores registrados'}
                         </Typography>
                       </TableCell>
                     </TableRow>
                   )}
 
                   {!loading &&
-                    providers.map((provider) => (
+                    filteredProviders.map((provider) => (
                       <TableRow
                         key={provider.id}
                         sx={{
@@ -267,8 +282,12 @@ export default function ProveedoresPage() {
                         <TableCell>
                           <Chip
                             label={provider.active ? 'Activo' : 'Inactivo'}
-                            color={provider.active ? 'success' : 'default'}
+                            color={provider.active ? 'success' : 'error'}
                             size="small"
+                            sx={{
+                              color: '#FFFFFF',
+                              fontWeight: 500,
+                            }}
                           />
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
@@ -341,22 +360,6 @@ export default function ProveedoresPage() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Snackbar para mensajes de éxito/error */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
