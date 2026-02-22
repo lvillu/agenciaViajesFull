@@ -23,3 +23,12 @@ export const PROVIDER_ENDPOINTS = {
   UPDATE: (id: number) => `/Provider/${id}`,
   DELETE: (id: number) => `/Provider/${id}`,
 };
+
+export const CLIENT_ENDPOINTS = {
+  BASE: '/Client',
+  LIST: '/Client',
+  BY_ID: (id: number) => `/Client/${id}`,
+  CREATE: '/Client',
+  UPDATE: (id: number) => `/Client/${id}`,
+  DELETE: (id: number) => `/Client/${id}`,
+};
