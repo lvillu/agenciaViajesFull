@@ -32,3 +32,21 @@ export const CLIENT_ENDPOINTS = {
   UPDATE: (id: number) => `/Client/${id}`,
   DELETE: (id: number) => `/Client/${id}`,
 };
+
+export const SALE_ENDPOINTS = {
+  BASE: '/Sale',
+  LIST: '/Sale',
+  BY_ID: (id: number) => `/Sale/${id}`,
+  CREATE: '/Sale',
+  UPDATE: (id: number) => `/Sale/${id}`,
+  DELETE: (id: number) => `/Sale/${id}`,
+};
+
+export const PAYMENT_ENDPOINTS = {
+  BASE: '/Payment',
+  LIST: '/Payment',
+  BY_ID: (id: number) => `/Payment/${id}`,
+  CREATE: '/Payment',
+  UPDATE: (id: number) => `/Payment/${id}`,
+  DELETE: (id: number) => `/Payment/${id}`,
+};
