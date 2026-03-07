@@ -24,6 +24,10 @@ export interface Sale {
   createdAt?: string;
   modifiedAt?: string;
   
+  // Nombres enviados por el backend (strings simples)
+  clientName?: string; // Nombre completo del cliente
+  providerName?: string; // Nombre del proveedor
+  
   // Navigation properties (cuando se incluyen en la respuesta)
   client?: {
     id: number;

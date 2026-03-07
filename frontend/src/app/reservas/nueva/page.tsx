@@ -196,8 +196,14 @@ function SaleFormContent() {
           {isEditing ? 'Editar Reserva' : 'Nueva Reserva'}
         </Typography>
 
-        <Card elevation={0}>
-          <CardContent>
+        <Card 
+          sx={{ 
+            borderRadius: 3, 
+            boxShadow: 2,
+            my: '15px',
+          }}
+        >
+          <CardContent sx={{ p: 3 }}>
             {submitError && (
               <Alert severity="error" sx={{ mb: 3 }}>
                 {submitError}
@@ -410,7 +416,13 @@ function SaleFormContent() {
                 <Button onClick={handleCancel} variant="outlined" disabled={loading}>
                   Cancelar
                 </Button>
-                <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary" 
+                  disabled={loading}
+                  sx={{ minWidth: 140 }}
+                >
                   {loading ? <CircularProgress size={24} /> : isEditing ? 'Actualizar' : 'Crear Reserva'}
                 </Button>
               </Box>

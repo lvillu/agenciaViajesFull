@@ -123,16 +123,16 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           <TableContainer component={Paper} elevation={0}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Fecha de Pago</TableCell>
-                  <TableCell align="right">Monto</TableCell>
+                <TableRow sx={{ bgcolor: 'grey.50' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>Fecha de Pago</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Monto</TableCell>
                   {isDollar && (
                     <>
-                      <TableCell align="right">Tipo de Cambio</TableCell>
-                      <TableCell align="right">Valor en MXN</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>Tipo de Cambio</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>Valor en MXN</TableCell>
                     </>
                   )}
-                  <TableCell>Notas</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Notas</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

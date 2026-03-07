@@ -28,7 +28,6 @@ import {
   Chip,
   TextField,
   InputAdornment,
-  Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -81,10 +80,8 @@ export default function ReservasPage() {
       (sale) =>
         sale.reservationNumber?.toLowerCase().includes(term) ||
         sale.description?.toLowerCase().includes(term) ||
-        sale.client?.name.toLowerCase().includes(term) ||
-        sale.client?.lastName.toLowerCase().includes(term) ||
-        sale.provider?.name.toLowerCase().includes(term) ||
-        sale.provider?.acronym.toLowerCase().includes(term)
+        sale.clientName?.toLowerCase().includes(term) ||
+        sale.providerName?.toLowerCase().includes(term)
     );
   }, [salesWithTotals, searchTerm]);
 
@@ -161,28 +158,61 @@ export default function ReservasPage() {
 
   const getStatusChip = (sale: SaleWithTotals) => {
     if (sale.balance === 0) {
-      return <Chip label="Liquidado" color="success" size="small" />;
+      return (
+        <Chip 
+          label="Liquidado" 
+          color="success" 
+          size="small" 
+          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        />
+      );
     }
     if (sale.isOverdue) {
-      return <Chip label="Vencido" color="error" size="small" />;
+      return (
+        <Chip 
+          label="Vencido" 
+          color="error" 
+          size="small" 
+          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        />
+      );
     }
     if (sale.totalPaid > 0) {
-      return <Chip label="Pago Parcial" color="warning" size="small" />;
+      return (
+        <Chip 
+          label="Pago Parcial" 
+          color="warning" 
+          size="small" 
+          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        />
+      );
     }
-    return <Chip label="Pendiente" color="default" size="small" />;
+    return (
+      <Chip 
+        label="Pendiente" 
+        color="default" 
+        size="small" 
+        sx={{ fontWeight: 500 }}
+      />
+    );
   };
 
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       <Header />
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Breadcrumbs items={[{ label: 'Reservas' }]} />
         
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h1" sx={{ color: 'text.primary' }}>
             Reservas
           </Typography>
-          <Button onClick={handleCreate} startIcon={<AddIcon />}>
+          <Button 
+            onClick={handleCreate} 
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+          >
             Nueva Reserva
           </Button>
         </Box>
@@ -208,40 +238,48 @@ export default function ReservasPage() {
 
         {/* Mensajes */}
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
         {/* Tabla */}
-        <Card elevation={0}>
-          <CardContent>
-            <TableContainer>
+        <Card 
+          sx={{ 
+            borderRadius: 3, 
+            boxShadow: 2,
+            my: '15px',
+          }}
+        >
+          <CardContent sx={{ p: 3 }}>
+            <TableContainer sx={{ maxHeight: 600, overflowY: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow>
-                    <TableCell>Cliente</TableCell>
-                    <TableCell>Proveedor</TableCell>
-                    <TableCell>Descripción</TableCell>
-                    <TableCell>Fecha Viaje</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                    <TableCell align="right">Pagado</TableCell>
-                    <TableCell align="right">Saldo</TableCell>
-                    <TableCell>Estado</TableCell>
-                    <TableCell align="center">Acciones</TableCell>
+                  <TableRow sx={{ bgcolor: 'grey.50' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Cliente</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Proveedor</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Descripción</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Fecha Viaje</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>Total</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>Pagado</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>Saldo</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Estado</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 600 }}>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading && (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">
-                        Cargando...
+                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Cargando reservas...
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
                   {!loading && filteredSales.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">
+                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           {searchTerm
                             ? 'No se encontraron reservas que coincidan con la búsqueda'
@@ -252,23 +290,30 @@ export default function ReservasPage() {
                   )}
                   {!loading &&
                     filteredSales.map((sale) => (
-                      <TableRow key={sale.id} hover>
+                      <TableRow 
+                        key={sale.id} 
+                        sx={{ '&:hover': { bgcolor: 'grey.50' } }}
+                      >
                         <TableCell>
-                          {sale.client
-                            ? `${sale.client.name} ${sale.client.lastName}`
-                            : '-'}
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            {sale.clientName || '-'}
+                          </Typography>
                         </TableCell>
                         <TableCell>
-                          {sale.provider
-                            ? `${sale.provider.name} (${sale.provider.acronym})`
-                            : '-'}
+                          <Typography variant="body2" color="text.secondary">
+                            {sale.providerName || '-'}
+                          </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+                          <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
                             {sale.description || sale.reservationNumber || '-'}
                           </Typography>
                         </TableCell>
-                        <TableCell>{formatDate(sale.travelDate)}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatDate(sale.travelDate)}
+                          </Typography>
+                        </TableCell>
                         <TableCell align="right">
                           <Typography fontWeight="medium">
                             {formatCurrency(sale.totalAmount, sale.isDollar)}
@@ -288,44 +333,40 @@ export default function ReservasPage() {
                           </Typography>
                         </TableCell>
                         <TableCell>{getStatusChip(sale)}</TableCell>
-                        <TableCell align="center">
+                        <TableCell sx={{ textAlign: 'center' }}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                            <Tooltip title="Ver Pagos">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleViewPayments(sale)}
-                                color="info"
-                              >
-                                <VisibilityIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Agregar Pago">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleAddPayment(sale)}
-                                color="success"
-                              >
-                                <PaymentIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Editar">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleEdit(sale)}
-                                color="primary"
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Eliminar">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleOpenDelete(sale)}
-                                color="error"
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleViewPayments(sale)}
+                              color="info"
+                              title="Ver Pagos"
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleAddPayment(sale)}
+                              color="success"
+                              title="Agregar Pago"
+                            >
+                              <PaymentIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEdit(sale)}
+                              color="primary"
+                              title="Editar"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleOpenDelete(sale)}
+                              color="error"
+                              title="Eliminar"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -337,20 +378,33 @@ export default function ReservasPage() {
         </Card>
 
         {/* Modal de confirmación de eliminación */}
-        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-          <DialogTitle>Confirmar eliminación</DialogTitle>
+        <Dialog 
+          open={deleteDialogOpen} 
+          onClose={() => setDeleteDialogOpen(false)}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Confirmar Eliminación</DialogTitle>
           <DialogContent>
             <DialogContentText>
               ¿Estás seguro de que deseas eliminar la reserva{' '}
-              {saleToDelete?.reservationNumber || saleToDelete?.description}?
+              <strong>{saleToDelete?.reservationNumber || saleToDelete?.description}</strong>?
               Esta acción no se puede deshacer.
             </DialogContentText>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)} variant="outlined">
+          <DialogActions sx={{ p: 2, gap: 1 }}>
+            <Button 
+              onClick={() => setDeleteDialogOpen(false)} 
+              variant="outlined"
+              color="inherit"
+            >
               Cancelar
             </Button>
-            <Button onClick={handleConfirmDelete} variant="contained" color="error">
+            <Button 
+              onClick={handleConfirmDelete} 
+              variant="contained" 
+              color="error"
+            >
               Eliminar
             </Button>
           </DialogActions>
