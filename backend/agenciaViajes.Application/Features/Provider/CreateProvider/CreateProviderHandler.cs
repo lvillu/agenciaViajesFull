@@ -31,6 +31,8 @@ namespace agenciaViajes.Application.Features.Provider.CreateProvider
                 Email = request.Request.Email,
                 Phone = request.Request.Phone,
                 ProviderContactName = request.Request.ProviderContactName,
+                DepositPercentage = request.Request.DepositPercentage,
+                FinalPaymentDaysBefore = request.Request.FinalPaymentDaysBefore,
                 Active = true
             };
 
@@ -45,6 +47,8 @@ namespace agenciaViajes.Application.Features.Provider.CreateProvider
                 Email = provider.Email,
                 Phone = provider.Phone,
                 ProviderContactName = provider.ProviderContactName,
+                DepositPercentage = provider.DepositPercentage,
+                FinalPaymentDaysBefore = provider.FinalPaymentDaysBefore,
                 Active = provider.Active
             };
 

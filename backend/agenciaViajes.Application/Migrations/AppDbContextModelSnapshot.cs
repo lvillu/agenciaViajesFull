@@ -163,11 +163,20 @@ namespace agenciaViajes.Application.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("active");
 
+                    b.Property<decimal?>("DepositPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("deposit_percentage");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<int?>("FinalPaymentDaysBefore")
+                        .HasColumnType("integer")
+                        .HasColumnName("final_payment_days_before");
 
                     b.Property<string>("Name")
                         .IsRequired()

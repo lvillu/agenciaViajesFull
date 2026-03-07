@@ -36,6 +36,8 @@ namespace agenciaViajes.Application.Features.Provider.UpdateProvider
             provider.Email = request.Request.Email;
             provider.Phone = request.Request.Phone;
             provider.ProviderContactName = request.Request.ProviderContactName;
+            provider.DepositPercentage = request.Request.DepositPercentage;
+            provider.FinalPaymentDaysBefore = request.Request.FinalPaymentDaysBefore;
             provider.Active = request.Request.Active;
 
             provider = await _providerRepository.UpdateAsync(provider, cancellationToken);
@@ -49,6 +51,8 @@ namespace agenciaViajes.Application.Features.Provider.UpdateProvider
                 Email = provider.Email,
                 Phone = provider.Phone,
                 ProviderContactName = provider.ProviderContactName,
+                DepositPercentage = provider.DepositPercentage,
+                FinalPaymentDaysBefore = provider.FinalPaymentDaysBefore,
                 Active = provider.Active
             };
 

@@ -43,6 +43,15 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasMaxLength(200)
                 .IsRequired();
 
+            builder.Property(p => p.DepositPercentage)
+                .HasColumnName("deposit_percentage")
+                .HasPrecision(5, 2)
+                .IsRequired(false);
+
+            builder.Property(p => p.FinalPaymentDaysBefore)
+                .HasColumnName("final_payment_days_before")
+                .IsRequired(false);
+
             builder.Property(p => p.Active)
                 .HasColumnName("active")
                 .HasDefaultValue(true)

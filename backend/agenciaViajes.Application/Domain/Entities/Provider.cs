@@ -8,6 +8,8 @@
         public string Email { get; set; } = default!;
         public string Phone { get; set; } = default!;
         public string ProviderContactName { get; set; } = default!;
+        public decimal? DepositPercentage { get; set; }
+        public int? FinalPaymentDaysBefore { get; set; }
         public bool Active { get; set; } = true;
 
     }
