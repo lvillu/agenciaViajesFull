@@ -84,6 +84,64 @@ namespace agenciaViajes.Application.Migrations
                     b.ToTable("clients", (string)null);
                 });
 
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<decimal?>("AmountMXN")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount_mxn");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<decimal?>("ExchangeRate")
+                        .HasPrecision(10, 4)
+                        .HasColumnType("numeric(10,4)")
+                        .HasColumnName("exchange_rate");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_date");
+
+                    b.Property<int>("SaleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sale_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentDate")
+                        .HasDatabaseName("idx_payments_payment_date");
+
+                    b.HasIndex("SaleId")
+                        .HasDatabaseName("idx_payments_sale_id");
+
+                    b.ToTable("payments", (string)null);
+                });
+
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Provider", b =>
                 {
                     b.Property<int>("Id")
@@ -138,6 +196,107 @@ namespace agenciaViajes.Application.Migrations
                         .HasDatabaseName("idx_providers_name");
 
                     b.ToTable("providers", (string)null);
+                });
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("active");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("FinalPaymentDueDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("final_payment_due_date");
+
+                    b.Property<bool>("IsDollar")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_dollar");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("provider_id");
+
+                    b.Property<decimal?>("RequiredDeposit")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("required_deposit");
+
+                    b.Property<string>("ReservationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reservation_number");
+
+                    b.Property<DateTime?>("ReturnDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("return_date");
+
+                    b.Property<string>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("Pendiente")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("total_amount");
+
+                    b.Property<DateTime>("TravelDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("travel_date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Active")
+                        .HasDatabaseName("idx_sales_active");
+
+                    b.HasIndex("ClientId")
+                        .HasDatabaseName("idx_sales_client_id");
+
+                    b.HasIndex("ProviderId")
+                        .HasDatabaseName("idx_sales_provider_id");
+
+                    b.HasIndex("ReservationNumber")
+                        .HasDatabaseName("idx_sales_reservation_number");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("idx_sales_status");
+
+                    b.HasIndex("TravelDate")
+                        .HasDatabaseName("idx_sales_travel_date");
+
+                    b.ToTable("sales", (string)null);
                 });
 
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.User", b =>
@@ -210,6 +369,41 @@ namespace agenciaViajes.Application.Migrations
                         .HasDatabaseName("idx_users_username");
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("agenciaViajes.Application.Domain.Entities.Sale", "Sale")
+                        .WithMany("Payments")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
+                {
+                    b.HasOne("agenciaViajes.Application.Domain.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("agenciaViajes.Application.Domain.Entities.Provider", "Provider")
+                        .WithMany()
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Provider");
+                });
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
+                {
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }
