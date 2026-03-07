@@ -79,6 +79,20 @@ export const providerSchema = z.object({
     .min(1, 'El nombre de contacto es requerido')
     .min(2, 'El nombre de contacto debe tener al menos 2 caracteres')
     .max(100, 'El nombre de contacto no puede exceder 100 caracteres'),
+  depositPercentage: z
+    .number({
+      invalid_type_error: 'Debe ser un número válido',
+    })
+    .min(0, 'El porcentaje debe ser mayor o igual a 0')
+    .max(100, 'El porcentaje no puede ser mayor a 100')
+    .optional(),
+  finalPaymentDaysBefore: z
+    .number({
+      invalid_type_error: 'Debe ser un número válido',
+    })
+    .int('Debe ser un número entero')
+    .min(0, 'Los días deben ser mayor o igual a 0')
+    .optional(),
   active: z.boolean().optional(),
 });
 

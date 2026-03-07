@@ -18,7 +18,11 @@ import {
   MenuItem,
   FormControlLabel,
   Checkbox,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,9 +30,11 @@ import { Header } from '@/components/shared/Header';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { ClientFormModal } from '@/components/shared/ClientFormModal';
 import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
 import { useProviders } from '@/hooks/useProviders';
+import { useAlert } from '@/hooks/useAlert';
 import {
   CreateSaleSchema,
   UpdateSaleSchema,
@@ -36,6 +42,7 @@ import {
   type UpdateSaleFormData,
 } from '@/types/sale';
 import { Provider } from '@/types/provider';
+import { ClientFormData } from '@/lib/validationSchemas';
 
 function SaleFormContent() {
   const router = useRouter();
@@ -47,9 +54,12 @@ function SaleFormContent() {
   const [loadingSale, setLoadingSale] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [isLiquidationOverdue, setIsLiquidationOverdue] = useState(false);
 
-  const { clients } = useClients();
+  const { clients, createClient, loading: clientsLoading } = useClients();
   const { providers } = useProviders();
+  const { showSuccess, showError } = useAlert();
 
   const {
     register,
@@ -67,6 +77,7 @@ function SaleFormContent() {
       description: '',
       totalAmount: 0,
       isDollar: false,
+      exchangeRate: undefined,
       requiredDeposit: undefined,
       finalPaymentDueDate: undefined,
       travelDate: '',
@@ -80,6 +91,8 @@ function SaleFormContent() {
   const providerId = watch('providerId');
   const travelDate = watch('travelDate');
   const totalAmount = watch('totalAmount');
+  const isDollar = watch('isDollar');
+  const finalPaymentDueDate = watch('finalPaymentDueDate');
 
   // Cargar venta si está editando
   useEffect(() => {
@@ -94,6 +107,7 @@ function SaleFormContent() {
           setValue('description', sale.description || '');
           setValue('totalAmount', sale.totalAmount);
           setValue('isDollar', sale.isDollar);
+          setValue('exchangeRate', sale.exchangeRate);
           setValue('requiredDeposit', sale.requiredDeposit);
           setValue('finalPaymentDueDate', sale.finalPaymentDueDate || undefined);
           setValue('travelDate', sale.travelDate);
@@ -120,6 +134,19 @@ function SaleFormContent() {
     }
   }, [providerId, providers]);
 
+  // Verificar si la fecha de liquidación es pasada
+  useEffect(() => {
+    if (finalPaymentDueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+      const dueDate = new Date(finalPaymentDueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      setIsLiquidationOverdue(dueDate < today);
+    } else {
+      setIsLiquidationOverdue(false);
+    }
+  }, [finalPaymentDueDate]);
+
   // Calcular fecha de liquidación automáticamente
   useEffect(() => {
     if (selectedProvider && travelDate && selectedProvider.finalPaymentDaysBefore) {
@@ -133,7 +160,7 @@ function SaleFormContent() {
     }
   }, [selectedProvider, travelDate, setValue]);
 
-  // Calcular anticipo requerido automáticamente
+  // Calcular pago inicial requerido automáticamente
   useEffect(() => {
     if (selectedProvider && totalAmount > 0 && selectedProvider.depositPercentage) {
       const calculatedDeposit = saleService.calculateRequiredDeposit(
@@ -145,6 +172,30 @@ function SaleFormContent() {
       }
     }
   }, [selectedProvider, totalAmount, setValue]);
+
+  // Handlers para el modal de cliente
+  const handleOpenClientModal = () => {
+    setClientModalOpen(true);
+  };
+
+  const handleCloseClientModal = () => {
+    setClientModalOpen(false);
+  };
+
+  const handleCreateClient = async (data: ClientFormData) => {
+    try {
+      const newClient = await createClient(data);
+      if (newClient) {
+        handleCloseClientModal();
+        // Auto-seleccionar el cliente recién creado
+        setValue('clientId', newClient.id);
+        await showSuccess('Cliente creado exitosamente');
+      }
+    } catch (err: any) {
+      await showError(err.message || 'Error al crear cliente');
+      throw err; // Re-lanzar el error para que el modal no se cierre
+    }
+  };
 
   const onSubmit = async (data: CreateSaleFormData | UpdateSaleFormData) => {
     setSubmitError(null);
@@ -212,29 +263,49 @@ function SaleFormContent() {
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={3}>
-                {/* Cliente */}
+                {/* Cliente con botón para agregar */}
                 <Grid item xs={12} md={6}>
-                  <Controller
-                    name="clientId"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        select
-                        label="Cliente"
-                        error={!!errors.clientId}
-                        helperText={errors.clientId?.message}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Controller
+                        name="clientId"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            select
+                            label="Cliente"
+                            error={!!errors.clientId}
+                            helperText={errors.clientId?.message}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          >
+                            <MenuItem value={0}>Seleccione un cliente</MenuItem>
+                            {clients.map((client) => (
+                              <MenuItem key={client.id} value={client.id}>
+                                {client.name} {client.lastName}
+                              </MenuItem>
+                            ))}
+                          </Input>
+                        )}
+                      />
+                    </Box>
+                    <Tooltip title="Agregar nuevo cliente">
+                      <IconButton
+                        color="primary"
+                        onClick={handleOpenClientModal}
+                        sx={{
+                          mt: 1.5,
+                          bgcolor: 'primary.main',
+                          color: 'white',
+                          '&:hover': {
+                            bgcolor: 'primary.dark',
+                          },
+                        }}
                       >
-                        <MenuItem value={0}>Seleccione un cliente</MenuItem>
-                        {clients.map((client) => (
-                          <MenuItem key={client.id} value={client.id}>
-                            {client.name} {client.lastName}
-                          </MenuItem>
-                        ))}
-                      </Input>
-                    )}
-                  />
+                        <AddIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Grid>
 
                 {/* Proveedor */}
@@ -315,10 +386,25 @@ function SaleFormContent() {
                   />
                 </Grid>
 
-                {/* Anticipo Requerido */}
+                {/* Tipo de Cambio (solo si es en dólares) */}
+                {isDollar && (
+                  <Grid item xs={12} md={6}>
+                    <Input
+                      label="Tipo de Cambio (USD a MXN)"
+                      type="number"
+                      inputProps={{ step: '0.01', min: '0' }}
+                      {...register('exchangeRate', { valueAsNumber: true })}
+                      error={!!errors.exchangeRate}
+                      helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
+                      required
+                    />
+                  </Grid>
+                )}
+
+                {/* Pago Inicial (renombrado de "Anticipo Requerido") */}
                 <Grid item xs={12} md={6}>
                   <Input
-                    label="Anticipo Requerido"
+                    label="Pago Inicial"
                     type="number"
                     inputProps={{ step: '0.01', min: '0' }}
                     {...register('requiredDeposit', { valueAsNumber: true })}
@@ -356,7 +442,7 @@ function SaleFormContent() {
                   />
                 </Grid>
 
-                {/* Fecha Límite de Pago */}
+                {/* Fecha Límite de Liquidación */}
                 <Grid item xs={12} md={6}>
                   <Input
                     label="Fecha Límite de Liquidación"
@@ -370,23 +456,17 @@ function SaleFormContent() {
                         : 'Opcional: Ajustable manualmente')
                     }
                     InputLabelProps={{ shrink: true }}
+                    disabled={isLiquidationOverdue}
                   />
-                </Grid>
-
-                {/* Estado */}
-                <Grid item xs={12} md={6}>
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} select label="Estado">
-                        <MenuItem value="Pendiente">Pendiente</MenuItem>
-                        <MenuItem value="Pagado Parcialmente">Pagado Parcialmente</MenuItem>
-                        <MenuItem value="Liquidado">Liquidado</MenuItem>
-                        <MenuItem value="Cancelado">Cancelado</MenuItem>
-                      </Input>
-                    )}
-                  />
+                  {isLiquidationOverdue && (
+                    <Alert 
+                      severity="warning" 
+                      icon={<WarningAmberIcon />}
+                      sx={{ mt: 1 }}
+                    >
+                      La fecha de liquidación ya pasó. El Pago Inicial debe cubrir el 100% del paquete.
+                    </Alert>
+                  )}
                 </Grid>
 
                 {/* Activo (solo en edición) */}
@@ -429,6 +509,14 @@ function SaleFormContent() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Modal para agregar cliente */}
+        <ClientFormModal
+          open={clientModalOpen}
+          onClose={handleCloseClientModal}
+          onSubmit={handleCreateClient}
+          isLoading={clientsLoading}
+        />
       </Container>
     </Box>
   );

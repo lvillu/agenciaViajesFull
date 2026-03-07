@@ -217,6 +217,8 @@ export default function ProveedoresPage() {
                     <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Teléfono</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Contacto</TableCell>
+                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>Anticipo (%)</TableCell>
+                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>Días Pago Final</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Estado</TableCell>
                     <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>
                       Acciones
@@ -226,7 +228,7 @@ export default function ProveedoresPage() {
                 <TableBody>
                   {loading && (
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           Cargando proveedores...
                         </Typography>
@@ -236,7 +238,7 @@ export default function ProveedoresPage() {
 
                   {!loading && filteredProviders.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           {searchTerm.trim() 
                             ? 'No se encontraron proveedores que coincidan con la búsqueda'
@@ -277,6 +279,20 @@ export default function ProveedoresPage() {
                         <TableCell>
                           <Typography variant="body2" color="text.secondary">
                             {provider.providerContactName}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {provider.depositPercentage !== null && provider.depositPercentage !== undefined
+                              ? `${provider.depositPercentage}%`
+                              : '-'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {provider.finalPaymentDaysBefore !== null && provider.finalPaymentDaysBefore !== undefined
+                              ? `${provider.finalPaymentDaysBefore} días`
+                              : '-'}
                           </Typography>
                         </TableCell>
                         <TableCell>

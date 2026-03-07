@@ -13,6 +13,7 @@ export interface Sale {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
   travelDate: string; // ISO date string (YYYY-MM-DD)
@@ -61,6 +62,7 @@ export interface CreateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
   travelDate: string; // ISO date string (YYYY-MM-DD)
@@ -75,6 +77,7 @@ export interface UpdateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
   travelDate: string; // ISO date string (YYYY-MM-DD)
@@ -91,16 +94,83 @@ export const CreateSaleSchema = z.object({
   description: z.string().optional(),
   totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
+  exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
   requiredDeposit: z.number().min(0).optional(),
   finalPaymentDueDate: z.string().optional(),
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
   status: z.string().optional(),
+}).refine((data) => {
+  // Validar que la fecha de retorno no sea menor a la fecha de viaje
+  if (data.returnDate && data.travelDate) {
+    return new Date(data.returnDate) >= new Date(data.travelDate);
+  }
+  return true;
+}, {
+  message: 'La fecha de retorno no puede ser menor a la fecha de viaje',
+  path: ['returnDate'],
+}).refine((data) => {
+  // Validar que la fecha de liquidación no sea mayor a la fecha de viaje
+  if (data.finalPaymentDueDate && data.travelDate) {
+    return new Date(data.finalPaymentDueDate) <= new Date(data.travelDate);
+  }
+  return true;
+}, {
+  message: 'La fecha de liquidación no puede ser mayor a la fecha de viaje',
+  path: ['finalPaymentDueDate'],
+}).refine((data) => {
+  // Validar que si es en dólares, el tipo de cambio sea requerido
+  if (data.isDollar && !data.exchangeRate) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'El tipo de cambio es requerido para reservas en dólares',
+  path: ['exchangeRate'],
 });
 
 // Esquema de validación para actualizar venta
-export const UpdateSaleSchema = CreateSaleSchema.extend({
+export const UpdateSaleSchema = z.object({
+  clientId: z.number().min(1, 'Debe seleccionar un cliente'),
+  providerId: z.number().min(1, 'Debe seleccionar un proveedor'),
+  reservationNumber: z.string().optional(),
+  description: z.string().optional(),
+  totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
+  isDollar: z.boolean(),
+  exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
+  requiredDeposit: z.number().min(0).optional(),
+  finalPaymentDueDate: z.string().optional(),
+  travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
+  returnDate: z.string().optional(),
+  status: z.string().optional(),
   active: z.boolean(),
+}).refine((data) => {
+  // Validar que la fecha de retorno no sea menor a la fecha de viaje
+  if (data.returnDate && data.travelDate) {
+    return new Date(data.returnDate) >= new Date(data.travelDate);
+  }
+  return true;
+}, {
+  message: 'La fecha de retorno no puede ser menor a la fecha de viaje',
+  path: ['returnDate'],
+}).refine((data) => {
+  // Validar que la fecha de liquidación no sea mayor a la fecha de viaje
+  if (data.finalPaymentDueDate && data.travelDate) {
+    return new Date(data.finalPaymentDueDate) <= new Date(data.travelDate);
+  }
+  return true;
+}, {
+  message: 'La fecha de liquidación no puede ser mayor a la fecha de viaje',
+  path: ['finalPaymentDueDate'],
+}).refine((data) => {
+  // Validar que si es en dólares, el tipo de cambio sea requerido
+  if (data.isDollar && !data.exchangeRate) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'El tipo de cambio es requerido para reservas en dólares',
+  path: ['exchangeRate'],
 });
 
 export type CreateSaleFormData = z.infer<typeof CreateSaleSchema>;

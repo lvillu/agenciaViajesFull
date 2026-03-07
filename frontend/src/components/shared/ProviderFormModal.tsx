@@ -52,6 +52,8 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       email: '',
       phone: '',
       providerContactName: '',
+      depositPercentage: undefined,
+      finalPaymentDaysBefore: undefined,
       active: true,
     },
   });
@@ -65,6 +67,8 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
         email: provider.email,
         phone: provider.phone,
         providerContactName: provider.providerContactName,
+        depositPercentage: provider.depositPercentage,
+        finalPaymentDaysBefore: provider.finalPaymentDaysBefore,
         active: provider.active,
       });
     } else if (!open) {
@@ -74,6 +78,8 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
         email: '',
         phone: '',
         providerContactName: '',
+        depositPercentage: undefined,
+        finalPaymentDaysBefore: undefined,
         active: true,
       });
     }
@@ -153,6 +159,24 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
               error={!!errors.providerContactName}
               helperText={errors.providerContactName?.message}
               required
+            />
+
+            <Input
+              label="Porcentaje de Anticipo (%)"
+              type="number"
+              {...register('depositPercentage', { valueAsNumber: true })}
+              error={!!errors.depositPercentage}
+              helperText={errors.depositPercentage?.message}
+              inputProps={{ min: 0, max: 100, step: 0.01 }}
+            />
+
+            <Input
+              label="Días de Anticipación para Pago Final"
+              type="number"
+              {...register('finalPaymentDaysBefore', { valueAsNumber: true })}
+              error={!!errors.finalPaymentDaysBefore}
+              helperText={errors.finalPaymentDaysBefore?.message}
+              inputProps={{ min: 0, step: 1 }}
             />
           </Box>
         </DialogContent>
