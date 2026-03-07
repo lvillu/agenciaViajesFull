@@ -7,6 +7,7 @@ using agenciaViajes.Application.Features.Payment.UpdatePayment;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace agenciaViajes.Application.Features.Configurations.Routes
@@ -31,7 +32,7 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
 
         private static async Task<IResult> GetPaymentsList(
             ISender sender,
-            int? saleId = null,
+            [FromQuery] int? saleId,
             CancellationToken cancellationToken = default)
         {
             var response = await sender.Send(new GetPaymentsListQuery(saleId), cancellationToken);

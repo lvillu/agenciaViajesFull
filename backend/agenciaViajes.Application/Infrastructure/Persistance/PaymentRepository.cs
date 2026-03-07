@@ -18,6 +18,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             return await _context.Payments
                 .Include(p => p.Sale)
+                    .ThenInclude(s => s.Client)
                 .OrderByDescending(p => p.PaymentDate)
                 .ToListAsync(cancellationToken);
         }
@@ -26,12 +27,15 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             return await _context.Payments
                 .Include(p => p.Sale)
+                    .ThenInclude(s => s.Client)
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
         public async Task<List<Payment>> GetBySaleIdAsync(int saleId, CancellationToken cancellationToken = default)
         {
             return await _context.Payments
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s.Client)
                 .Where(p => p.SaleId == saleId)
                 .OrderByDescending(p => p.PaymentDate)
                 .ToListAsync(cancellationToken);
