@@ -307,6 +307,7 @@
       "method": "GET",
       "output_encoding": "no-op",
       "input_headers": [ "Authorization", "Content-Type" ],
+      "input_query_strings": ["saleId"],
       "backend": [
         {
           "url_pattern": "/api/Payment",
