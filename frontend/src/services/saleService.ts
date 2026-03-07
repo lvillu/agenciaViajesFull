@@ -121,10 +121,17 @@ export const saleService = {
 
   /**
    * Calcula totales y estado de una venta
+   * Utiliza los totales del backend si están disponibles
    */
   calculateTotals(sale: Sale): SaleWithTotals {
-    const totalPaid = sale.payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
-    const balance = sale.totalAmount - totalPaid;
+    // Si el backend ya calculó los totales, usarlos
+    const totalPaid = sale.totalPaid !== undefined 
+      ? sale.totalPaid 
+      : (sale.payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0);
+    
+    const balance = sale.remainingBalance !== undefined
+      ? sale.remainingBalance
+      : (sale.totalAmount - totalPaid);
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);

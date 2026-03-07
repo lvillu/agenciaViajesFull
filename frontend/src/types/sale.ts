@@ -19,6 +19,8 @@ export interface Sale {
   returnDate?: string; // ISO date string (YYYY-MM-DD)
   status?: string;
   active: boolean;
+  totalPaid?: number; // Calculado por el backend
+  remainingBalance?: number; // Calculado por el backend
   createdAt?: string;
   modifiedAt?: string;
   
