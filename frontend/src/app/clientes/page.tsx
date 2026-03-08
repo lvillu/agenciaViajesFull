@@ -27,12 +27,13 @@ import {
   DialogActions,
   Chip,
   TextField,
-  InputAdornment,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
@@ -60,9 +61,12 @@ export default function ClientesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   // Filtrar clientes según el término de búsqueda
   const filteredClients = useMemo(() => {
+    setPage(0);
     if (!searchTerm.trim()) return clients;
 
     const term = searchTerm.toLowerCase();
@@ -74,7 +78,11 @@ export default function ClientesPage() {
         client.phone.toLowerCase().includes(term) ||
         (client.address && client.address.toLowerCase().includes(term))
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, searchTerm]);
+
+  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
+  const paginatedClients = filteredClients.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -182,7 +190,7 @@ export default function ClientesPage() {
           <Button
             variant="contained"
             color="primary"
-            startIcon={<AddIcon />}
+            startIcon={<PersonAddAlt1Icon />}
             onClick={handleOpenCreate}
             sx={{ px: 3 }}
           >
@@ -197,6 +205,34 @@ export default function ClientesPage() {
           </Alert>
         )}
 
+        {/* Barra de búsqueda separada */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            px: 1,
+            py: 0.5,
+            mb: 2,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <SearchIcon sx={{ color: 'text.disabled', ml: 1, mr: 0.5, flexShrink: 0 }} />
+          <TextField
+            fullWidth
+            variant="standard"
+            placeholder="Buscar clientes por nombre, email o teléfono..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              sx: { fontSize: '15px', py: 1 },
+            }}
+          />
+        </Box>
+
         {/* Card con tabla de clientes */}
         <Card
           sx={{
@@ -204,30 +240,9 @@ export default function ClientesPage() {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            my: 2,
           }}
         >
           <CardContent sx={{ p: 0 }}>
-            {/* Campo de búsqueda */}
-            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <TextField
-                fullWidth
-                variant="standard"
-                placeholder="Buscar por nombre, apellido, email, teléfono o dirección..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  disableUnderline: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
-                    </InputAdornment>
-                  ),
-                  sx: { fontSize: '15px', py: 0.5 },
-                }}
-              />
-            </Box>
-
             {/* Tabla con scroll */}
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
@@ -277,7 +292,7 @@ export default function ClientesPage() {
                   )}
 
                   {!loading &&
-                    filteredClients.map((client) => (
+                    paginatedClients.map((client) => (
                       <TableRow
                         key={client.id}
                         sx={{
@@ -334,7 +349,7 @@ export default function ClientesPage() {
                               size="small"
                               onClick={() => handleOpenEdit(client)}
                               title="Editar"
-                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: '#f1f5f9' } }}
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'primary.main', bgcolor: 'primary.light' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -353,6 +368,77 @@ export default function ClientesPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Paginación */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 3,
+                py: 1.5,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                bgcolor: '#f8fafc',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {filteredClients.length > 0
+                  ? `Mostrando ${page * rowsPerPage + 1} a ${Math.min((page + 1) * rowsPerPage, filteredClients.length)} de ${filteredClients.length} clientes`
+                  : 'Sin resultados'}
+              </Typography>
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronLeftIcon fontSize="small" />
+                  </IconButton>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <IconButton
+                      key={i}
+                      size="small"
+                      onClick={() => setPage(i)}
+                      sx={{
+                        width: 36, height: 36, borderRadius: 1.5,
+                        border: '1px solid',
+                        borderColor: page === i ? 'primary.main' : 'divider',
+                        bgcolor: page === i ? 'primary.main' : 'background.paper',
+                        color: page === i ? 'white' : 'text.secondary',
+                        fontWeight: page === i ? 700 : 400,
+                        fontSize: '14px',
+                        '&:hover': {
+                          bgcolor: page === i ? 'primary.dark' : '#f1f5f9',
+                        },
+                      }}
+                    >
+                      {i + 1}
+                    </IconButton>
+                  ))}
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronRightIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </Container>
