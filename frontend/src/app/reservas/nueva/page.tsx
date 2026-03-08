@@ -293,7 +293,7 @@ function SaleFormContent() {
                             label="Cliente"
                             error={!!errors.clientId}
                             helperText={errors.clientId?.message}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            onChange={(e: any) => field.onChange(Number(e.target.value))}
                           >
                             <MenuItem value={0}>Seleccione un cliente</MenuItem>
                             {clients.map((client) => (
@@ -349,7 +349,7 @@ function SaleFormContent() {
                         label="Proveedor"
                         error={!!errors.providerId}
                         helperText={errors.providerId?.message}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e: any) => field.onChange(Number(e.target.value))}
                       >
                         <MenuItem value={0}>Seleccione un proveedor</MenuItem>
                         {providers.map((provider) => (
@@ -470,7 +470,7 @@ function SaleFormContent() {
                         inputProps={{
                           min: new Date().toISOString().split('T')[0],
                         }}
-                        onChange={(e) => {
+                        onChange={(e: any) => {
                           field.onChange(e);
                           handleTravelDateChange(e);
                         }}

@@ -13,8 +13,13 @@ import {
   DialogActions,
   Box,
   IconButton,
+  Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ContactMailOutlinedIcon from '@mui/icons-material/ContactMailOutlined';
+import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/Input';
@@ -29,6 +34,23 @@ interface ProviderFormModalProps {
   provider?: Provider | null;
   isLoading?: boolean;
 }
+
+const SectionHeader = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5, color: '#ec5b13' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>{icon}</Box>
+    <Typography
+      sx={{
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        color: '#ec5b13',
+      }}
+    >
+      {label}
+    </Typography>
+  </Box>
+);
 
 export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
   open,
@@ -58,7 +80,6 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
     },
   });
 
-  // Resetear el formulario cuando se abre/cierra o cambia el proveedor
   useEffect(() => {
     if (open && provider) {
       reset({
@@ -100,22 +121,29 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
           borderRadius: 3,
           border: '1px solid',
           borderColor: 'divider',
+          overflow: 'hidden',
         },
       }}
     >
+      {/* Header */}
       <DialogTitle
         sx={{
           m: 0,
           px: 3,
           py: 2.5,
-          fontWeight: 800,
-          fontSize: '1.1rem',
           borderBottom: '1px solid',
           borderColor: 'divider',
           pr: 6,
         }}
       >
-        {isEdit ? 'Editar Proveedor' : 'Agregar Proveedor'}
+        <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'text.primary', lineHeight: 1.3 }}>
+          {isEdit ? 'Editar Proveedor' : 'Agregar Proveedor'}
+        </Typography>
+        <Typography sx={{ fontSize: '13px', color: 'text.secondary', mt: 0.5 }}>
+          {isEdit
+            ? 'Actualiza los datos del proveedor de servicio'
+            : 'Ingresa los datos del nuevo proveedor de servicio'}
+        </Typography>
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -132,74 +160,115 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       </DialogTitle>
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent sx={{ px: 3, py: 3 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Input
-              label="Nombre"
-              {...register('name')}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              required
-            />
+        <DialogContent sx={{ px: 3, py: 3, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
 
-            <Input
-              label="Acrónimo"
-              {...register('acronym')}
-              error={!!errors.acronym}
-              helperText={errors.acronym?.message}
-              required
+          {/* Sección: Información Básica */}
+          <Box>
+            <SectionHeader
+              icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
+              label="Información Básica"
             />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2 }}>
+              <Input
+                label="Nombre del Proveedor"
+                placeholder="Ej. Skyline Airways"
+                {...register('name')}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+                required
+              />
+              <Input
+                label="Acrónimo"
+                placeholder="SA"
+                {...register('acronym')}
+                error={!!errors.acronym}
+                helperText={errors.acronym?.message}
+                required
+              />
+            </Box>
+          </Box>
 
-            <Input
-              label="Email"
-              type="email"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              required
+          {/* Sección: Datos de Contacto */}
+          <Box>
+            <SectionHeader
+              icon={<ContactMailOutlinedIcon sx={{ fontSize: 15 }} />}
+              label="Datos de Contacto"
             />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Input
+                  label="Persona de Contacto"
+                  placeholder="Nombre completo"
+                  {...register('providerContactName')}
+                  error={!!errors.providerContactName}
+                  helperText={errors.providerContactName?.message}
+                  required
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  placeholder="contacto@proveedor.com"
+                  {...register('email')}
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  required
+                />
+              </Box>
+              <Input
+                label="Teléfono"
+                placeholder="+1 (555) 000-0000"
+                {...register('phone')}
+                error={!!errors.phone}
+                helperText={errors.phone?.message}
+                required
+              />
+            </Box>
+          </Box>
 
-            <Input
-              label="Teléfono"
-              {...register('phone')}
-              error={!!errors.phone}
-              helperText={errors.phone?.message}
-              required
+          {/* Sección: Términos de Pago */}
+          <Box>
+            <SectionHeader
+              icon={<PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
+              label="Términos de Pago"
             />
-
-            <Input
-              label="Nombre de Contacto"
-              {...register('providerContactName')}
-              error={!!errors.providerContactName}
-              helperText={errors.providerContactName?.message}
-              required
-            />
-
-            <Input
-              label="Porcentaje de Anticipo (%)"
-              type="number"
-              {...register('depositPercentage', { valueAsNumber: true })}
-              error={!!errors.depositPercentage}
-              helperText={errors.depositPercentage?.message}
-              inputProps={{ min: 0, max: 100, step: 0.01 }}
-            />
-
-            <Input
-              label="Días de Anticipación para Pago Final"
-              type="number"
-              {...register('finalPaymentDaysBefore', { valueAsNumber: true })}
-              error={!!errors.finalPaymentDaysBefore}
-              helperText={errors.finalPaymentDaysBefore?.message}
-              inputProps={{ min: 0, step: 1 }}
-            />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input
+                label="Porcentaje de Anticipo"
+                type="number"
+                placeholder="25"
+                {...register('depositPercentage', { valueAsNumber: true })}
+                error={!!errors.depositPercentage}
+                helperText={errors.depositPercentage?.message}
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                InputProps={{
+                  endAdornment: (
+                    <Typography sx={{ fontSize: '14px', color: 'text.secondary', pr: 0.5 }}>%</Typography>
+                  ),
+                }}
+              />
+              <Input
+                label="Días para Pago Final"
+                type="number"
+                placeholder="30"
+                {...register('finalPaymentDaysBefore', { valueAsNumber: true })}
+                error={!!errors.finalPaymentDaysBefore}
+                helperText={errors.finalPaymentDaysBefore?.message}
+                inputProps={{ min: 0, step: 1 }}
+                InputProps={{
+                  endAdornment: (
+                    <Typography sx={{ fontSize: '12px', color: 'text.secondary', pr: 0.5 }}>días</Typography>
+                  ),
+                }}
+              />
+            </Box>
           </Box>
         </DialogContent>
 
         <DialogActions
           sx={{
             px: 3,
-            py: 2,
-            gap: 1,
+            py: 2.5,
+            gap: 1.5,
             borderTop: '1px solid',
             borderColor: 'divider',
             bgcolor: '#f8fafc',
@@ -218,8 +287,9 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
             variant="contained"
             color="primary"
             isLoading={isLoading}
+            startIcon={<SaveOutlinedIcon sx={{ fontSize: 16 }} />}
           >
-            {isEdit ? 'Actualizar' : 'Crear'}
+            {isEdit ? 'Actualizar Proveedor' : 'Guardar Proveedor'}
           </Button>
         </DialogActions>
       </form>

@@ -15,7 +15,6 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  TextField,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -282,14 +281,12 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
               name="notes"
               control={control}
               render={({ field }) => (
-                <TextField
+                <Input
                   {...field}
                   label="Notas"
                   multiline
                   rows={3}
-                  fullWidth
-                  variant="outlined"
-                  size="small"
+                  placeholder="Opcional: Información adicional del pago"
                   error={!!errors.notes}
                   helperText={errors.notes?.message || 'Opcional: Información adicional del pago'}
                 />

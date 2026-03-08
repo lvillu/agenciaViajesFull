@@ -6,6 +6,7 @@
 'use client';
 
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { PrimeReactProvider } from 'primereact/api';
 import { ReactNode } from 'react';
 
 const theme = createTheme({
@@ -181,10 +182,26 @@ export default function RootLayout({
         />
       </head>
       <body style={{ margin: 0, backgroundColor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
+        <style>{`
+          .ta-input:focus {
+            outline: none;
+            border-color: #ec5b13 !important;
+            box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12) !important;
+          }
+          .ta-input:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+          }
+          .ta-input::placeholder {
+            color: #94a3b8;
+          }
+        `}</style>
+        <PrimeReactProvider value={{ unstyled: true }}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </PrimeReactProvider>
       </body>
     </html>
   );

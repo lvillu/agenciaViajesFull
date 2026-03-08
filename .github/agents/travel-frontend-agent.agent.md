@@ -38,9 +38,14 @@ instructions: |
   - Verifica que los estilos coincidan con el sistema de diseño de TravelAgency
   - Usa las variables/tokens de diseño establecidos
   - Mantén la coherencia visual en todo el proyecto
-  - **NO usar TailwindCSS** — todo el estilado debe hacerse con MUI `sx` prop, `styled`, o `makeStyles`
-  - Si el sistema de diseño no especifica algo, usa Material UI 6 por defecto
+  - **NO usar TailwindCSS** — todo el estilado debe hacerse con MUI `sx` prop, `styled`, `makeStyles`, o estilos inline de PrimeReact
+  - Si el sistema de diseño no especifica algo, usa Material UI 6 o PrimeReact por defecto
   - **IMPORTANTE:** Todos los layouts deben incluir el Header y Footer consistentes
+  
+  ### Reglas de Inputs y Formularios (MUI)
+  - **SIEMPRE** usar `InputLabelProps={{ shrink: true }}` en todos los campos `Input`/`TextField` de MUI para que el label quede fijo arriba y el placeholder sea visible (nunca el label flotante)
+  - El componente `Input` del proyecto ya implementa esta regla internamente mediante PrimeReact InputText con label fijo sobre el campo
+  - **NUNCA** dejar el label flotante dentro del input — usar siempre el patrón label-encima + placeholder visible
   
   ## 📐 STACK TECNOLÓGICO
   
@@ -48,11 +53,19 @@ instructions: |
   - **Framework**: Next.js 15 (App Router)
   - **UI Library**: React 19
   - **Lenguaje**: TypeScript 5
-  - **Styling**: Material UI 6 + Emotion (sx prop y styled components)
+  - **Styling**: Material UI 6 + Emotion (sx prop y styled components) + PrimeReact (componentes de formulario)
   - **Estado Global**: Zustand
   - **HTTP Client**: Axios + SWR
-  - **Iconos**: Material Symbols Outlined
+  - **Iconos**: Material Symbols Outlined + PrimeIcons
   - **Fuente**: Public Sans
+  
+  ### PrimeReact — Reglas de Uso
+  - **PrimeReact** se utiliza principalmente para componentes de formulario: `InputText`, `InputTextarea`, `Dropdown`, `Calendar`, `InputNumber`
+  - El componente `Input` del proyecto (`src/components/ui/Input.tsx`) usa **PrimeReact InputText** internamente con `unstyled={true}` y estilos inline
+  - Para inputs y formularios nuevos: **usar el componente `Input` existente** (ya basado en PrimeReact)
+  - Para selects/dropdowns: el componente `Input` con `select={true}` usa MUI Select internamente
+  - **NUNCA** usar PrimeReact con su tema CSS por defecto — usar siempre `unstyled={true}` y estilos inline del sistema de diseño TravelAgency
+  - Los componentes PrimeReact se inicializan con `PrimeReactProvider` en `layout.tsx`
   
   ### Estructura de Componentes
   - Componentes atómicos y reutilizables
@@ -227,6 +240,9 @@ instructions: |
   - **MANTÉN** la consistencia con los componentes existentes
   - **CONSULTA** travel_agency_styles.md antes de crear nuevos estilos
   - **PREGUNTA** si tienes dudas sobre el diseño o arquitectura
+  - **SIEMPRE** usa el componente `Input` del proyecto para todos los campos de texto — nunca `TextField` de MUI directamente en formularios
+  - **SIEMPRE** en el componente `Input`, el label está fijo arriba y el placeholder es visible (patrón PrimeReact)
+  - **NUNCA** importar CSS de tema de PrimeReact — el proyecto usa PrimeReact en modo `unstyled`
   
   ## 🎯 TU ENFOQUE
   

@@ -27,12 +27,13 @@ import {
   DialogActions,
   Chip,
   TextField,
-  InputAdornment,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
@@ -60,9 +61,12 @@ export default function ProveedoresPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<Provider | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   // Filtrar proveedores según el término de búsqueda
   const filteredProviders = useMemo(() => {
+    setPage(0);
     if (!searchTerm.trim()) return providers;
 
     const term = searchTerm.toLowerCase();
@@ -74,7 +78,11 @@ export default function ProveedoresPage() {
         provider.phone.toLowerCase().includes(term) ||
         provider.providerContactName.toLowerCase().includes(term)
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providers, searchTerm]);
+
+  const totalPages = Math.ceil(filteredProviders.length / rowsPerPage);
+  const paginatedProviders = filteredProviders.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -182,6 +190,34 @@ export default function ProveedoresPage() {
           </Alert>
         )}
 
+        {/* Barra de búsqueda separada */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            px: 1,
+            py: 0.5,
+            mb: 2,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <SearchIcon sx={{ color: 'text.disabled', ml: 1, mr: 0.5, flexShrink: 0 }} />
+          <TextField
+            fullWidth
+            variant="standard"
+            placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              sx: { fontSize: '15px', py: 1 },
+            }}
+          />
+        </Box>
+
         {/* Card con tabla de proveedores */}
         <Card
           sx={{
@@ -189,38 +225,26 @@ export default function ProveedoresPage() {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            my: 2,
           }}
         >
           <CardContent sx={{ p: 0 }}>
-            {/* Campo de búsqueda */}
-            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <TextField
-                fullWidth
-                variant="standard"
-                placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  disableUnderline: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
-                    </InputAdornment>
-                  ),
-                  sx: { fontSize: '15px', py: 0.5 },
-                }}
-              />
-            </Box>
-
             {/* Tabla con scroll */}
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    {['Nombre', 'Acrónimo', 'Email', 'Teléfono', 'Contacto', 'Anticipo (%)', 'Días Pago Final', 'Estado', 'Acciones'].map((h, i) => (
+                    {[
+                      { label: 'Nombre', align: 'left' },
+                      { label: 'Acrónimo', align: 'left' },
+                      { label: 'Contacto', align: 'left' },
+                      { label: 'Gestor', align: 'left' },
+                      { label: 'Anticipo %', align: 'center' },
+                      { label: 'Días Finales', align: 'center' },
+                      { label: 'Estado', align: 'left' },
+                      { label: 'Acciones', align: 'right' },
+                    ].map(({ label, align }) => (
                       <TableCell
-                        key={h}
+                        key={label}
                         sx={{
                           fontWeight: 700,
                           fontSize: '11px',
@@ -228,12 +252,12 @@ export default function ProveedoresPage() {
                           letterSpacing: '0.07em',
                           color: 'text.secondary',
                           py: 1.5,
-                          textAlign: (i === 5 || i === 6 || i === 8) ? 'center' : 'left',
+                          textAlign: align as any,
                           borderBottom: '2px solid',
                           borderColor: 'divider',
                         }}
                       >
-                        {h}
+                        {label}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -241,7 +265,7 @@ export default function ProveedoresPage() {
                 <TableBody>
                   {loading && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           Cargando proveedores...
                         </Typography>
@@ -251,7 +275,7 @@ export default function ProveedoresPage() {
 
                   {!loading && filteredProviders.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           {searchTerm.trim() 
                             ? 'No se encontraron proveedores que coincidan con la búsqueda'
@@ -262,53 +286,73 @@ export default function ProveedoresPage() {
                   )}
 
                   {!loading &&
-                    filteredProviders.map((provider) => (
+                    paginatedProviders.map((provider) => (
                       <TableRow
                         key={provider.id}
                         sx={{
-                          '&:hover': { bgcolor: '#f8fafc' },
+                          '&:hover': { bgcolor: '#f8fafc50' },
                           transition: 'background-color 0.15s',
                         }}
                       >
-                        <TableCell>
-                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                            {provider.name}
-                          </Typography>
+                        {/* Nombre con avatar de acrónimo */}
+                        <TableCell sx={{ minWidth: 200 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box
+                              sx={{
+                                width: 32, height: 32, borderRadius: 1.5,
+                                bgcolor: '#f1f5f9',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: '#ec5b13', fontWeight: 700, fontSize: '11px',
+                                flexShrink: 0,
+                              }}
+                            >
+                              {provider.acronym}
+                            </Box>
+                            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>
+                              {provider.name}
+                            </Typography>
+                          </Box>
                         </TableCell>
+                        {/* Acrónimo */}
                         <TableCell>
                           <Typography variant="body2" color="text.secondary">
                             {provider.acronym}
                           </Typography>
                         </TableCell>
+                        {/* Contacto: email + teléfono combinados */}
                         <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {provider.email}
-                          </Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Typography sx={{ fontSize: '13px', color: '#0f172a' }}>
+                              {provider.email}
+                            </Typography>
+                            <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                              {provider.phone}
+                            </Typography>
+                          </Box>
                         </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {provider.phone}
-                          </Typography>
-                        </TableCell>
+                        {/* Gestor */}
                         <TableCell>
                           <Typography variant="body2" color="text.secondary">
                             {provider.providerContactName}
                           </Typography>
                         </TableCell>
+                        {/* Anticipo % */}
                         <TableCell sx={{ textAlign: 'center' }}>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#0f172a' }}>
                             {provider.depositPercentage !== null && provider.depositPercentage !== undefined
                               ? `${provider.depositPercentage}%`
                               : '-'}
                           </Typography>
                         </TableCell>
+                        {/* Días Finales */}
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Typography variant="body2" color="text.secondary">
                             {provider.finalPaymentDaysBefore !== null && provider.finalPaymentDaysBefore !== undefined
-                              ? `${provider.finalPaymentDaysBefore} días`
+                              ? provider.finalPaymentDaysBefore
                               : '-'}
                           </Typography>
                         </TableCell>
+                        {/* Estado */}
                         <TableCell>
                           <Chip
                             label={provider.active ? 'Activo' : 'Inactivo'}
@@ -322,8 +366,9 @@ export default function ProveedoresPage() {
                             }}
                           />
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                        {/* Acciones */}
+                        <TableCell sx={{ textAlign: 'right' }}>
+                          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
                             <IconButton
                               size="small"
                               onClick={() => handleOpenEdit(provider)}
@@ -347,6 +392,77 @@ export default function ProveedoresPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Paginación */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 3,
+                py: 2,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                bgcolor: '#f8fafc',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {filteredProviders.length > 0
+                  ? `Mostrando ${page * rowsPerPage + 1} a ${Math.min((page + 1) * rowsPerPage, filteredProviders.length)} de ${filteredProviders.length} proveedores`
+                  : 'Sin resultados'}
+              </Typography>
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronLeftIcon fontSize="small" />
+                  </IconButton>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <IconButton
+                      key={i}
+                      size="small"
+                      onClick={() => setPage(i)}
+                      sx={{
+                        width: 36, height: 36, borderRadius: 1.5,
+                        border: '1px solid',
+                        borderColor: page === i ? 'primary.main' : 'divider',
+                        bgcolor: page === i ? 'primary.main' : 'background.paper',
+                        color: page === i ? 'white' : 'text.secondary',
+                        fontWeight: page === i ? 700 : 400,
+                        fontSize: '14px',
+                        '&:hover': {
+                          bgcolor: page === i ? 'primary.dark' : '#f1f5f9',
+                        },
+                      }}
+                    >
+                      {i + 1}
+                    </IconButton>
+                  ))}
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronRightIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </Container>

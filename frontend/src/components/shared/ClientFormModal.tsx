@@ -15,6 +15,7 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/Input';
@@ -131,54 +132,66 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <DialogContent sx={{ px: 3, py: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Input
-              label="Nombre"
-              {...register('name')}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              required
-            />
+            {/* Nombre + Apellido */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input
+                label="Nombre"
+                placeholder="Ej. Juan"
+                {...register('name')}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+                required
+              />
+              <Input
+                label="Apellido"
+                placeholder="Ej. Pérez"
+                {...register('lastName')}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                required
+              />
+            </Box>
 
-            <Input
-              label="Apellido"
-              {...register('lastName')}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-              required
-            />
-
+            {/* Dirección */}
             <Input
               label="Dirección"
+              placeholder="Calle 123, Ciudad"
               {...register('address')}
               error={!!errors.address}
               helperText={errors.address?.message}
             />
 
-            <Input
-              label="Teléfono"
-              {...register('phone')}
-              error={!!errors.phone}
-              helperText={errors.phone?.message}
-              required
-            />
+            {/* Teléfono + Email */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input
+                label="Teléfono"
+                placeholder="+1 234 567 890"
+                type="tel"
+                {...register('phone')}
+                error={!!errors.phone}
+                helperText={errors.phone?.message}
+                required
+              />
+              <Input
+                label="Email"
+                placeholder="juan.perez@email.com"
+                type="email"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                required
+              />
+            </Box>
 
-            <Input
-              label="Email"
-              type="email"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              required
-            />
-
+            {/* Fecha de Nacimiento */}
             <Input
               label="Fecha de Nacimiento"
               type="date"
               {...register('birthDate')}
               error={!!errors.birthDate}
               helperText={errors.birthDate?.message}
-              InputLabelProps={{
-                shrink: true,
+              InputProps={{
+                endAdornment: <CalendarTodayIcon sx={{ fontSize: 18, color: 'text.secondary' }} />,
               }}
             />
           </Box>
