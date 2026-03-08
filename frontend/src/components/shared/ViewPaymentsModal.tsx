@@ -71,7 +71,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: '12px',
           border: '1px solid',
           borderColor: 'divider',
         },
@@ -79,7 +79,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
     >
       <DialogTitle
         sx={{
-          px: 3,
+          px: 4,
           py: 2.5,
           fontWeight: 800,
           fontSize: '1.1rem',
@@ -89,7 +89,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
       >
         Pagos de la Reserva
       </DialogTitle>
-      <DialogContent sx={{ px: 3, py: 3 }}>
+      <DialogContent sx={{ px: 4, py: 3 }}>
         {/* Resumen de totales */}
         <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
           <Box
@@ -219,7 +219,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
       </DialogContent>
       <DialogActions
         sx={{
-          px: 3,
+          px: 4,
           py: 2,
           borderTop: '1px solid',
           borderColor: 'divider',

@@ -20,6 +20,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 import { paymentService } from '@/services/paymentService';
 import {
   CreatePaymentSchema,
@@ -125,7 +126,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: '12px',
           border: '1px solid',
           borderColor: 'divider',
         },
@@ -133,7 +134,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     >
       <DialogTitle
         sx={{
-          px: 3,
+          px: 4,
           py: 2.5,
           fontWeight: 800,
           fontSize: '1.1rem',
@@ -144,7 +145,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
         Agregar Pago
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent sx={{ px: 3, py: 3 }}>
+        <DialogContent sx={{ px: 4, py: 3 }}>
           {/* Información de la venta */}
           <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
             <Box
@@ -234,13 +235,20 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
 
           {/* Formulario */}
           <Box sx={{ mb: 2 }}>
-            <Input
-              label="Fecha de Pago"
-              type="date"
-              {...register('paymentDate')}
-              error={!!errors.paymentDate}
-              helperText={errors.paymentDate?.message}
-              InputLabelProps={{ shrink: true }}
+            <Controller
+              name="paymentDate"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  label="Fecha de Pago"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={!!errors.paymentDate}
+                  helperText={errors.paymentDate?.message}
+                  required
+                />
+              )}
             />
           </Box>
 
@@ -298,6 +306,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
           sx={{
             px: 3,
             py: 2,
+            px: 4,
             gap: 1,
             borderTop: '1px solid',
             borderColor: 'divider',

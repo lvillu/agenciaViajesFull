@@ -195,6 +195,97 @@ export default function RootLayout({
           .ta-input::placeholder {
             color: #94a3b8;
           }
+
+          /* ── PrimeReact Calendar – TravelAgency Theme ─────────────────── */
+
+          /* Focus ring on the text input */
+          .p-calendar .p-inputtext:focus {
+            outline: none;
+            border-color: #ec5b13 !important;
+            box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12) !important;
+          }
+          .p-calendar .p-inputtext::placeholder {
+            color: #94a3b8;
+          }
+
+          /* Hover on trigger button */
+          .p-calendar .p-datepicker-trigger:hover,
+          .p-calendar .p-button:hover {
+            background: #d44f0d !important;
+            border-color: #d44f0d !important;
+          }
+
+          /* ── Panel internals (rendered via portal) ──────────────────────── */
+          /* Prev / Next hover */
+          .ta-datepicker-panel .p-datepicker-prev:hover,
+          .ta-datepicker-panel .p-datepicker-next:hover {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+          }
+
+          /* Month / Year title hover */
+          .ta-datepicker-panel .p-datepicker-month:hover,
+          .ta-datepicker-panel .p-datepicker-year:hover {
+            background: #f1f5f9 !important;
+          }
+
+          /* Day label base */
+          .ta-datepicker-panel .p-datepicker-calendar td > span,
+          .ta-datepicker-panel .p-datepicker-calendar td > a {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 13px;
+            font-family: "Public Sans", system-ui, sans-serif;
+            font-weight: 400;
+            color: #1e293b;
+            margin: 0 auto;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s;
+          }
+
+          /* Hover */
+          .ta-datepicker-panel .p-datepicker-calendar td > span:hover,
+          .ta-datepicker-panel .p-datepicker-calendar td > a:hover {
+            background: #fedfcd !important;
+            color: #9a3d0b !important;
+          }
+
+          /* Today */
+          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-today > span,
+          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-today > a {
+            background: #f1f5f9 !important;
+            font-weight: 700;
+            color: #475569 !important;
+          }
+
+          /* Selected */
+          .ta-datepicker-panel .p-datepicker-calendar td.p-highlight > span,
+          .ta-datepicker-panel .p-datepicker-calendar td > span.p-highlight,
+          .ta-datepicker-panel .p-datepicker-calendar td.p-highlight > a {
+            background: #ec5b13 !important;
+            color: #ffffff !important;
+            font-weight: 700;
+          }
+
+          /* Other month */
+          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-other-month > span,
+          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-other-month > a {
+            color: #cbd5e1 !important;
+          }
+
+          /* Disabled */
+          .ta-datepicker-panel .p-datepicker-calendar td.p-disabled > span,
+          .ta-datepicker-panel .p-datepicker-calendar td.p-disabled > a {
+            color: #e2e8f0 !important;
+            cursor: not-allowed;
+            pointer-events: none;
+          }
         `}</style>
         <PrimeReactProvider value={{ unstyled: true }}>
           <ThemeProvider theme={theme}>

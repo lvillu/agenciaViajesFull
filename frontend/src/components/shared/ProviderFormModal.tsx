@@ -118,7 +118,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: '12px',
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
@@ -129,7 +129,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       <DialogTitle
         sx={{
           m: 0,
-          px: 3,
+          px: 4,
           py: 2.5,
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -160,7 +160,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       </DialogTitle>
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent sx={{ px: 3, py: 3, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+        <DialogContent sx={{ px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
 
           {/* Sección: Información Básica */}
           <Box>
@@ -266,7 +266,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
 
         <DialogActions
           sx={{
-            px: 3,
+            px: 4,
             py: 2.5,
             gap: 1.5,
             borderTop: '1px solid',

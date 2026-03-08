@@ -15,10 +15,10 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 import { Button } from '@/components/ui/Button';
 import { clientSchema, type ClientFormData } from '@/lib/validationSchemas';
 import { Client } from '@/types/client';
@@ -43,6 +43,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm<ClientFormData>({
@@ -95,7 +96,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: '12px',
           border: '1px solid',
           borderColor: 'divider',
         },
@@ -104,7 +105,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       <DialogTitle
         sx={{
           m: 0,
-          px: 3,
+          px: 4,
           py: 2.5,
           fontWeight: 800,
           fontSize: '1.1rem',
@@ -130,7 +131,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       </DialogTitle>
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent sx={{ px: 3, py: 3 }}>
+        <DialogContent sx={{ px: 4, py: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {/* Nombre + Apellido */}
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -184,22 +185,26 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </Box>
 
             {/* Fecha de Nacimiento */}
-            <Input
-              label="Fecha de Nacimiento"
-              type="date"
-              {...register('birthDate')}
-              error={!!errors.birthDate}
-              helperText={errors.birthDate?.message}
-              InputProps={{
-                endAdornment: <CalendarTodayIcon sx={{ fontSize: 18, color: 'text.secondary' }} />,
-              }}
+            <Controller
+              name="birthDate"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  label="Fecha de Nacimiento"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={!!errors.birthDate}
+                  helperText={errors.birthDate?.message}
+                />
+              )}
             />
           </Box>
         </DialogContent>
 
         <DialogActions
           sx={{
-            px: 3,
+            px: 4,
             py: 2,
             gap: 1,
             borderTop: '1px solid',
