@@ -31,6 +31,8 @@ namespace agenciaViajes.Application.Features.Provider.GetProviderById
                 Email = provider.Email,
                 Phone = provider.Phone,
                 ProviderContactName = provider.ProviderContactName,
+                DepositPercentage = provider.DepositPercentage,
+                FinalPaymentDaysBefore = provider.FinalPaymentDaysBefore,
                 Active = provider.Active
             };
 

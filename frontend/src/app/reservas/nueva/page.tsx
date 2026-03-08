@@ -147,31 +147,43 @@ function SaleFormContent() {
     }
   }, [finalPaymentDueDate]);
 
-  // Calcular fecha de liquidación automáticamente
-  useEffect(() => {
-    if (selectedProvider && travelDate && selectedProvider.finalPaymentDaysBefore) {
+  // Handler para calcular pago inicial cuando el total pierde el foco
+  const handleTotalBlur = () => {
+    if (selectedProvider && totalAmount > 0 && selectedProvider.depositPercentage) {
+      const calculatedDeposit = saleService.calculateRequiredDeposit(
+        totalAmount,
+        selectedProvider.depositPercentage
+      );
+      if (calculatedDeposit !== null && calculatedDeposit !== undefined) {
+        setValue('requiredDeposit', calculatedDeposit);
+      }
+    }
+  };
+
+  // Handler para calcular fecha de liquidación cuando cambia la fecha de viaje
+  const handleTravelDateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newTravelDate = e.target.value;
+    
+    if (selectedProvider && newTravelDate && selectedProvider.finalPaymentDaysBefore) {
       const calculatedDate = saleService.calculateFinalPaymentDate(
-        travelDate,
+        newTravelDate,
         selectedProvider.finalPaymentDaysBefore
       );
       if (calculatedDate) {
         setValue('finalPaymentDueDate', calculatedDate);
       }
     }
-  }, [selectedProvider, travelDate, setValue]);
+  };
 
-  // Calcular pago inicial requerido automáticamente
-  useEffect(() => {
-    if (selectedProvider && totalAmount > 0 && selectedProvider.depositPercentage) {
-      const calculatedDeposit = saleService.calculateRequiredDeposit(
-        totalAmount,
-        selectedProvider.depositPercentage
-      );
-      if (calculatedDeposit) {
-        setValue('requiredDeposit', calculatedDeposit);
-      }
-    }
-  }, [selectedProvider, totalAmount, setValue]);
+  // Formatear moneda para mostrar
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
   // Handlers para el modal de cliente
   const handleOpenClientModal = () => {
@@ -308,6 +320,19 @@ function SaleFormContent() {
                   </Box>
                 </Grid>
 
+                {/* Botón Agregar Cliente */}
+                <Grid item xs={12} md={6}>
+                  <Button 
+                    onClick={handleOpenClientModal} 
+                    variant="outlined" 
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    sx={{ mt: 1 }}
+                  >
+                    Agregar Cliente
+                  </Button>
+                </Grid>
+
                 {/* Proveedor */}
                 <Grid item xs={12} md={6}>
                   <Controller
@@ -345,13 +370,23 @@ function SaleFormContent() {
 
                 {/* Total */}
                 <Grid item xs={12} md={6}>
-                  <Input
-                    label="Total de la Reserva"
-                    type="number"
-                    inputProps={{ step: '0.01', min: '0' }}
-                    {...register('totalAmount', { valueAsNumber: true })}
-                    error={!!errors.totalAmount}
-                    helperText={errors.totalAmount?.message}
+                  <Controller
+                    name="totalAmount"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Total de la Reserva"
+                        type="number"
+                        inputProps={{ step: '0.01', min: '0' }}
+                        error={!!errors.totalAmount}
+                        helperText={
+                          errors.totalAmount?.message ||
+                          (field.value > 0 ? `Equivale a: ${formatCurrency(field.value)}` : '')
+                        }
+                        onBlur={handleTotalBlur}
+                      />
+                    )}
                   />
                 </Grid>
 
@@ -420,13 +455,26 @@ function SaleFormContent() {
 
                 {/* Fecha de Viaje */}
                 <Grid item xs={12} md={6}>
-                  <Input
-                    label="Fecha de Viaje"
-                    type="date"
-                    {...register('travelDate')}
-                    error={!!errors.travelDate}
-                    helperText={errors.travelDate?.message}
-                    InputLabelProps={{ shrink: true }}
+                  <Controller
+                    name="travelDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Fecha de Viaje"
+                        type="date"
+                        inputProps={{
+                          min: new Date().toISOString().split('T')[0],
+                        }}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleTravelDateChange(e);
+                        }}
+                        error={!!errors.travelDate}
+                        helperText={errors.travelDate?.message}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
                   />
                 </Grid>
 
@@ -435,6 +483,9 @@ function SaleFormContent() {
                   <Input
                     label="Fecha de Retorno"
                     type="date"
+                    inputProps={{
+                      min: travelDate || new Date().toISOString().split('T')[0],
+                    }}
                     {...register('returnDate')}
                     error={!!errors.returnDate}
                     helperText={errors.returnDate?.message || 'Opcional: Para avisar al vendedor'}
@@ -447,6 +498,9 @@ function SaleFormContent() {
                   <Input
                     label="Fecha Límite de Liquidación"
                     type="date"
+                    inputProps={{
+                      max: travelDate || undefined,
+                    }}
                     {...register('finalPaymentDueDate')}
                     error={!!errors.finalPaymentDueDate}
                     helperText={
