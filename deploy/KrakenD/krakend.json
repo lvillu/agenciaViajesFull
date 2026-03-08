@@ -369,6 +369,58 @@
           "method": "DELETE"
         }
       ]
+    },
+    {
+      "endpoint": "/Dashboard/cards",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/cards",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/monthly-sales",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/monthly-sales",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/sales-by-provider",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/sales-by-provider",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/monthly-profits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/monthly-profits",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
     }
   ]
 }

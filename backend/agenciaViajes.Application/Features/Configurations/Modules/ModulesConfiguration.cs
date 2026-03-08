@@ -28,6 +28,7 @@ namespace agenciaViajes.Application.Features.Configurations.Modules
             app.AddClientRoutes();
             app.AddSaleRoutes();
             app.AddPaymentRoutes();
+            app.AddDashboardRoutes();
             app.AddApiRoutes();
 
         }

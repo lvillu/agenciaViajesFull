@@ -50,3 +50,10 @@ export const PAYMENT_ENDPOINTS = {
   UPDATE: (id: number) => `/Payment/${id}`,
   DELETE: (id: number) => `/Payment/${id}`,
 };
+
+export const DASHBOARD_ENDPOINTS = {
+  CARDS: '/Dashboard/cards',
+  CHART_MONTHLY_SALES: '/Dashboard/charts/monthly-sales',
+  CHART_SALES_BY_PROVIDER: '/Dashboard/charts/sales-by-provider',
+  CHART_MONTHLY_PROFITS: '/Dashboard/charts/monthly-profits',
+};
