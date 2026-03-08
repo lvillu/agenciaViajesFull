@@ -125,6 +125,10 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
           border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
+          minHeight: '620px',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -162,8 +166,8 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent sx={{ px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+      <form onSubmit={handleSubmit(handleFormSubmit)} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        <DialogContent sx={{ px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 3.5, overflowY: 'auto', flex: 1 }}>
 
           {/* Sección: Información Básica */}
           <Box>

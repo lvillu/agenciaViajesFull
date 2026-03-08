@@ -495,6 +495,69 @@ function SaleFormContent() {
                 error={!!errors.description}
                 helperText={errors.description?.message || 'Ej: Reserva Paq. Rivera Maya - 3 días, 2 noches'}
               />
+
+              {/* % de Ganancia y Valor Ganancia */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                <Controller
+                  name="profitPercentage"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      label="% de Ganancia"
+                      type="number"
+                      placeholder="10"
+                      inputProps={{ step: '0.01', min: '0', max: '100' }}
+                      InputProps={{
+                        endAdornment: (
+                          <Typography sx={{ fontSize: '14px', color: '#94a3b8', pr: 0.5 }}>%</Typography>
+                        ),
+                      }}
+                      error={!!(errors as any).profitPercentage}
+                      helperText={
+                        (errors as any).profitPercentage?.message ||
+                        (selectedProvider?.profitPercentage !== undefined
+                          ? `Precargado del proveedor (${selectedProvider.profitPercentage}%)`
+                          : 'Editable por reserva')
+                      }
+                      onChange={(e: any) => {
+                        const val = e.target.value === '' ? undefined : Number(e.target.value);
+                        field.onChange(val);
+                      }}
+                    />
+                  )}
+                />
+                <Box>
+                  <Typography
+                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', mb: 0.75, display: 'block' }}
+                  >
+                    Valor de Ganancia
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '44px',
+                      px: 1.5,
+                      bgcolor: '#f1f5f9',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
+                      {profitPercentage && totalAmount > 0
+                        ? formatCurrency(totalAmount * profitPercentage / 100)
+                        : '—'}
+                    </Typography>
+                    {profitPercentage && totalAmount > 0 && (
+                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b', ml: 1 }}>
+                        ({profitPercentage}% de {formatCurrency(totalAmount)})
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
             </Box>
 
             {/* ── Sección 3: Fechas & Pago ── */}
@@ -621,69 +684,6 @@ function SaleFormContent() {
                       : 'Opcional: Se puede calcular automáticamente')
                   }
                 />
-              </Box>
-
-              {/* % de Ganancia y Valor Ganancia */}
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 3 }}>
-                <Controller
-                  name="profitPercentage"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      label="% de Ganancia"
-                      type="number"
-                      placeholder="10"
-                      inputProps={{ step: '0.01', min: '0', max: '100' }}
-                      InputProps={{
-                        endAdornment: (
-                          <Typography sx={{ fontSize: '14px', color: '#94a3b8', pr: 0.5 }}>%</Typography>
-                        ),
-                      }}
-                      error={!!(errors as any).profitPercentage}
-                      helperText={
-                        (errors as any).profitPercentage?.message ||
-                        (selectedProvider?.profitPercentage !== undefined
-                          ? `Precargado del proveedor (${selectedProvider.profitPercentage}%)`
-                          : 'Editable por reserva')
-                      }
-                      onChange={(e: any) => {
-                        const val = e.target.value === '' ? undefined : Number(e.target.value);
-                        field.onChange(val);
-                      }}
-                    />
-                  )}
-                />
-                <Box>
-                  <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', mb: 0.75, display: 'block' }}
-                  >
-                    Valor de Ganancia
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      height: '44px',
-                      px: 1.5,
-                      bgcolor: '#f1f5f9',
-                      borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
-                      {profitPercentage && totalAmount > 0
-                        ? formatCurrency(totalAmount * profitPercentage / 100)
-                        : '—'}
-                    </Typography>
-                    {profitPercentage && totalAmount > 0 && (
-                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b', ml: 1 }}>
-                        ({profitPercentage}% de {formatCurrency(totalAmount)})
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
               </Box>
 
               {/* Activo (solo edición) */}
