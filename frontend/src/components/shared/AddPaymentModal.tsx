@@ -128,7 +128,6 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
         sx: {
           borderRadius: '12px',
           bgcolor: '#f8f6f6',
-          overflow: 'hidden',
           border: '1px solid #e2e8f0',
         },
       }}

@@ -197,41 +197,135 @@ export default function RootLayout({
           }
 
           /* ── PrimeReact Calendar – TravelAgency Theme ─────────────────── */
+          /*
+           * En unstyled:true PrimeReact NO agrega clases p-* al DOM.
+           * Todos los estilos se aplican via pt.className (ta-cal-*).
+           */
 
-          /* Focus ring on the text input */
-          .p-calendar .p-inputtext:focus {
+          /* ── Wrapper (error / disabled state) ── */
+          .ta-cal-wrapper { display: flex; flex-direction: column; }
+
+          /* ── Root & Input ── */
+          .ta-cal-root { width: 100%; display: flex; align-items: center; }
+          .ta-cal-input {
+            flex: 1 1 auto;
+            height: 44px;
+            border-radius: 8px 0 0 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            font-family: "Public Sans", system-ui, sans-serif;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-right: none;
+            background-color: #ffffff;
             outline: none;
-            border-color: #ec5b13 !important;
-            box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12) !important;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            cursor: text;
           }
-          .p-calendar .p-inputtext::placeholder {
+          .ta-cal-input:focus {
+            border-color: #ec5b13;
+            box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12);
+          }
+          .ta-cal-input::placeholder { color: #94a3b8; }
+
+          /* Error & disabled states driven by wrapper class */
+          .ta-cal-err .ta-cal-input { border-color: #ef4444; }
+          .ta-cal-err .ta-cal-btn  { background: #ef4444 !important; border-color: #ef4444 !important; }
+          .ta-cal-dis .ta-cal-input { background-color: #f1f5f9; cursor: not-allowed; }
+          .ta-cal-dis .ta-cal-btn  { opacity: 0.6; cursor: not-allowed; }
+
+          /* ── Trigger button ── */
+          .ta-cal-btn {
+            background: #ec5b13;
+            border: 1px solid #ec5b13;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            min-width: 44px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            flex-shrink: 0;
+            padding: 0;
+            transition: background 0.2s;
+          }
+          .ta-cal-btn:hover { background: #d44f0d; border-color: #d44f0d; }
+
+          /* ── Panel (appended to body) ── */
+          .ta-datepicker-panel {
+            position: absolute;
+            z-index: 9999 !important;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.14);
+            padding: 12px 14px 14px;
+            font-family: "Public Sans", system-ui, sans-serif;
+            min-width: 280px;
+            overflow: hidden;
+          }
+
+          /* ── Header ── */
+          .ta-cal-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+          }
+          .ta-cal-nav {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            padding: 0;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s;
+          }
+          .ta-cal-nav:hover { background: #f1f5f9; color: #0f172a; }
+          .ta-cal-title { display: flex; align-items: center; gap: 4px; }
+          .ta-cal-period-btn {
+            font-weight: 700;
+            font-size: 14px;
+            color: #0f172a;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Public Sans", system-ui, sans-serif;
+            transition: background 0.15s;
+          }
+          .ta-cal-period-btn:hover { background: #f1f5f9; }
+
+          /* ── Day grid ── */
+          .ta-cal-table {
+            border-collapse: separate;
+            border-spacing: 2px;
+            width: 100%;
+            margin-top: 4px;
+          }
+          .ta-cal-wday {
+            font-size: 11px;
+            font-weight: 600;
             color: #94a3b8;
+            text-align: center;
+            padding: 2px 0 6px;
+            width: 36px;
           }
-
-          /* Hover on trigger button */
-          .p-calendar .p-datepicker-trigger:hover,
-          .p-calendar .p-button:hover {
-            background: #d44f0d !important;
-            border-color: #d44f0d !important;
-          }
-
-          /* ── Panel internals (rendered via portal) ──────────────────────── */
-          /* Prev / Next hover */
-          .ta-datepicker-panel .p-datepicker-prev:hover,
-          .ta-datepicker-panel .p-datepicker-next:hover {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-          }
-
-          /* Month / Year title hover */
-          .ta-datepicker-panel .p-datepicker-month:hover,
-          .ta-datepicker-panel .p-datepicker-year:hover {
-            background: #f1f5f9 !important;
-          }
-
-          /* Day label base */
-          .ta-datepicker-panel .p-datepicker-calendar td > span,
-          .ta-datepicker-panel .p-datepicker-calendar td > a {
+          .ta-cal-day { text-align: center; padding: 1px; }
+          .ta-cal-dl {
             width: 34px;
             height: 34px;
             display: flex;
@@ -244,48 +338,44 @@ export default function RootLayout({
             color: #1e293b;
             margin: 0 auto;
             background: transparent;
-            border: none;
             cursor: pointer;
             transition: background 0.15s;
           }
+          .ta-cal-dl:hover         { background: #fedfcd; color: #9a3d0b; }
+          .ta-cal-dl.tod           { background: #f1f5f9; font-weight: 700; color: #475569; }
+          .ta-cal-dl.sel           { background: #ec5b13 !important; color: #ffffff !important; font-weight: 700; }
+          .ta-cal-dl.tod.sel       { background: #ec5b13 !important; color: #ffffff !important; }
+          .ta-cal-dl.other         { color: #cbd5e1; }
+          .ta-cal-dl.dis           { color: #e2e8f0; cursor: not-allowed; pointer-events: none; }
 
-          /* Hover */
-          .ta-datepicker-panel .p-datepicker-calendar td > span:hover,
-          .ta-datepicker-panel .p-datepicker-calendar td > a:hover {
-            background: #fedfcd !important;
-            color: #9a3d0b !important;
+          /* ── Month picker ── */
+          .ta-cal-mpicker,
+          .ta-cal-ypicker {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            padding: 4px 0;
           }
-
-          /* Today */
-          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-today > span,
-          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-today > a {
-            background: #f1f5f9 !important;
-            font-weight: 700;
-            color: #475569 !important;
+          .ta-cal-mitem,
+          .ta-cal-yitem {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: "Public Sans", system-ui, sans-serif;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            transition: background 0.15s;
           }
-
-          /* Selected */
-          .ta-datepicker-panel .p-datepicker-calendar td.p-highlight > span,
-          .ta-datepicker-panel .p-datepicker-calendar td > span.p-highlight,
-          .ta-datepicker-panel .p-datepicker-calendar td.p-highlight > a {
-            background: #ec5b13 !important;
-            color: #ffffff !important;
-            font-weight: 700;
-          }
-
-          /* Other month */
-          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-other-month > span,
-          .ta-datepicker-panel .p-datepicker-calendar td.p-datepicker-other-month > a {
-            color: #cbd5e1 !important;
-          }
-
-          /* Disabled */
-          .ta-datepicker-panel .p-datepicker-calendar td.p-disabled > span,
-          .ta-datepicker-panel .p-datepicker-calendar td.p-disabled > a {
-            color: #e2e8f0 !important;
-            cursor: not-allowed;
-            pointer-events: none;
-          }
+          .ta-cal-mitem:hover,
+          .ta-cal-yitem:hover { background: #fedfcd; color: #9a3d0b; }
+          .ta-cal-mitem.sel,
+          .ta-cal-yitem.sel { background: #ec5b13 !important; color: #ffffff !important; font-weight: 700; }
         `}</style>
         <PrimeReactProvider value={{ unstyled: true }}>
           <ThemeProvider theme={theme}>

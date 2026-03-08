@@ -3,6 +3,11 @@
  * Campo de fecha basado en PrimeReact Calendar.
  * Label fijo arriba — nunca flotante. Compatible con react-hook-form Controller.
  * Salida: string YYYY-MM-DD (igual que <input type="date">)
+ *
+ * Usa className en pt (no inline style) para que el CSS en layout.tsx
+ * pueda controlar hover, selected, today, etc.
+ * En unstyled:true, PrimeReact NO agrega las clases p-* por defecto,
+ * por eso todas las clases son custom ta-cal-*.
  */
 
 'use client';
@@ -44,6 +49,36 @@ function toDateString(d: Date | null | undefined): string {
   return `${y}-${m}-${day}`;
 }
 
+// pt functions for dynamic day/month/year states
+// Context shape from PrimeReact v10: { selected, date: { today, currentMonth, selectable } }
+const dayLabelPt = (opts: any) => {
+  const ctx = opts?.context ?? {};
+  const date = ctx.date ?? {};
+  return {
+    className: [
+      'ta-cal-dl',
+      ctx.selected && 'sel',
+      date.today && 'tod',
+      date.currentMonth === false && 'other',
+      date.selectable === false && 'dis',
+    ]
+      .filter(Boolean)
+      .join(' '),
+  };
+};
+
+const monthPt = (opts: any) => ({
+  className: ['ta-cal-mitem', opts?.context?.selected && 'sel']
+    .filter(Boolean)
+    .join(' '),
+});
+
+const yearPt = (opts: any) => ({
+  className: ['ta-cal-yitem', opts?.context?.selected && 'sel']
+    .filter(Boolean)
+    .join(' '),
+});
+
 export const DateInput: React.FC<DateInputProps> = ({
   label,
   value,
@@ -65,7 +100,6 @@ export const DateInput: React.FC<DateInputProps> = ({
     [onChange]
   );
 
-  const borderColor = error ? '#ef4444' : '#cbd5e1';
   const labelSx = {
     fontSize: '0.875rem',
     fontWeight: 600,
@@ -74,174 +108,17 @@ export const DateInput: React.FC<DateInputProps> = ({
     display: 'block',
   };
 
-  const calendarPT = {
-    root: {
-      style: { width: '100%', display: 'flex', alignItems: 'center' },
-    },
-    input: {
-      style: {
-        flex: '1 1 auto',
-        height: '44px',
-        borderRadius: '8px 0 0 8px',
-        padding: '0 12px',
-        fontSize: '14px',
-        fontFamily: '"Public Sans", system-ui, sans-serif',
-        color: '#0f172a',
-        border: `1px solid ${borderColor}`,
-        borderRight: 'none',
-        backgroundColor: disabled ? '#f1f5f9' : '#ffffff',
-        outline: 'none',
-        boxSizing: 'border-box' as const,
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        cursor: disabled ? 'not-allowed' : 'text',
-      },
-    },
-    dropdownButton: {
-      root: {
-        style: {
-          background: error ? '#ef4444' : '#ec5b13',
-          border: `1px solid ${error ? '#ef4444' : '#ec5b13'}`,
-          borderLeft: 'none',
-          borderRadius: '0 8px 8px 0',
-          minWidth: '44px',
-          width: '44px',
-          height: '44px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          color: '#ffffff',
-          flexShrink: 0,
-          padding: 0,
-          transition: 'background 0.2s',
-        },
-      },
-    },
-    panel: {
-      style: {
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.14)',
-        padding: '12px 14px 14px',
-        fontFamily: '"Public Sans", system-ui, sans-serif',
-        zIndex: 9999,
-        overflow: 'hidden',
-        minWidth: '280px',
-      },
-    },
-    header: {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingBottom: '10px',
-        marginBottom: '8px',
-        borderBottom: '1px solid #f1f5f9',
-      },
-    },
-    previousButton: {
-      root: {
-        style: {
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#64748b',
-          width: '28px',
-          height: '28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '6px',
-          padding: 0,
-          fontSize: '14px',
-          transition: 'background 0.15s, color 0.15s',
-        },
-      },
-    },
-    nextButton: {
-      root: {
-        style: {
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#64748b',
-          width: '28px',
-          height: '28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '6px',
-          padding: 0,
-          fontSize: '14px',
-          transition: 'background 0.15s, color 0.15s',
-        },
-      },
-    },
-    title: {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-      },
-    },
-    monthTitle: {
-      style: {
-        fontWeight: 700,
-        fontSize: '14px',
-        color: '#0f172a',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '2px 6px',
-        borderRadius: '4px',
-        fontFamily: '"Public Sans", system-ui, sans-serif',
-        transition: 'background 0.15s',
-      },
-    },
-    yearTitle: {
-      style: {
-        fontWeight: 700,
-        fontSize: '14px',
-        color: '#0f172a',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '2px 6px',
-        borderRadius: '4px',
-        fontFamily: '"Public Sans", system-ui, sans-serif',
-        transition: 'background 0.15s',
-      },
-    },
-    table: {
-      style: {
-        borderCollapse: 'separate' as const,
-        borderSpacing: '2px',
-        width: '100%',
-        marginTop: '4px',
-      },
-    },
-    weekDay: {
-      style: {
-        fontSize: '11px',
-        fontWeight: 600,
-        color: '#94a3b8',
-        textAlign: 'center' as const,
-        padding: '2px 0 6px',
-        width: '36px',
-      },
-    },
-    day: {
-      style: {
-        textAlign: 'center' as const,
-        padding: '1px',
-      },
-    },
-    // dayLabel is dynamic — handled via CSS class in layout.tsx
-  };
+  // Wrapper class drives error/disabled styles via CSS
+  const wrapperClass = [
+    'ta-cal-wrapper',
+    error && 'ta-cal-err',
+    disabled && 'ta-cal-dis',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }} className={wrapperClass}>
       <Typography component="label" sx={labelSx}>
         {label}
         {required && ' *'}
@@ -262,9 +139,30 @@ export const DateInput: React.FC<DateInputProps> = ({
           />
         }
         panelClassName="ta-datepicker-panel"
+        appendTo={() => document.body}
+        transitionOptions={{ timeout: 0 }}
         minDate={minDate}
         maxDate={maxDate}
-        pt={calendarPT}
+        pt={{
+          root:           { className: 'ta-cal-root' },
+          input:          { className: 'ta-cal-input' },
+          dropdownButton: { root: { className: 'ta-cal-btn' } },
+          panel:          { className: 'ta-datepicker-panel' },
+          header:         { className: 'ta-cal-hdr' },
+          previousButton: { root: { className: 'ta-cal-nav' } },
+          nextButton:     { root: { className: 'ta-cal-nav' } },
+          title:          { className: 'ta-cal-title' },
+          monthTitle:     { className: 'ta-cal-period-btn' },
+          yearTitle:      { className: 'ta-cal-period-btn' },
+          table:          { className: 'ta-cal-table' },
+          weekDay:        { className: 'ta-cal-wday' },
+          day:            { className: 'ta-cal-day' },
+          dayLabel:       dayLabelPt,
+          monthPicker:    { className: 'ta-cal-mpicker' },
+          month:          monthPt,
+          yearPicker:     { className: 'ta-cal-ypicker' },
+          year:           yearPt,
+        }}
       />
       {helperText && (
         <FormHelperText error={error} sx={{ mx: 0, mt: 0.5 }}>
