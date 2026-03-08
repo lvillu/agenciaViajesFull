@@ -7,12 +7,8 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import {
-  Container,
   Box,
   Typography,
-  Card,
-  CardContent,
-  Grid,
   Alert,
   CircularProgress,
   MenuItem,
@@ -20,6 +16,7 @@ import {
   Checkbox,
   IconButton,
   Tooltip,
+  Switch,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -31,6 +28,7 @@ import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 import { ClientFormModal } from '@/components/shared/ClientFormModal';
 import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
@@ -161,21 +159,6 @@ function SaleFormContent() {
     }
   };
 
-  // Handler para calcular fecha de liquidación cuando cambia la fecha de viaje
-  const handleTravelDateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newTravelDate = e.target.value;
-    
-    if (selectedProvider && newTravelDate && selectedProvider.finalPaymentDaysBefore) {
-      const calculatedDate = saleService.calculateFinalPaymentDate(
-        newTravelDate,
-        selectedProvider.finalPaymentDaysBefore
-      );
-      if (calculatedDate) {
-        setValue('finalPaymentDueDate', calculatedDate);
-      }
-    }
-  };
-
   // Formatear moneda para mostrar
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('es-MX', {
@@ -235,53 +218,81 @@ function SaleFormContent() {
 
   if (loadingSale) {
     return (
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
-        <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress />
-          </Box>
-        </Container>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <CircularProgress sx={{ color: '#ec5b13' }} />
+        </Box>
         <Footer />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
+
+      <Box sx={{ flex: 1, maxWidth: '896px', mx: 'auto', width: '100%', px: 3, py: 4 }}>
         <Breadcrumbs
           items={[
             { label: 'Reservas', href: '/reservas' },
             { label: isEditing ? 'Editar Reserva' : 'Nueva Reserva' },
           ]}
         />
-        <Typography variant="h1" sx={{ mb: 3, color: 'text.primary', fontWeight: 800 }}>
-          {isEditing ? 'Editar Reserva' : 'Nueva Reserva'}
-        </Typography>
 
-        <Card
-          sx={{
-            borderRadius: 2,
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 'none',
-            my: 2,
-          }}
-        >
-          <CardContent sx={{ p: 4 }}>
-            {submitError && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {submitError}
-              </Alert>
-            )}
+        {/* Page Title */}
+        <Box sx={{ mb: 4 }}>
+          <Typography sx={{ fontSize: '1.875rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+            {isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva'}
+          </Typography>
+          <Typography sx={{ fontSize: '0.875rem', color: '#64748b', mt: 0.5 }}>
+            {isEditing
+              ? 'Actualiza los datos de la reserva.'
+              : 'Completa los datos para registrar el paquete de viaje.'}
+          </Typography>
+        </Box>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid container spacing={3}>
-                {/* Cliente con botón para agregar */}
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+        {submitError && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: '10px' }}>
+            {submitError}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+
+            {/* ── Sección 1: Cliente & Proveedor ── */}
+            <Box
+              sx={{
+                bgcolor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                p: 3,
+              }}
+            >
+              {/* Section header */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  pb: 2,
+                  mb: 3,
+                  borderBottom: '1px solid #f1f5f9',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                  handshake
+                </span>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                  Cliente &amp; Información del Proveedor
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                {/* Cliente + botón agregar */}
+                <Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
                     <Box sx={{ flex: 1 }}>
                       <Controller
                         name="clientId"
@@ -290,12 +301,12 @@ function SaleFormContent() {
                           <Input
                             {...field}
                             select
-                            label="Cliente"
+                            label="Seleccionar Cliente"
                             error={!!errors.clientId}
                             helperText={errors.clientId?.message}
                             onChange={(e: any) => field.onChange(Number(e.target.value))}
                           >
-                            <MenuItem value={0}>Seleccione un cliente</MenuItem>
+                            <MenuItem value={0}>Buscar un cliente...</MenuItem>
                             {clients.map((client) => (
                               <MenuItem key={client.id} value={client.id}>
                                 {client.name} {client.lastName}
@@ -307,38 +318,26 @@ function SaleFormContent() {
                     </Box>
                     <Tooltip title="Agregar nuevo cliente">
                       <IconButton
-                        color="primary"
                         onClick={handleOpenClientModal}
                         sx={{
-                          mt: 1.5,
-                          bgcolor: 'primary.main',
-                          color: 'white',
-                          '&:hover': {
-                            bgcolor: 'primary.dark',
-                          },
+                          mb: '2px',
+                          bgcolor: '#ec5b13',
+                          color: '#ffffff',
+                          width: 44,
+                          height: 44,
+                          borderRadius: '10px',
+                          '&:hover': { bgcolor: '#d44e0e' },
+                          flexShrink: 0,
                         }}
                       >
-                        <AddIcon />
+                        <AddIcon sx={{ fontSize: '20px' }} />
                       </IconButton>
                     </Tooltip>
                   </Box>
-                </Grid>
-
-                {/* Botón Agregar Cliente */}
-                <Grid item xs={12} md={6}>
-                  <Button 
-                    onClick={handleOpenClientModal} 
-                    variant="outlined" 
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    sx={{ mt: 1 }}
-                  >
-                    Agregar Cliente
-                  </Button>
-                </Grid>
+                </Box>
 
                 {/* Proveedor */}
-                <Grid item xs={12} md={6}>
+                <Box>
                   <Controller
                     name="providerId"
                     control={control}
@@ -346,12 +345,12 @@ function SaleFormContent() {
                       <Input
                         {...field}
                         select
-                        label="Proveedor"
+                        label="Seleccionar Proveedor"
                         error={!!errors.providerId}
                         helperText={errors.providerId?.message}
                         onChange={(e: any) => field.onChange(Number(e.target.value))}
                       >
-                        <MenuItem value={0}>Seleccione un proveedor</MenuItem>
+                        <MenuItem value={0}>Buscar un proveedor...</MenuItem>
                         {providers.map((provider) => (
                           <MenuItem key={provider.id} value={provider.id}>
                             {provider.name} ({provider.acronym})
@@ -360,56 +359,268 @@ function SaleFormContent() {
                       </Input>
                     )}
                   />
-                </Grid>
+                </Box>
+              </Box>
+            </Box>
 
+            {/* ── Sección 2: Detalles del Paquete ── */}
+            <Box
+              sx={{
+                bgcolor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                p: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  pb: 2,
+                  mb: 3,
+                  borderBottom: '1px solid #f1f5f9',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                  inventory_2
+                </span>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                  Detalles del Paquete
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3, mb: 3 }}>
                 {/* Número de Reserva */}
-                <Grid item xs={12} md={6}>
-                  <Input
-                    label="Número de Reserva"
-                    {...register('reservationNumber')}
-                    error={!!errors.reservationNumber}
-                    helperText={errors.reservationNumber?.message || 'Proporcionado por el proveedor'}
-                  />
-                </Grid>
+                <Input
+                  label="Número de Reserva"
+                  placeholder="Ej. RES-2024-001"
+                  {...register('reservationNumber')}
+                  error={!!errors.reservationNumber}
+                  helperText={errors.reservationNumber?.message || 'Proporcionado por el proveedor'}
+                />
 
                 {/* Total */}
-                <Grid item xs={12} md={6}>
+                <Controller
+                  name="totalAmount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Monto Total"
+                      type="number"
+                      placeholder="0.00"
+                      inputProps={{ step: '0.01', min: '0' }}
+                      InputProps={{
+                        startAdornment: (
+                          <span style={{ color: '#94a3b8', marginRight: 4, fontWeight: 500 }}>$</span>
+                        ),
+                      }}
+                      error={!!errors.totalAmount}
+                      helperText={
+                        errors.totalAmount?.message ||
+                        (field.value > 0 ? `Equivale a: ${formatCurrency(field.value)}` : '')
+                      }
+                      onBlur={handleTotalBlur}
+                    />
+                  )}
+                />
+
+                {/* Toggle USD */}
+                <Box>
+                  <Typography
+                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', mb: 0.75, display: 'block' }}
+                  >
+                    Moneda (¿USD?)
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      height: '44px',
+                    }}
+                  >
+                    <Controller
+                      name="isDollar"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': { color: '#ec5b13' },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#ec5b13' },
+                          }}
+                        />
+                      )}
+                    />
+                    <Typography sx={{ fontSize: '0.875rem', color: '#475569', fontWeight: 500 }}>
+                      {isDollar ? 'USD Activo' : 'MXN'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Tipo de Cambio (solo si es USD) */}
+              {isDollar && (
+                <Box sx={{ mb: 3 }}>
+                  <Input
+                    label="Tipo de Cambio (USD a MXN)"
+                    type="number"
+                    placeholder="Ej. 20.50"
+                    inputProps={{ step: '0.01', min: '0' }}
+                    {...register('exchangeRate', { valueAsNumber: true })}
+                    error={!!errors.exchangeRate}
+                    helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
+                    required
+                  />
+                </Box>
+              )}
+
+              {/* Descripción */}
+              <Input
+                label="Descripción"
+                multiline
+                rows={4}
+                placeholder="Ingresa detalles de la reserva, solicitudes especiales o notas..."
+                {...register('description')}
+                error={!!errors.description}
+                helperText={errors.description?.message || 'Ej: Reserva Paq. Rivera Maya - 3 días, 2 noches'}
+              />
+            </Box>
+
+            {/* ── Sección 3: Fechas & Pago ── */}
+            <Box
+              sx={{
+                bgcolor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                p: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  pb: 2,
+                  mb: 3,
+                  borderBottom: '1px solid #f1f5f9',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                  event
+                </span>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                  Fechas &amp; Pago
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3, mb: 3 }}>
+                {/* Fecha de Viaje */}
+                <Controller
+                  name="travelDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DateInput
+                      label="Fecha de Viaje"
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        // Calcular fecha de liquidación automáticamente
+                        if (selectedProvider && val && selectedProvider.finalPaymentDaysBefore) {
+                          const calculatedDate = saleService.calculateFinalPaymentDate(
+                            val,
+                            selectedProvider.finalPaymentDaysBefore
+                          );
+                          if (calculatedDate) setValue('finalPaymentDueDate', calculatedDate);
+                        }
+                      }}
+                      onBlur={field.onBlur}
+                      error={!!errors.travelDate}
+                      helperText={(errors.travelDate as any)?.message}
+                      minDate={new Date()}
+                      required
+                    />
+                  )}
+                />
+
+                {/* Fecha de Retorno */}
+                <Controller
+                  name="returnDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DateInput
+                      label="Fecha de Retorno"
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      error={!!errors.returnDate}
+                      helperText={(errors.returnDate as any)?.message || 'Opcional: Para avisar al vendedor'}
+                      minDate={travelDate ? new Date(travelDate + 'T00:00:00') : new Date()}
+                    />
+                  )}
+                />
+
+                {/* Fecha Límite de Liquidación */}
+                <Box>
                   <Controller
-                    name="totalAmount"
+                    name="finalPaymentDueDate"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Total de la Reserva"
-                        type="number"
-                        inputProps={{ step: '0.01', min: '0' }}
-                        error={!!errors.totalAmount}
+                      <DateInput
+                        label="Fecha Límite de Liquidación"
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        error={!!errors.finalPaymentDueDate || isLiquidationOverdue}
                         helperText={
-                          errors.totalAmount?.message ||
-                          (field.value > 0 ? `Equivale a: ${formatCurrency(field.value)}` : '')
+                          (errors.finalPaymentDueDate as any)?.message ||
+                          (selectedProvider?.finalPaymentDaysBefore
+                            ? `Auto: ${selectedProvider.finalPaymentDaysBefore} días antes`
+                            : 'Opcional: Ajustable manualmente')
                         }
-                        onBlur={handleTotalBlur}
+                        maxDate={travelDate ? new Date(travelDate + 'T00:00:00') : undefined}
+                        disabled={isLiquidationOverdue}
                       />
                     )}
                   />
-                </Grid>
+                  {isLiquidationOverdue && (
+                    <Alert
+                      severity="warning"
+                      icon={<WarningAmberIcon />}
+                      sx={{ mt: 1, borderRadius: '8px', fontSize: '0.8rem' }}
+                    >
+                      La fecha ya pasó. El Pago Inicial debe cubrir el 100%.
+                    </Alert>
+                  )}
+                </Box>
+              </Box>
 
-                {/* Descripción */}
-                <Grid item xs={12}>
-                  <Input
-                    label="Descripción del Paquete"
-                    multiline
-                    rows={3}
-                    {...register('description')}
-                    error={!!errors.description}
-                    helperText={errors.description?.message || 'Ej: Reserva Paq. Rivera Maya - 3 días, 2 noches'}
-                  />
-                </Grid>
+              {/* Pago Inicial */}
+              <Box sx={{ maxWidth: { md: 'calc(33.33% - 8px)' } }}>
+                <Input
+                  label="Pago Inicial"
+                  type="number"
+                  placeholder="0.00"
+                  inputProps={{ step: '0.01', min: '0' }}
+                  {...register('requiredDeposit', { valueAsNumber: true })}
+                  error={!!errors.requiredDeposit}
+                  helperText={
+                    (errors.requiredDeposit as any)?.message ||
+                    (selectedProvider?.depositPercentage
+                      ? `Calculado automáticamente (${selectedProvider.depositPercentage}%)`
+                      : 'Opcional: Se puede calcular automáticamente')
+                  }
+                />
+              </Box>
 
-                {/* Es Dólares */}
-                <Grid item xs={12} md={6}>
+              {/* Activo (solo edición) */}
+              {isEditing && (
+                <Box sx={{ mt: 3 }}>
                   <Controller
-                    name="isDollar"
+                    name="active"
                     control={control}
                     render={({ field }) => (
                       <FormControlLabel
@@ -417,165 +628,59 @@ function SaleFormContent() {
                           <Checkbox
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
+                            sx={{ color: '#ec5b13', '&.Mui-checked': { color: '#ec5b13' } }}
                           />
                         }
-                        label="¿La reserva es en dólares?"
+                        label={
+                          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155' }}>
+                            Reserva activa
+                          </Typography>
+                        }
                       />
                     )}
                   />
-                </Grid>
+                </Box>
+              )}
+            </Box>
 
-                {/* Tipo de Cambio (solo si es en dólares) */}
-                {isDollar && (
-                  <Grid item xs={12} md={6}>
-                    <Input
-                      label="Tipo de Cambio (USD a MXN)"
-                      type="number"
-                      inputProps={{ step: '0.01', min: '0' }}
-                      {...register('exchangeRate', { valueAsNumber: true })}
-                      error={!!errors.exchangeRate}
-                      helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
-                      required
-                    />
-                  </Grid>
+            {/* ── Botones de acción ── */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, pt: 1 }}>
+              <Button onClick={handleCancel} variant="outlined" disabled={loading}>
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                startIcon={
+                  loading ? undefined : (
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>save</span>
+                  )
+                }
+              >
+                {loading ? (
+                  <CircularProgress size={22} sx={{ color: '#fff' }} />
+                ) : isEditing ? (
+                  'Actualizar Reserva'
+                ) : (
+                  'Crear Reserva'
                 )}
+              </Button>
+            </Box>
 
-                {/* Pago Inicial (renombrado de "Anticipo Requerido") */}
-                <Grid item xs={12} md={6}>
-                  <Input
-                    label="Pago Inicial"
-                    type="number"
-                    inputProps={{ step: '0.01', min: '0' }}
-                    {...register('requiredDeposit', { valueAsNumber: true })}
-                    error={!!errors.requiredDeposit}
-                    helperText={
-                      errors.requiredDeposit?.message ||
-                      (selectedProvider?.depositPercentage
-                        ? `Calculado automáticamente (${selectedProvider.depositPercentage}%)`
-                        : 'Opcional: Se puede calcular automáticamente')
-                    }
-                  />
-                </Grid>
+          </Box>
+        </form>
+      </Box>
 
-                {/* Fecha de Viaje */}
-                <Grid item xs={12} md={6}>
-                  <Controller
-                    name="travelDate"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Fecha de Viaje"
-                        type="date"
-                        inputProps={{
-                          min: new Date().toISOString().split('T')[0],
-                        }}
-                        onChange={(e: any) => {
-                          field.onChange(e);
-                          handleTravelDateChange(e);
-                        }}
-                        error={!!errors.travelDate}
-                        helperText={errors.travelDate?.message}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    )}
-                  />
-                </Grid>
+      {/* Modal para agregar cliente */}
+      <ClientFormModal
+        open={clientModalOpen}
+        onClose={handleCloseClientModal}
+        onSubmit={handleCreateClient}
+        isLoading={clientsLoading}
+      />
 
-                {/* Fecha de Retorno */}
-                <Grid item xs={12} md={6}>
-                  <Input
-                    label="Fecha de Retorno"
-                    type="date"
-                    inputProps={{
-                      min: travelDate || new Date().toISOString().split('T')[0],
-                    }}
-                    {...register('returnDate')}
-                    error={!!errors.returnDate}
-                    helperText={errors.returnDate?.message || 'Opcional: Para avisar al vendedor'}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-
-                {/* Fecha Límite de Liquidación */}
-                <Grid item xs={12} md={6}>
-                  <Input
-                    label="Fecha Límite de Liquidación"
-                    type="date"
-                    inputProps={{
-                      max: travelDate || undefined,
-                    }}
-                    {...register('finalPaymentDueDate')}
-                    error={!!errors.finalPaymentDueDate}
-                    helperText={
-                      errors.finalPaymentDueDate?.message ||
-                      (selectedProvider?.finalPaymentDaysBefore
-                        ? `Calculado automáticamente (${selectedProvider.finalPaymentDaysBefore} días antes)`
-                        : 'Opcional: Ajustable manualmente')
-                    }
-                    InputLabelProps={{ shrink: true }}
-                    disabled={isLiquidationOverdue}
-                  />
-                  {isLiquidationOverdue && (
-                    <Alert 
-                      severity="warning" 
-                      icon={<WarningAmberIcon />}
-                      sx={{ mt: 1 }}
-                    >
-                      La fecha de liquidación ya pasó. El Pago Inicial debe cubrir el 100% del paquete.
-                    </Alert>
-                  )}
-                </Grid>
-
-                {/* Activo (solo en edición) */}
-                {isEditing && (
-                  <Grid item xs={12}>
-                    <Controller
-                      name="active"
-                      control={control}
-                      render={({ field }) => (
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={field.value}
-                              onChange={(e) => field.onChange(e.target.checked)}
-                            />
-                          }
-                          label="Reserva activa"
-                        />
-                      )}
-                    />
-                  </Grid>
-                )}
-              </Grid>
-
-              {/* Botones */}
-              <Box sx={{ display: 'flex', gap: 2, mt: 4, justifyContent: 'flex-end' }}>
-                <Button onClick={handleCancel} variant="outlined" disabled={loading}>
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
-                  color="primary" 
-                  disabled={loading}
-                  sx={{ minWidth: 140 }}
-                >
-                  {loading ? <CircularProgress size={24} /> : isEditing ? 'Actualizar' : 'Crear Reserva'}
-                </Button>
-              </Box>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Modal para agregar cliente */}
-        <ClientFormModal
-          open={clientModalOpen}
-          onClose={handleCloseClientModal}
-          onSubmit={handleCreateClient}
-          isLoading={clientsLoading}
-        />
-      </Container>
       <Footer />
     </Box>
   );
@@ -584,13 +689,11 @@ function SaleFormContent() {
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
-        <Container maxWidth="xl" sx={{ py: 4, flex: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress />
-          </Box>
-        </Container>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <CircularProgress sx={{ color: '#ec5b13' }} />
+        </Box>
         <Footer />
       </Box>
     }>
