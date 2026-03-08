@@ -12,6 +12,7 @@ export interface Provider {
   providerContactName: string;
   depositPercentage?: number; // Porcentaje de anticipo requerido
   finalPaymentDaysBefore?: number; // Días antes del viaje para liquidación final
+  profitPercentage?: number; // Porcentaje de ganancia por defecto
   active: boolean;
 }
 
@@ -23,6 +24,7 @@ export interface CreateProviderRequest {
   providerContactName: string;
   depositPercentage?: number;
   finalPaymentDaysBefore?: number;
+  profitPercentage?: number;
 }
 
 export interface UpdateProviderRequest {
@@ -33,5 +35,6 @@ export interface UpdateProviderRequest {
   providerContactName: string;
   depositPercentage?: number;
   finalPaymentDaysBefore?: number;
+  profitPercentage?: number;
   active: boolean;
 }

@@ -13,6 +13,7 @@ export interface Sale {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -62,6 +63,7 @@ export interface CreateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -77,6 +79,7 @@ export interface UpdateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -94,6 +97,7 @@ export const CreateSaleSchema = z.object({
   description: z.string().optional(),
   totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
+  profitPercentage: z.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
   exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
   requiredDeposit: z.number().min(0).optional(),
   finalPaymentDueDate: z.string().optional(),
@@ -137,6 +141,7 @@ export const UpdateSaleSchema = z.object({
   description: z.string().optional(),
   totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
+  profitPercentage: z.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
   exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
   requiredDeposit: z.number().min(0).optional(),
   finalPaymentDueDate: z.string().optional(),
@@ -182,4 +187,5 @@ export interface SaleWithTotals extends Sale {
   balance: number; // Saldo pendiente
   isOverdue: boolean; // Si pasó la fecha de liquidación
   requiresFullPayment: boolean; // Si requiere pago total
+  profitAmount?: number; // Monto de ganancia calculado por el backend
 }

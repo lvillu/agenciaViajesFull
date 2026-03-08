@@ -12,7 +12,7 @@
 
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Typography, FormHelperText } from '@mui/material';
 import { Calendar } from 'primereact/calendar';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -93,9 +93,20 @@ export const DateInput: React.FC<DateInputProps> = ({
   minDate,
   maxDate,
 }) => {
+  // Local Date state so the Calendar input always shows the selected date
+  // immediately, without depending on the parent round-trip string→Date.
+  const [internalDate, setInternalDate] = useState<Date | null>(() => toDate(value));
+
+  // Sync parent value → local state (e.g. when form resets or edits arrive)
+  useEffect(() => {
+    setInternalDate(toDate(value));
+  }, [value]);
+
   const handleChange = useCallback(
-    (e: { value: Date | null | undefined }) => {
-      onChange?.(toDateString(e.value));
+    (e: { value: Date | Date[] | string | null | undefined }) => {
+      const date = e.value instanceof Date ? e.value : null;
+      setInternalDate(date);
+      onChange?.(toDateString(date));
     },
     [onChange]
   );
@@ -125,7 +136,7 @@ export const DateInput: React.FC<DateInputProps> = ({
       </Typography>
       <Calendar
         name={name}
-        value={toDate(value)}
+        value={internalDate}
         onChange={handleChange}
         onBlur={onBlur}
         disabled={disabled}
@@ -133,6 +144,8 @@ export const DateInput: React.FC<DateInputProps> = ({
         showIcon
         iconPos="right"
         placeholder={placeholder}
+        style={{ width: '100%' }}
+        inputClassName="ta-cal-input"
         icon={
           <CalendarMonthOutlinedIcon
             sx={{ fontSize: 18, color: '#ffffff', display: 'flex' }}
@@ -149,8 +162,9 @@ export const DateInput: React.FC<DateInputProps> = ({
           dropdownButton: { root: { className: 'ta-cal-btn' } },
           panel:          { className: 'ta-datepicker-panel' },
           header:         { className: 'ta-cal-hdr' },
-          previousButton: { root: { className: 'ta-cal-nav' } },
-          nextButton:     { root: { className: 'ta-cal-nav' } },
+          // previousButton / nextButton son <button> nativos — NO usar root
+          previousButton: { className: 'ta-cal-nav' },
+          nextButton:     { className: 'ta-cal-nav' },
           title:          { className: 'ta-cal-title' },
           monthTitle:     { className: 'ta-cal-period-btn' },
           yearTitle:      { className: 'ta-cal-period-btn' },

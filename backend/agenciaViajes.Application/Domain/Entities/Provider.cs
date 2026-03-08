@@ -10,6 +10,7 @@
         public string ProviderContactName { get; set; } = default!;
         public decimal? DepositPercentage { get; set; }
         public int? FinalPaymentDaysBefore { get; set; }
+        public decimal? ProfitPercentage { get; set; }
         public bool Active { get; set; } = true;
 
     }

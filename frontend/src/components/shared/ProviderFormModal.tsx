@@ -76,6 +76,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       providerContactName: '',
       depositPercentage: undefined,
       finalPaymentDaysBefore: undefined,
+      profitPercentage: undefined,
       active: true,
     },
   });
@@ -90,6 +91,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
         providerContactName: provider.providerContactName,
         depositPercentage: provider.depositPercentage,
         finalPaymentDaysBefore: provider.finalPaymentDaysBefore,
+        profitPercentage: provider.profitPercentage,
         active: provider.active,
       });
     } else if (!open) {
@@ -101,6 +103,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
         providerContactName: '',
         depositPercentage: undefined,
         finalPaymentDaysBefore: undefined,
+        profitPercentage: undefined,
         active: true,
       });
     }
@@ -229,9 +232,9 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
           <Box>
             <SectionHeader
               icon={<PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
-              label="Términos de Pago"
+              label="Términos de Pago y Ganancia"
             />
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
               <Input
                 label="Porcentaje de Anticipo"
                 type="number"
@@ -257,6 +260,20 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
                 InputProps={{
                   endAdornment: (
                     <Typography sx={{ fontSize: '12px', color: 'text.secondary', pr: 0.5 }}>días</Typography>
+                  ),
+                }}
+              />
+              <Input
+                label="% de Ganancia"
+                type="number"
+                placeholder="10"
+                {...register('profitPercentage', { valueAsNumber: true })}
+                error={!!errors.profitPercentage}
+                helperText={errors.profitPercentage?.message || 'Precargado en reservas'}
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                InputProps={{
+                  endAdornment: (
+                    <Typography sx={{ fontSize: '14px', color: 'text.secondary', pr: 0.5 }}>%</Typography>
                   ),
                 }}
               />

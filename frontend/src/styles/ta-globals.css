@@ -1,0 +1,192 @@
+﻿/* TravelAgency - Global utility styles */
+
+/* Input generico */
+.ta-input:focus {
+  outline: none;
+  border-color: #ec5b13 !important;
+  box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12) !important;
+}
+.ta-input:disabled { cursor: not-allowed; opacity: 0.7; }
+.ta-input::placeholder { color: #94a3b8; }
+
+/* PrimeReact Calendar - TravelAgency Theme */
+
+.ta-cal-wrapper { display: flex; flex-direction: column; }
+
+.ta-cal-root {
+  width: 100%;
+  display: flex !important;
+  align-items: center;
+  position: relative;
+}
+
+.ta-cal-input {
+  flex: 1 1 auto !important;
+  height: 44px !important;
+  border-radius: 12px 0 0 12px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  font-family: "Public Sans", system-ui, sans-serif !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  border-right: none !important;
+  background-color: #ffffff !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: text;
+  min-width: 0;
+  width: 100%;
+}
+.ta-cal-input:focus {
+  border-color: #ec5b13 !important;
+  box-shadow: 0 0 0 3px rgba(236, 91, 19, 0.12) !important;
+}
+.ta-cal-input::placeholder { color: #94a3b8 !important; }
+
+.ta-cal-err .ta-cal-input { border-color: #ef4444 !important; }
+.ta-cal-err .ta-cal-btn   { background: #ef4444 !important; border-color: #ef4444 !important; }
+.ta-cal-dis .ta-cal-input { background-color: #f1f5f9 !important; cursor: not-allowed !important; }
+.ta-cal-dis .ta-cal-btn   { opacity: 0.6; cursor: not-allowed; }
+
+.ta-cal-btn {
+  background: #ec5b13 !important;
+  border: 1px solid #ec5b13 !important;
+  border-left: none !important;
+  border-radius: 0 12px 12px 0 !important;
+  min-width: 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  color: #ffffff !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  transition: background 0.2s;
+  box-shadow: none !important;
+}
+.ta-cal-btn:hover { background: #d44f0d !important; border-color: #d44f0d !important; }
+
+.ta-datepicker-panel {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14);
+  padding: 12px 14px 14px;
+  font-family: "Public Sans", system-ui, sans-serif;
+  min-width: 280px;
+  overflow: hidden;
+}
+
+.ta-cal-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ta-cal-nav {
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  color: #64748b !important;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  padding: 0;
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+.ta-cal-nav:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+
+.ta-cal-title { display: flex; align-items: center; gap: 4px; }
+
+.ta-cal-period-btn {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0f172a;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Public Sans", system-ui, sans-serif;
+  transition: background 0.15s;
+}
+.ta-cal-period-btn:hover { background: #f1f5f9 !important; }
+
+.ta-cal-table {
+  border-collapse: separate;
+  border-spacing: 2px;
+  width: 100%;
+  margin-top: 4px;
+}
+.ta-cal-wday {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  padding: 2px 0 6px;
+  width: 36px;
+}
+.ta-cal-day { text-align: center; padding: 1px; }
+
+.ta-cal-dl {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 13px;
+  font-family: "Public Sans", system-ui, sans-serif;
+  font-weight: 400;
+  color: #1e293b;
+  margin: 0 auto;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ta-cal-dl:hover    { background: #fedfcd; color: #9a3d0b; }
+.ta-cal-dl.tod      { background: #f1f5f9; font-weight: 700; color: #475569; }
+.ta-cal-dl.sel      { background: #ec5b13 !important; color: #ffffff !important; font-weight: 700; }
+.ta-cal-dl.tod.sel  { background: #ec5b13 !important; color: #ffffff !important; }
+.ta-cal-dl.other    { color: #cbd5e1; }
+.ta-cal-dl.dis      { color: #e2e8f0; cursor: not-allowed; pointer-events: none; }
+
+.ta-cal-mpicker,
+.ta-cal-ypicker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px 0;
+}
+.ta-cal-mitem,
+.ta-cal-yitem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: "Public Sans", system-ui, sans-serif;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: background 0.15s;
+}
+.ta-cal-mitem:hover,
+.ta-cal-yitem:hover { background: #fedfcd; color: #9a3d0b; }
+.ta-cal-mitem.sel,
+.ta-cal-yitem.sel   { background: #ec5b13 !important; color: #ffffff !important; font-weight: 700; }

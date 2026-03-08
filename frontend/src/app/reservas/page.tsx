@@ -261,7 +261,7 @@ export default function ReservasPage() {
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    {['Cliente', 'Proveedor', 'Descripción', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Estado', 'Acciones'].map((h, i) => (
+                    {['Cliente', 'Proveedor', 'Descripción', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Ganancia', 'Estado', 'Acciones'].map((h, i) => (
                       <TableCell
                         key={h}
                         sx={{
@@ -271,7 +271,7 @@ export default function ReservasPage() {
                           letterSpacing: '0.07em',
                           color: 'text.secondary',
                           py: 1.5,
-                          textAlign: (i >= 4 && i <= 6) ? 'right' : i === 8 ? 'center' : 'left',
+                          textAlign: (i >= 4 && i <= 7) ? 'right' : i === 9 ? 'center' : 'left',
                           borderBottom: '2px solid',
                           borderColor: 'divider',
                         }}
@@ -284,16 +284,16 @@ export default function ReservasPage() {
                 <TableBody>
                   {loading && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           Cargando reservas...
                         </Typography>
                       </TableCell>
                     </TableRow>
                   )}
-                  {!loading && filteredSales.length === 0 && (
+                      {!loading && filteredSales.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           {searchTerm
                             ? 'No se encontraron reservas que coincidan con la búsqueda'
@@ -345,6 +345,19 @@ export default function ReservasPage() {
                           >
                             {formatCurrency(sale.balance, sale.isDollar)}
                           </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          {sale.profitAmount != null && sale.profitAmount > 0 ? (
+                            <Typography sx={{ color: '#16a34a', fontWeight: 700 }}>
+                              {formatCurrency(sale.profitAmount, sale.isDollar)}
+                            </Typography>
+                          ) : sale.profitPercentage != null ? (
+                            <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
+                              {sale.profitPercentage}%
+                            </Typography>
+                          ) : (
+                            <Typography sx={{ color: '#cbd5e1' }}>—</Typography>
+                          )}
                         </TableCell>
                         <TableCell>{getStatusChip(sale)}</TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>

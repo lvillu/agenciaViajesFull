@@ -48,6 +48,10 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasPrecision(5, 2)
                 .IsRequired(false);
 
+            builder.Property(p => p.ProfitPercentage)
+                .HasColumnName("profit_percentage")
+                .HasPrecision(5, 2)
+                .IsRequired(false);
             builder.Property(p => p.FinalPaymentDaysBefore)
                 .HasColumnName("final_payment_days_before")
                 .IsRequired(false);

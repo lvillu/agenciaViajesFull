@@ -11,6 +11,8 @@ namespace agenciaViajes.Application.Features.Sale.Common.Responses
         public string? Description { get; set; }
         public decimal TotalAmount { get; set; }
         public bool IsDollar { get; set; }
+        public decimal? ProfitPercentage { get; set; }
+        public decimal? ProfitAmount { get; set; }
         public decimal? RequiredDeposit { get; set; }
         public DateTime? FinalPaymentDueDate { get; set; }
         public DateTime TravelDate { get; set; }

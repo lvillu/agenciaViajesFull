@@ -190,6 +190,11 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone");
 
+                    b.Property<decimal?>("ProfitPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("profit_percentage");
+
                     b.Property<string>("ProviderContactName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -250,6 +255,11 @@ namespace agenciaViajes.Application.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
+
+                    b.Property<decimal?>("ProfitPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("profit_percentage");
 
                     b.Property<int>("ProviderId")
                         .HasColumnType("integer")

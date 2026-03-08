@@ -16,6 +16,8 @@
 
         public bool IsDollar { get; set; }
 
+        public decimal? ProfitPercentage { get; set; }
+
         public decimal? RequiredDeposit { get; set; }
 
         public DateTime? FinalPaymentDueDate { get; set; }
