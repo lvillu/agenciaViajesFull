@@ -34,6 +34,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { ProviderFormModal } from '@/components/shared/ProviderFormModal';
@@ -146,9 +147,9 @@ export default function ProveedoresPage() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
         <Breadcrumbs items={[{ label: 'Proveedores' }]} />
 
         {/* Header con título y botón */}
@@ -160,7 +161,7 @@ export default function ProveedoresPage() {
             mb: 3,
           }}
         >
-          <Typography variant="h1" sx={{ color: 'text.primary' }}>
+          <Typography variant="h1" sx={{ color: 'text.primary', fontWeight: 800 }}>
             Proveedores
           </Typography>
           <Button
@@ -168,6 +169,7 @@ export default function ProveedoresPage() {
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleOpenCreate}
+            sx={{ px: 3 }}
           >
             Agregar Proveedor
           </Button>
@@ -181,48 +183,59 @@ export default function ProveedoresPage() {
         )}
 
         {/* Card con tabla de proveedores */}
-        <Card 
-          sx={{ 
-            borderRadius: 3, 
-            boxShadow: 2,
-            my: '15px',
+        <Card
+          sx={{
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+            my: 2,
           }}
         >
-          <CardContent sx={{ p: 3 }}>
+          <CardContent sx={{ p: 0 }}>
             {/* Campo de búsqueda */}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
               <TextField
                 fullWidth
+                variant="standard"
                 placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
+                  disableUnderline: true,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon />
+                      <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
                     </InputAdornment>
                   ),
+                  sx: { fontSize: '15px', py: 0.5 },
                 }}
-                size="small"
               />
             </Box>
 
             {/* Tabla con scroll */}
-            <TableContainer sx={{ maxHeight: 600, overflowY: 'auto' }}>
+            <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.50' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Nombre</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Acrónimo</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Teléfono</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Contacto</TableCell>
-                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>Anticipo (%)</TableCell>
-                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>Días Pago Final</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Estado</TableCell>
-                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>
-                      Acciones
-                    </TableCell>
+                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    {['Nombre', 'Acrónimo', 'Email', 'Teléfono', 'Contacto', 'Anticipo (%)', 'Días Pago Final', 'Estado', 'Acciones'].map((h, i) => (
+                      <TableCell
+                        key={h}
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.07em',
+                          color: 'text.secondary',
+                          py: 1.5,
+                          textAlign: (i === 5 || i === 6 || i === 8) ? 'center' : 'left',
+                          borderBottom: '2px solid',
+                          borderColor: 'divider',
+                        }}
+                      >
+                        {h}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -253,7 +266,8 @@ export default function ProveedoresPage() {
                       <TableRow
                         key={provider.id}
                         sx={{
-                          '&:hover': { bgcolor: 'grey.50' },
+                          '&:hover': { bgcolor: '#f8fafc' },
+                          transition: 'background-color 0.15s',
                         }}
                       >
                         <TableCell>
@@ -298,11 +312,13 @@ export default function ProveedoresPage() {
                         <TableCell>
                           <Chip
                             label={provider.active ? 'Activo' : 'Inactivo'}
-                            color={provider.active ? 'success' : 'error'}
                             size="small"
                             sx={{
-                              color: '#FFFFFF',
-                              fontWeight: 500,
+                              bgcolor: provider.active ? '#dcfce7' : '#f1f5f9',
+                              color: provider.active ? '#16a34a' : '#64748b',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              border: 'none',
                             }}
                           />
                         </TableCell>
@@ -310,17 +326,17 @@ export default function ProveedoresPage() {
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                             <IconButton
                               size="small"
-                              color="primary"
                               onClick={() => handleOpenEdit(provider)}
                               title="Editar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: '#f1f5f9' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
-                              color="error"
                               onClick={() => handleOpenDeleteDialog(provider)}
                               title="Eliminar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'error.main', bgcolor: '#fee2e2' } }}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -334,6 +350,7 @@ export default function ProveedoresPage() {
           </CardContent>
         </Card>
       </Container>
+      <Footer />
 
       {/* Modal de crear/editar proveedor */}
       <ProviderFormModal

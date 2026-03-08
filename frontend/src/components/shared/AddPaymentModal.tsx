@@ -119,53 +119,113 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     : undefined;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Typography variant="h2">Agregar Pago</Typography>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          px: 3,
+          py: 2.5,
+          fontWeight: 800,
+          fontSize: '1.1rem',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        Agregar Pago
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent>
+        <DialogContent sx={{ px: 3, py: 3 }}>
           {/* Información de la venta */}
-          <Box sx={{ mb: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Total de la Reserva:
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 130,
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Total
               </Typography>
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800 }}>
                 {formatCurrency(totalAmount, isDollar)}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Total Pagado:
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 130,
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid #bbf7d0',
+                bgcolor: '#f0fdf4',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Pagado
               </Typography>
-              <Typography variant="body1" color="success.main">
+              <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: '#15803d' }}>
                 {formatCurrency(totalPaid, isDollar)}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Saldo Actual:
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 130,
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid #fecaca',
+                bgcolor: '#fef2f2',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: '#991b1b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Saldo
               </Typography>
-              <Typography variant="body1" color="error.main">
+              <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: '#991b1b' }}>
                 {formatCurrency(totalAmount - totalPaid, isDollar)}
               </Typography>
             </Box>
-            {amount > 0 && (
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="body1" fontWeight="bold">
-                  Saldo Después del Pago:
-                </Typography>
-                <Typography
-                  variant="body1"
-                  fontWeight="bold"
-                  color={remainingBalance > 0 ? 'error.main' : 'success.main'}
-                >
-                  {formatCurrency(Math.max(0, remainingBalance), isDollar)}
-                </Typography>
-              </Box>
-            )}
           </Box>
+          {amount > 0 && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                p: 2,
+                mb: 3,
+                borderRadius: 2,
+                border: `1px solid ${remainingBalance > 0 ? '#fecaca' : '#bbf7d0'}`,
+                bgcolor: remainingBalance > 0 ? '#fef2f2' : '#f0fdf4',
+              }}
+            >
+              <Typography variant="body2" fontWeight={700}>
+                Saldo después del pago:
+              </Typography>
+              <Typography
+                variant="body2"
+                fontWeight={800}
+                color={remainingBalance > 0 ? '#991b1b' : '#15803d'}
+              >
+                {formatCurrency(Math.max(0, remainingBalance), isDollar)}
+              </Typography>
+            </Box>
+          )}
 
           {submitError && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -237,7 +297,16 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
             />
           </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            gap: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            bgcolor: '#f8fafc',
+          }}
+        >
           <Button onClick={handleClose} variant="outlined" disabled={loading}>
             Cancelar
           </Button>

@@ -64,38 +64,83 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h2">Pagos de la Reserva</Typography>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          px: 3,
+          py: 2.5,
+          fontWeight: 800,
+          fontSize: '1.1rem',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        Pagos de la Reserva
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ px: 3, py: 3 }}>
         {/* Resumen de totales */}
-        <Box sx={{ mb: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body1" fontWeight="medium">
-              Total de la Reserva:
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 140,
+              p: 2,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Reserva
             </Typography>
-            <Typography variant="body1" fontWeight="bold" color="primary">
+            <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: 'text.primary' }}>
               {formatCurrency(totalAmount, isDollar)}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body1" fontWeight="medium">
-              Total Pagado:
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 140,
+              p: 2,
+              borderRadius: 2,
+              border: '1px solid #bbf7d0',
+              bgcolor: '#f0fdf4',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Pagado
             </Typography>
-            <Typography variant="body1" fontWeight="bold" color="success.main">
+            <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: '#15803d' }}>
               {formatCurrency(totalPaid, isDollar)}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body1" fontWeight="medium">
-              Saldo Pendiente:
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 140,
+              p: 2,
+              borderRadius: 2,
+              border: `1px solid ${balance > 0 ? '#fecaca' : '#bbf7d0'}`,
+              bgcolor: balance > 0 ? '#fef2f2' : '#f0fdf4',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: balance > 0 ? '#991b1b' : '#15803d', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Saldo Pendiente
             </Typography>
-            <Typography
-              variant="body1"
-              fontWeight="bold"
-              color={balance > 0 ? 'error.main' : 'success.main'}
-            >
+            <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 800, color: balance > 0 ? '#991b1b' : '#15803d' }}>
               {formatCurrency(balance, isDollar)}
             </Typography>
           </Box>
@@ -120,19 +165,19 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
         )}
 
         {!loading && !error && payments.length > 0 && (
-          <TableContainer component={Paper} elevation={0}>
+          <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ bgcolor: 'grey.50' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Fecha de Pago</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>Monto</TableCell>
+                <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Fecha de Pago</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Monto</TableCell>
                   {isDollar && (
                     <>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>Tipo de Cambio</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>Valor en MXN</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Tipo de Cambio</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Valor en MXN</TableCell>
                     </>
                   )}
-                  <TableCell sx={{ fontWeight: 600 }}>Notas</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Notas</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -172,7 +217,15 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           </TableContainer>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions
+        sx={{
+          px: 3,
+          py: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          bgcolor: '#f8fafc',
+        }}
+      >
         <Button onClick={onClose} variant="outlined">
           Cerrar
         </Button>

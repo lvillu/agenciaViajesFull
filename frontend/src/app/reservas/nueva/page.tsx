@@ -27,6 +27,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -234,39 +235,42 @@ function SaleFormContent() {
 
   if (loadingSale) {
     return (
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
             <CircularProgress />
           </Box>
         </Container>
+        <Footer />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
         <Breadcrumbs
           items={[
             { label: 'Reservas', href: '/reservas' },
             { label: isEditing ? 'Editar Reserva' : 'Nueva Reserva' },
           ]}
         />
-        <Typography variant="h1" sx={{ mb: 3, color: 'text.primary' }}>
+        <Typography variant="h1" sx={{ mb: 3, color: 'text.primary', fontWeight: 800 }}>
           {isEditing ? 'Editar Reserva' : 'Nueva Reserva'}
         </Typography>
 
-        <Card 
-          sx={{ 
-            borderRadius: 3, 
-            boxShadow: 2,
-            my: '15px',
+        <Card
+          sx={{
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+            my: 2,
           }}
         >
-          <CardContent sx={{ p: 3 }}>
+          <CardContent sx={{ p: 4 }}>
             {submitError && (
               <Alert severity="error" sx={{ mb: 3 }}>
                 {submitError}
@@ -572,6 +576,7 @@ function SaleFormContent() {
           isLoading={clientsLoading}
         />
       </Container>
+      <Footer />
     </Box>
   );
 }
@@ -579,13 +584,14 @@ function SaleFormContent() {
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="xl" sx={{ py: 4, flex: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
             <CircularProgress />
           </Box>
         </Container>
+        <Footer />
       </Box>
     }>
       <SaleFormContent />

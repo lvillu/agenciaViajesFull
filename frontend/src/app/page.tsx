@@ -8,15 +8,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, CircularProgress, Container, Grid, Typography } from '@mui/material';
-import {
-  Store as StoreIcon,
-  People as PeopleIcon,
-  EventNote as EventNoteIcon,
-  Dashboard as DashboardIcon,
-} from '@mui/icons-material';
+import GroupsIcon from '@mui/icons-material/Groups';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useAuthStore } from '@/store/authStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { MenuCard } from '@/components/shared/MenuCard';
 
 export default function HomePage() {
@@ -39,14 +38,13 @@ export default function HomePage() {
       return;
     }
 
-    // Cargar información del usuario solo una vez
     if (!hasFetchedUser.current) {
       hasFetchedUser.current = true;
       setLoading(true);
       fetchUserInfo()
         .catch((err) => {
           console.error('Error al cargar información del usuario:', err);
-          hasFetchedUser.current = false; // Permitir reintentar si falla
+          hasFetchedUser.current = false;
         })
         .finally(() => {
           setLoading(false);
@@ -57,61 +55,71 @@ export default function HomePage() {
   if (!mounted || !isAuthenticated) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress />
+        <CircularProgress color="primary" />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 6, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         ) : (
           <>
-            <Typography variant="h1" sx={{ mb: 4, color: 'text.primary' }}>
-              Menú Principal
-            </Typography>
+            <Box sx={{ mb: 6 }}>
+              <Typography variant="h1" sx={{ mb: 1, color: 'text.primary' }}>
+                Panel de Control
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                Selecciona un módulo para comenzar a gestionar tu agencia de viajes.
+              </Typography>
+            </Box>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
                 <MenuCard
                   title="Proveedores"
-                  icon={<StoreIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
-                  color="#2F80ED"
+                  description="Gestiona tus socios comerciales, contratos y condiciones de pago."
+                  icon={<HandshakeIcon sx={{ fontSize: 28 }} />}
                   href="/proveedores"
+                  actionLabel="Ver Proveedores"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <MenuCard
                   title="Clientes"
-                  icon={<PeopleIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
-                  color="#00B4D8"
+                  description="Accede a la base de datos de viajeros, perfiles e historial de compras."
+                  icon={<GroupsIcon sx={{ fontSize: 28 }} />}
                   href="/clientes"
+                  actionLabel="Ver Directorio"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <MenuCard
                   title="Reservas"
-                  icon={<EventNoteIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
-                  color="#27AE60"
+                  description="Administra reservas, pagos y el estado de cada viaje."
+                  icon={<ConfirmationNumberIcon sx={{ fontSize: 28 }} />}
                   href="/reservas"
+                  actionLabel="Ver Reservas"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <MenuCard
                   title="Dashboard"
-                  icon={<DashboardIcon sx={{ fontSize: 28, color: '#FFFFFF' }} />}
-                  color="#F2C94C"
+                  description="Visualiza estadísticas, reportes y métricas de rendimiento."
+                  icon={<AnalyticsIcon sx={{ fontSize: 28 }} />}
                   href="/dashboard"
+                  actionLabel="Ver Dashboard"
                 />
               </Grid>
             </Grid>
           </>
         )}
       </Container>
+      <Footer />
     </Box>
   );
 }

@@ -97,28 +97,42 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
         },
       }}
     >
-      <DialogTitle sx={{ m: 0, p: 2, pr: 6 }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          px: 3,
+          py: 2.5,
+          fontWeight: 800,
+          fontSize: '1.1rem',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          pr: 6,
+        }}
+      >
         {isEdit ? 'Editar Proveedor' : 'Agregar Proveedor'}
         <IconButton
           aria-label="close"
           onClick={onClose}
           sx={{
             position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
+            right: 12,
+            top: 12,
+            color: 'text.secondary',
+            '&:hover': { bgcolor: '#f1f5f9' },
           }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent dividers>
+        <DialogContent sx={{ px: 3, py: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Input
               label="Nombre"
@@ -181,7 +195,16 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ p: 2, gap: 1 }}>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            gap: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            bgcolor: '#f8fafc',
+          }}
+        >
           <Button
             onClick={onClose}
             variant="outlined"

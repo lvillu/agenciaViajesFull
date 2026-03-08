@@ -7,13 +7,13 @@
 
 import React, { useState } from 'react';
 import {
-  Container,
   Box,
   Paper,
   Typography,
   Link as MuiLink,
   Alert,
 } from '@mui/material';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,23 +46,50 @@ export default function LoginPage() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-        }}
-      >
-        <Paper elevation={0} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h2" sx={{ mb: 3, textAlign: 'center' }}>
-            Iniciar Sesión
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
+    <Box
+      sx={{
+        bgcolor: 'background.default',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        px: 2,
+      }}
+    >
+      <Box sx={{ width: '100%', maxWidth: 420 }}>
+        {/* Brand Header */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: 2,
+              bgcolor: 'primary.light',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 2,
+            }}
+          >
+            <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+          </Box>
+          <Typography variant="h2" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.5 }}>
             Agencia Viajes
           </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Inicia sesión para continuar
+          </Typography>
+        </Box>
 
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           {submitError && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {submitError}
@@ -104,7 +131,7 @@ export default function LoginPage() {
               fullWidth
               variant="contained"
               isLoading={loading}
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, height: 48 }}
             >
               Iniciar Sesión
             </Button>
@@ -116,7 +143,7 @@ export default function LoginPage() {
               <MuiLink
                 href="/signup"
                 underline="hover"
-                sx={{ cursor: 'pointer', fontWeight: 600, color: 'primary.main' }}
+                sx={{ cursor: 'pointer', fontWeight: 700, color: 'primary.main' }}
               >
                 Crear cuenta
               </MuiLink>
@@ -124,6 +151,6 @@ export default function LoginPage() {
           </Box>
         </Paper>
       </Box>
-    </Container>
+    </Box>
   );
 }
