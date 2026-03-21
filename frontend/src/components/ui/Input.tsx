@@ -172,9 +172,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     // --- TEXT / NUMBER / DATE / EMAIL / TEL ---
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Typography component="label" sx={labelSx}>
-          {label}{required && ' *'}
-        </Typography>
+        {label && (
+          <Typography component="label" sx={labelSx}>
+            {label}{required && ' *'}
+          </Typography>
+        )}
         <Box sx={{ position: 'relative', width: '100%' }}>
           {hasSt && (
             <Box
@@ -221,7 +223,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 transform: 'translateY(-50%)',
                 display: 'flex',
                 alignItems: 'center',
-                pointerEvents: 'none',
               }}
             >
               {muiInputProps!.endAdornment}

@@ -1,6 +1,6 @@
 /**
  * SignUp Page
- * Página de creación de nueva cuenta
+ * Página de creación de nueva cuenta — diseño split-screen
  */
 
 'use client';
@@ -8,13 +8,12 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Paper,
   Typography,
   Link as MuiLink,
   Alert,
   Grid,
+  Checkbox,
 } from '@mui/material';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,10 +22,26 @@ import { Button } from '@/components/ui/Button';
 import { signupSchema, type SignUpFormData } from '@/lib/validationSchemas';
 import { useAuth } from '@/hooks/useAuth';
 
+const ICON_STYLE: React.CSSProperties = {
+  fontFamily: '"Material Symbols Outlined"',
+  fontWeight: 'normal',
+  fontStyle: 'normal',
+  fontSize: '20px',
+  lineHeight: 1,
+  letterSpacing: 'normal',
+  textTransform: 'none',
+  display: 'inline-block',
+  whiteSpace: 'nowrap',
+  wordWrap: 'normal',
+  color: '#94a3b8',
+  userSelect: 'none',
+};
+
 export default function SignUpPage() {
   const router = useRouter();
   const { signup, loading, error } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const {
     register,
@@ -47,81 +62,167 @@ export default function SignUpPage() {
   };
 
   return (
-    <Box
-      sx={{
-        bgcolor: 'background.default',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        px: 2,
-        py: 4,
-      }}
-    >
-      <Box sx={{ width: '100%', maxWidth: 480 }}>
-        {/* Brand Header */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-          <Box
-            sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 2,
-              bgcolor: 'primary.light',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: 2,
-            }}
+    <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
+
+      {/* ── Left Panel: Travel Photo ── */}
+      <Box
+        sx={{
+          display: { xs: 'none', lg: 'flex' },
+          width: '50%',
+          position: 'relative',
+          flexShrink: 0,
+        }}
+      >
+        {/* Background image */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNkc0mpOwkW6i48WA2rkInDTwf7ZP0RrKckV0t_3ZP2GCx-LzKKQt63fACgV-w_hho2XoJ2Juj-D8ZQ086seX8R3xWb2srH-oAzoQU0ooubbZeJQH5dRLKzikJ8q6DZdGUXqOqxQtOziVsRHr9Ut5l9o9rYLjICtNmfpdhGWHZwYESimW3qe8ODoz27j0Z4xWaoBYtH5phNoHD4uBe6ees8Y1w1b4ApENru1z0JSUdwPppPOAnAew7h0ynSDquLYBNyUznKGV09BM')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Dark gradient overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)',
+          }}
+        />
+
+        {/* Logo — top left */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 40,
+            left: 40,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            bgcolor: 'rgba(255,255,255,0.12)',
+            backdropFilter: 'blur(12px)',
+            px: 2,
+            py: 1,
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.2)',
+          }}
+        >
+          <span style={{ ...ICON_STYLE, color: '#ec5b13', fontSize: '22px' }}>explore</span>
+          <Typography
+            sx={{ fontWeight: 700, color: '#ffffff', fontSize: '15px', letterSpacing: '-0.02em' }}
           >
-            <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-          </Box>
-          <Typography variant="h2" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.5 }}>
-            Crear Cuenta
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Únete a Agencia Viajes
+            Agencia Viajes
           </Typography>
         </Box>
 
-        <Paper
-          elevation={0}
+        {/* Hero text — bottom */}
+        <Box
           sx={{
-            p: 4,
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'divider',
+            position: 'absolute',
+            bottom: 48,
+            left: 48,
+            right: 48,
+            color: '#ffffff',
           }}
         >
+          <Typography
+            sx={{
+              fontSize: { lg: '34px', xl: '40px' },
+              fontWeight: 900,
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+              mb: 2,
+            }}
+          >
+            Descubre los destinos más increíbles del mundo.
+          </Typography>
+          <Typography sx={{ fontSize: '16px', fontWeight: 500, opacity: 0.88, maxWidth: '380px' }}>
+            Más de 2 millones de viajeros exploran destinos únicos cada día.
+          </Typography>
+        </Box>
+      </Box>
 
+      {/* ── Right Panel: Form ── */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          px: { xs: 3, sm: 6, md: 10, lg: 8, xl: 14 },
+          py: 6,
+          bgcolor: '#ffffff',
+          overflowY: 'auto',
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 480 }}>
+
+          {/* Mobile-only logo */}
+          <Box
+            sx={{
+              display: { xs: 'flex', lg: 'none' },
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 1,
+              mb: 5,
+            }}
+          >
+            <span style={{ ...ICON_STYLE, color: '#ec5b13', fontSize: '30px' }}>explore</span>
+            <Typography
+              sx={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: '#0f172a' }}
+            >
+              Agencia Viajes
+            </Typography>
+          </Box>
+
+          {/* Heading */}
+          <Box sx={{ mb: 5, textAlign: { xs: 'center', lg: 'left' } }}>
+            <Typography
+              sx={{ fontSize: '28px', fontWeight: 700, color: '#0f172a', mb: 0.75, letterSpacing: '-0.02em' }}
+            >
+              Crear Cuenta
+            </Typography>
+            <Typography sx={{ fontSize: '14px', color: '#64748b' }}>
+              Comienza tu viaje completando tus datos a continuación.
+            </Typography>
+          </Box>
+
+          {/* Alerts */}
           {submitError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {submitError}
             </Alert>
           )}
-
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
 
+          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2}>
+
+              {/* Nombre + Apellido */}
               <Grid item xs={12} sm={6}>
                 <Input
                   label="Nombre"
-                  placeholder="Tu nombre"
+                  InputProps={{
+                    startAdornment: <span style={ICON_STYLE}>person</span>,
+                  }}
                   {...register('name')}
                   error={!!errors.name}
                   helperText={errors.name?.message}
                   autoComplete="given-name"
                 />
               </Grid>
-
               <Grid item xs={12} sm={6}>
                 <Input
                   label="Apellido"
-                  placeholder="Tu apellido"
                   {...register('lastName')}
                   error={!!errors.lastName}
                   helperText={errors.lastName?.message}
@@ -129,10 +230,13 @@ export default function SignUpPage() {
                 />
               </Grid>
 
+              {/* Usuario */}
               <Grid item xs={12}>
                 <Input
                   label="Usuario"
-                  placeholder="Nombre de usuario único"
+                  InputProps={{
+                    startAdornment: <span style={ICON_STYLE}>alternate_email</span>,
+                  }}
                   {...register('userName')}
                   error={!!errors.userName}
                   helperText={errors.userName?.message}
@@ -140,11 +244,15 @@ export default function SignUpPage() {
                 />
               </Grid>
 
+              {/* Email */}
               <Grid item xs={12}>
                 <Input
-                  label="Email"
+                  label="Correo Electrónico"
                   type="email"
-                  placeholder="Tu email"
+                  placeholder="john@example.com"
+                  InputProps={{
+                    startAdornment: <span style={ICON_STYLE}>mail</span>,
+                  }}
                   {...register('email')}
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -152,23 +260,24 @@ export default function SignUpPage() {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              {/* Contraseña + Confirmar */}
+              <Grid item xs={12} sm={6}>
                 <Input
                   label="Contraseña"
                   type="password"
-                  placeholder="Tu contraseña"
+                  InputProps={{
+                    startAdornment: <span style={ICON_STYLE}>lock</span>,
+                  }}
                   {...register('password')}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   autoComplete="new-password"
                 />
               </Grid>
-
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <Input
-                  label="Confirmar Contraseña"
+                  label="Confirmar"
                   type="password"
-                  placeholder="Confirma tu contraseña"
                   {...register('confirmPassword')}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
@@ -177,30 +286,122 @@ export default function SignUpPage() {
               </Grid>
             </Grid>
 
+            {/* Terms */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2.5 }}>
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                size="small"
+                sx={{
+                  p: 0,
+                  color: '#cbd5e1',
+                  '&.Mui-checked': { color: '#ec5b13' },
+                }}
+              />
+              <Typography
+                component="label"
+                htmlFor="terms"
+                sx={{ fontSize: '13px', color: '#475569', cursor: 'pointer', lineHeight: 1.4 }}
+              >
+                Acepto los{' '}
+                <MuiLink href="#" underline="hover" sx={{ color: '#ec5b13', fontWeight: 600 }}>
+                  Términos de Servicio
+                </MuiLink>{' '}
+                y la{' '}
+                <MuiLink href="#" underline="hover" sx={{ color: '#ec5b13', fontWeight: 600 }}>
+                  Política de Privacidad
+                </MuiLink>
+              </Typography>
+            </Box>
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
               isLoading={loading}
-              sx={{ mt: 3, mb: 2, height: 48 }}
+              sx={{ mt: 3, height: 52, fontSize: '15px', fontWeight: 700 }}
             >
               Crear Cuenta
             </Button>
           </form>
 
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2">
+          {/* Login link */}
+          <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography sx={{ fontSize: '13px', color: '#475569' }}>
               ¿Ya tienes cuenta?{' '}
               <MuiLink
                 href="/login"
                 underline="hover"
-                sx={{ cursor: 'pointer', fontWeight: 700, color: 'primary.main' }}
+                sx={{ cursor: 'pointer', fontWeight: 700, color: '#ec5b13', ml: 0.5 }}
               >
-                Inicia sesión
+                Iniciar Sesión
               </MuiLink>
             </Typography>
           </Box>
-        </Paper>
+
+          {/* Social login */}
+          <Box
+            sx={{
+              mt: 4,
+              pt: 4,
+              borderTop: '1px solid #f1f5f9',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 2,
+            }}
+          >
+            {/* Google */}
+            <Box
+              component="button"
+              type="button"
+              sx={{
+                width: 44,
+                height: 44,
+                p: 0,
+                bgcolor: '#f8fafc',
+                borderRadius: '50%',
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s',
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
+            >
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.908 3.152-1.928 4.176-1.02 1.024-2.42 1.744-4.8 1.744-3.88 0-6.956-3.136-6.956-7.016s3.076-7.016 6.956-7.016c2.1 0 3.66.832 4.716 1.812l2.316-2.316c-1.92-1.84-4.396-3.132-7.032-3.132-5.788 0-10.428 4.64-10.428 10.428s4.64 10.428 10.428 10.428c3.116 0 5.472-1.028 7.304-2.94 1.884-1.884 2.484-4.524 2.484-6.728 0-.648-.048-1.284-.132-1.872h-9.66z" />
+              </svg>
+            </Box>
+
+            {/* Facebook */}
+            <Box
+              component="button"
+              type="button"
+              sx={{
+                width: 44,
+                height: 44,
+                p: 0,
+                bgcolor: '#f8fafc',
+                borderRadius: '50%',
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s',
+                color: '#1877F2',
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
+            >
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </Box>
+          </Box>
+
+        </Box>
       </Box>
     </Box>
   );
