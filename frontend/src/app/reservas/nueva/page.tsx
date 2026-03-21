@@ -13,6 +13,7 @@ import {
   CircularProgress,
   MenuItem,
   FormControlLabel,
+  FormHelperText,
   Checkbox,
   IconButton,
   Tooltip,
@@ -20,6 +21,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { InputNumber } from 'primereact/inputnumber';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -412,24 +414,57 @@ function SaleFormContent() {
                   name="totalAmount"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Monto Total"
-                      type="number"
-                      placeholder="0.00"
-                      inputProps={{ step: '0.01', min: '0' }}
-                      InputProps={{
-                        startAdornment: (
-                          <span style={{ color: '#94a3b8', marginRight: 4, fontWeight: 500 }}>$</span>
-                        ),
-                      }}
-                      error={!!errors.totalAmount}
-                      helperText={
-                        errors.totalAmount?.message ||
-                        (field.value > 0 ? `Equivale a: ${formatCurrency(field.value)}` : '')
-                      }
-                      onBlur={handleTotalBlur}
-                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography
+                        component="label"
+                        sx={{
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          color: errors.totalAmount ? '#ef4444' : '#334155',
+                          mb: 0.75,
+                          display: 'block',
+                        }}
+                      >
+                        Monto Total
+                      </Typography>
+                      <InputNumber
+                        value={field.value ?? null}
+                        onValueChange={(e) => {
+                          field.onChange(e.value ?? 0);
+                        }}
+                        onBlur={() => {
+                          field.onBlur();
+                          handleTotalBlur();
+                        }}
+                        mode="decimal"
+                        prefix="$ "
+                        useGrouping
+                        minFractionDigits={2}
+                        maxFractionDigits={2}
+                        min={0}
+                        unstyled
+                        placeholder="$ 0.00"
+                        inputStyle={{
+                          width: '100%',
+                          height: '44px',
+                          borderRadius: '8px',
+                          padding: '0 12px',
+                          fontSize: '14px',
+                          fontFamily: '"Public Sans", system-ui, sans-serif',
+                          color: '#0f172a',
+                          boxSizing: 'border-box',
+                          border: `1px solid ${errors.totalAmount ? '#ef4444' : '#cbd5e1'}`,
+                          background: '#ffffff',
+                          outline: 'none',
+                          transition: 'border-color 0.2s, box-shadow 0.2s',
+                        }}
+                      />
+                      {errors.totalAmount && (
+                        <FormHelperText error sx={{ mx: 0, mt: 0.5 }}>
+                          {errors.totalAmount.message}
+                        </FormHelperText>
+                      )}
+                    </Box>
                   )}
                 />
 
@@ -468,22 +503,6 @@ function SaleFormContent() {
                   </Box>
                 </Box>
               </Box>
-
-              {/* Tipo de Cambio (solo si es USD) */}
-              {isDollar && (
-                <Box sx={{ mb: 3 }}>
-                  <Input
-                    label="Tipo de Cambio (USD a MXN)"
-                    type="number"
-                    placeholder="Ej. 20.50"
-                    inputProps={{ step: '0.01', min: '0' }}
-                    {...register('exchangeRate', { valueAsNumber: true })}
-                    error={!!errors.exchangeRate}
-                    helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
-                    required
-                  />
-                </Box>
-              )}
 
               {/* Descripción */}
               <Input
@@ -668,8 +687,8 @@ function SaleFormContent() {
                 </Box>
               </Box>
 
-              {/* Pago Inicial */}
-              <Box sx={{ maxWidth: { md: 'calc(33.33% - 8px)' } }}>
+              {/* Pago Inicial + Tipo de Cambio */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                 <Input
                   label="Pago Inicial"
                   type="number"
@@ -684,6 +703,18 @@ function SaleFormContent() {
                       : 'Opcional: Se puede calcular automáticamente')
                   }
                 />
+                {isDollar && (
+                  <Input
+                    label="Tipo de Cambio (USD a MXN)"
+                    type="number"
+                    placeholder="Ej. 20.50"
+                    inputProps={{ step: '0.01', min: '0' }}
+                    {...register('exchangeRate', { valueAsNumber: true })}
+                    error={!!errors.exchangeRate}
+                    helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
+                    required
+                  />
+                )}
               </Box>
 
               {/* Activo (solo edición) */}

@@ -1,9 +1,9 @@
 /**
  * DashboardCharts Component
  * Gráficas del dashboard usando PrimeReact Charts (Chart.js)
- * - Ventas últimos 12 meses (barras horizontales)
+ * - Ventas últimos 12 meses (barras verticales)
  * - Ventas por proveedor últimos 12 meses (dona)
- * - Ganancias últimos 12 meses (barras horizontales)
+ * - Ganancias últimos 12 meses (barras verticales)
  */
 
 'use client';
@@ -81,16 +81,15 @@ const ChartCard: React.FC<ChartCardProps> = ({ title, subtitle, icon, iconColor,
   </Card>
 );
 
-// ─── Opciones base para barras horizontales ────────────────────────────────────
+// ─── Opciones base para barras verticales ───────────────────────────────────────
 const buildBarOptions = (_accentColor: string) => ({
-  indexAxis: 'y' as const,
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx: { parsed: { x: number } }) => ` ${formatCurrencyShort(ctx.parsed.x)} MXN`,
+        label: (ctx: { parsed: { y: number } }) => ` ${formatCurrencyShort(ctx.parsed.y)} MXN`,
       },
       backgroundColor: '#221610',
       titleColor: '#f8f6f6',
@@ -101,19 +100,21 @@ const buildBarOptions = (_accentColor: string) => ({
   },
   scales: {
     x: {
+      grid: { display: false },
+      ticks: {
+        color: '#475569',
+        font: { family: '"Public Sans", system-ui, sans-serif', size: 11, weight: '500' },
+        maxRotation: 45,
+        minRotation: 0,
+      },
+      border: { display: false },
+    },
+    y: {
       grid: { color: '#f1f5f9', drawBorder: false },
       ticks: {
         color: '#94a3b8',
         font: { family: '"Public Sans", system-ui, sans-serif', size: 11 },
         callback: (value: number) => formatCurrencyShort(value),
-      },
-      border: { display: false },
-    },
-    y: {
-      grid: { display: false },
-      ticks: {
-        color: '#475569',
-        font: { family: '"Public Sans", system-ui, sans-serif', size: 11, weight: '500' },
       },
       border: { display: false },
     },
