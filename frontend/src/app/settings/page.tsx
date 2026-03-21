@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Container,
   Box,
@@ -19,13 +19,18 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 
 export default function SettingsPage() {
   const { user, loading, error, fetchUserInfo, isAuthenticated } = useAuth();
+  const hasFetchedUser = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      fetchUserInfo();
+    if (isAuthenticated && !user && !hasFetchedUser.current) {
+      hasFetchedUser.current = true;
+      fetchUserInfo().catch(() => {
+        hasFetchedUser.current = false; // Permitir reintentar si falla
+      });
     }
   }, [isAuthenticated, user, fetchUserInfo]);
 
@@ -41,23 +46,35 @@ export default function SettingsPage() {
     return (
       <Box>
         <Header />
-        <Container maxWidth="md">
+        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, lg: 4 } }}>
           <Alert severity="error" sx={{ mt: 2 }}>
             {error}
           </Alert>
         </Container>
+        <Footer />
       </Box>
     );
   }
 
   return (
-    <Box>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="md">
-        <Paper elevation={0} sx={{ p: 4, bgcolor: '#fff' }}>
-          <Typography variant="h2" sx={{ mb: 3, fontWeight: 'bold' }}>
-            Mi Perfil
-          </Typography>
+      <Box sx={{ flex: 1 }}>
+        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              maxWidth: 800,
+            }}
+          >
+            <Typography variant="h1" sx={{ mb: 4, fontWeight: 800 }}>
+              Mi Perfil
+            </Typography>
 
           {user && (
             <Grid container spacing={3}>
@@ -69,7 +86,8 @@ export default function SettingsPage() {
                   sx={{
                     width: 120,
                     height: 120,
-                    bgcolor: user.userIconUrl ? 'transparent' : '#1976d2',
+                    bgcolor: user.userIconUrl ? 'transparent' : 'primary.light',
+                    color: 'primary.main',
                     fontSize: '3rem',
                   }}
                 >
@@ -80,7 +98,7 @@ export default function SettingsPage() {
               {/* Detalles del Usuario */}
               <Grid item xs={12} sm>
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  <Typography variant="h3" sx={{ mb: 1 }}>
                     {user.fullName}
                   </Typography>
                   <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
@@ -95,7 +113,7 @@ export default function SettingsPage() {
               {/* Información Detallada */}
               <Grid item xs={12}>
                 <Divider sx={{ my: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                <Typography variant="h5" sx={{ mb: 2 }}>
                   Información de Cuenta
                 </Typography>
 
@@ -148,7 +166,9 @@ export default function SettingsPage() {
             </Grid>
           )}
         </Paper>
-      </Container>
+        </Container>
+      </Box>
+      <Footer />
     </Box>
   );
 }

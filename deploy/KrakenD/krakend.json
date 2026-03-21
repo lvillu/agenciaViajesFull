@@ -4,6 +4,34 @@
   "timeout": "3000ms",
   "cache_ttl": "300s",
   "output_encoding": "json",
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": [
+        "http://localhost:3000",
+        "http://localhost:3001"
+      ],
+      "allow_methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+        "OPTIONS"
+      ],
+      "allow_headers": [
+        "Origin",
+        "Authorization",
+        "Content-Type",
+        "Accept"
+      ],
+      "expose_headers": [
+        "Content-Length",
+        "Content-Type"
+      ],
+      "allow_credentials": true,
+      "max_age": "12h"
+    }
+  },
   "endpoints": [
     {
       "endpoint": "/health",
@@ -18,54 +46,379 @@
       ]
     },
     {
-      "endpoint": "/api/v1/auth/login",
+      "endpoint": "/login",
       "method": "POST",
-      "output_encoding": "json",
+      "output_encoding": "no-op",
       "backend": [
         {
-          "url_pattern": "/api/v1/auth/login",
+          "url_pattern": "/api/Auth/login",
           "host": ["http://api:8080"],
           "disable_host_sanitize": false,
+          "encoding": "no-op",
           "method": "POST"
         }
       ]
     },
     {
-      "endpoint": "/api/v1/auth/signup",
+      "endpoint": "/signup",
       "method": "POST",
-      "output_encoding": "json",
+      "output_encoding": "no-op",
       "backend": [
         {
-          "url_pattern": "/api/v1/auth/signup",
+          "url_pattern": "/api/Auth/signup",
           "host": ["http://api:8080"],
           "disable_host_sanitize": false,
+          "encoding": "no-op",
           "method": "POST"
         }
       ]
     },
     {
-      "endpoint": "/api/v1/auth/logout",
+      "endpoint": "/logout",
       "method": "POST",
-      "output_encoding": "json",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization"],
       "backend": [
         {
-          "url_pattern": "/api/v1/auth/logout",
+          "url_pattern": "/api/Auth/logout",
           "host": ["http://api:8080"],
           "disable_host_sanitize": false,
+          "encoding": "no-op",
           "method": "POST"
         }
       ]
     },
     {
-      "endpoint": "/api/v1/users/me",
+      "endpoint": "/User/me",
       "method": "GET",
-      "output_encoding": "json",
-      "cache_ttl": "60s",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
       "backend": [
         {
-          "url_pattern": "/api/v1/users/me",
+          "url_pattern": "/api/User/me",
           "host": ["http://api:8080"],
-          "disable_host_sanitize": false
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Provider",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Provider",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Provider/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Provider/{id}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Provider",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Provider",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Provider/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Provider/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Provider/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Provider/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Client/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Client/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Sale",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Sale",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Sale/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Sale/{id}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Sale",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Sale",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Sale/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Sale/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Sale/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Sale/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Payment",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "input_query_strings": ["saleId"],
+      "backend": [
+        {
+          "url_pattern": "/api/Payment",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Payment/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Payment/{id}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Payment",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Payment",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Payment/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Payment/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Payment/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Payment/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/cards",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/cards",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/monthly-sales",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/monthly-sales",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/sales-by-provider",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/sales-by-provider",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/Dashboard/charts/monthly-profits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/Dashboard/charts/monthly-profits",
+          "host": ["http://api:8080"],
+          "method": "GET"
         }
       ]
     }

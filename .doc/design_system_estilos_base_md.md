@@ -239,6 +239,137 @@ Este Design System está **adaptado específicamente para Material UI (MUI v5)**
 
 ---
 
+## 📊 tables.md
+
+```md
+# Tables – Material UI
+
+## TableHead
+- Component: TableHead
+- Background: grey.50 (bgcolor: 'grey.50')
+- Cell font weight: 600
+
+## TableBody
+- Hover state: '&:hover': { bgcolor: 'grey.50' }
+- Loading/Empty states: py: 4, textAlign: 'center'
+
+## TableCell Typography
+- Primary data: variant="body1", fontWeight: 500
+- Secondary data: variant="body2", color="text.secondary"
+
+## TableContainer
+- Max height with scroll: maxHeight: 600, overflowY: 'auto'
+
+## Rules
+- Always use hover effect on TableRow
+- Use Typography component inside cells
+- Consistent spacing for empty states
+```
+
+---
+
+## 🏷️ chips.md
+
+```md
+# Chips – Material UI
+
+## Status Chips
+- Component: Chip
+- Size: small
+- Colors: success, error, warning
+- Text color: #FFFFFF
+- Font weight: 500
+
+## Usage
+- Active/Inactive states
+- Status indicators (Liquidado, Pendiente, etc.)
+
+## Rules
+- Always set fontWeight: 500
+- Always set color: '#FFFFFF' for text
+- Use semantic colors (success, error, warning)
+```
+
+---
+
+## 🔍 search.md
+
+```md
+# Search Field – Material UI
+
+## TextField Search
+- Component: TextField
+- Size: small
+- fullWidth: true
+- Placeholder: descriptive text
+- InputAdornment: start position with SearchIcon
+
+## Spacing
+- Margin bottom: mb: 3 (inside Card)
+
+## Rules
+- Always include SearchIcon in startAdornment
+- Use descriptive placeholders
+```
+
+---
+
+## 🖱️ iconbuttons.md
+
+```md
+# Icon Buttons – Material UI
+
+## Base
+- Component: IconButton
+- Size: small
+- Colors: primary, error, success, info, inherit
+
+## With Title
+- Add title prop for native tooltips
+- Examples: "Editar", "Eliminar", "Ver Pagos"
+
+## Container
+- Display: flex
+- Gap: 0.5 (4px)
+- Justify content: center
+
+## Rules
+- Always use color prop
+- Always add title for accessibility
+- Group in Box with flex layout
+```
+
+---
+
+## 💬 dialogs.md
+
+```md
+# Dialogs – Material UI
+
+## Base Dialog
+- Component: Dialog
+- maxWidth: xs, sm, md (según contenido)
+- fullWidth: true
+
+## DialogTitle
+- Use Typography variant="h2" inside
+
+## DialogContent
+- Default padding applies
+
+## DialogActions
+- Padding: p: 2
+- Gap: gap: 1
+- Buttons: outlined + contained
+
+## Rules
+- Always set maxWidth and fullWidth
+- Use consistent button variants
+- Add gap between action buttons
+```
+
+---
+
 ## 🤖 Copilot Prompt recomendado
 
 "Ajusta este componente usando Material UI y respeta estrictamente el design system definido en `/styles/*.md`. No introduzcas colores, tamaños ni sombras fuera del theme."

@@ -25,7 +25,7 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             authGroup.MapPost("/signup", SignUp);
         }
 
-        private static async Task<IResult> Login([FromBody] AuthRequest command, ISender sender, CancellationToken cancellationToken)
+        private static async Task<IResult> Login(AuthRequest command, ISender sender, CancellationToken cancellationToken)
         {
             var response = await sender.Send(new LoginCommand(command), cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.NoContent();
@@ -42,7 +42,7 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             return response.IsSuccess ? Results.Ok(response) : Results.NoContent();
         }
 
-        private static async Task<IResult> SignUp([FromBody] SignUpRequest request, ISender sender, CancellationToken cancellationToken)
+        private static async Task<IResult> SignUp(SignUpRequest request, ISender sender, CancellationToken cancellationToken)
         {
             var response = await sender.Send(new SignUpCommand(request), cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);

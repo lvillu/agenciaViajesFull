@@ -370,12 +370,42 @@ useProducts hace:
 1. ✅ **Crear la Feature en el backend**
    - Command/Query, Handler, Validator, DTOs
 
-2. ✅ **Registrar en AuthRoutes o MódulRoutes**
-   - Usar `MapPost()`, `MapGet()`, etc.
+2. ✅ **Crear/Actualizar archivo de rutas**
+   - Archivo: `Features/Configurations/Routes/{Module}Routes.cs`
+   - Usar `MapGroup(BASE_URL)` para agrupar rutas
+   - Aplicar `.RequireAuthorization()` si es protegida
 
-3. ⭐ **AGREGAR endpoint en KrakenD** (OBLIGATORIO)
+3. ✅ **Registrar en ModulesConfiguration.cs**
+   - Agregar `app.Add{Module}Routes();`
+   - NO crear rutas directamente en Program.cs
+
+4. ⭐ **AGREGAR endpoint en KrakenD** (OBLIGATORIO)
    - Abrir `deploy/KrakenD/krakend.json`
    - Agregar nuevo endpoint en la sección `endpoints`
+
+### Ejemplo de archivo de rutas ({Module}Routes.cs):
+
+```csharp
+public static class ProviderRoutes
+{
+    public const string ROUTE_TAGS = "Provider";
+    public const string BASE_URL = "/api/Provider";
+
+    public static void AddProviderRoutes(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup(BASE_URL)
+            .WithTags(ROUTE_TAGS)
+            .RequireAuthorization();  // ⭐ Proteger todas las rutas del grupo
+
+        group.MapGet("/", GetProvidersList);
+        group.MapGet("/{id:int}", GetProviderById);
+        group.MapPost("/", CreateProvider);
+    }
+}
+
+// Luego en ModulesConfiguration.cs:
+app.AddProviderRoutes();  // ⭐ Registro centralizado
+```
 
 ### Ejemplo de endpoint en KrakenD:
 

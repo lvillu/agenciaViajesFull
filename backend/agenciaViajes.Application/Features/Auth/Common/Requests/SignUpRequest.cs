@@ -2,11 +2,11 @@
 {
     public class SignUpRequest
     {
-        public required string Name { get; set; }
-        public required string LastName { get; set; }
-        public required string UserName { get; set; }
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string ConfirmPassword { get; set; }
+        public string name { get; set; } = string.Empty;
+        public string lastName { get; set; } = string.Empty;
+        public string userName { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
+        public string password { get; set; } = string.Empty;
+        public string confirmPassword { get; set; } = string.Empty;
     }
 }

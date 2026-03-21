@@ -12,6 +12,11 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
         {
             //Repositorios de Rutas
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IProviderRepository, ProviderRepository>();
+            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<ISaleRepository, SaleRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 
             services.AddScoped<TransactionHelper>();

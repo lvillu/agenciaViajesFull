@@ -1,51 +1,59 @@
-# Multi-stage build para optimizar la imagen final
+# ============================================================
+# Multi-stage build optimizado para AWS EC2
+# Usa Next.js standalone output → imagen final ~80MB vs ~300MB
+# ============================================================
 
-# Etapa 1: Build
+# ---- Etapa 1: Instalar dependencias (cacheada) ----
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Solo copiar manifiestos para aprovechar cache de capas
+COPY package.json package-lock.json* ./
+
+# Instalar dependencias con cache mount para acelerar rebuilds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline
+
+# ---- Etapa 2: Build ----
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package.json y package-lock.json
-COPY package*.json ./
-
-# Instalar dependencias
-RUN npm ci
-
-# Copiar código fuente
+# Copiar dependencias desde etapa anterior
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build de la aplicación
+# Variables de entorno para optimizar el build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
 RUN npm run build
 
-# Etapa 2: Production
-FROM node:20-alpine
+# ---- Etapa 3: Production (imagen mínima) ----
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Instalar dumb-init para manejar señales correctamente
-RUN apk add --no-cache dumb-init
-
-# Copiar package.json
-COPY package*.json ./
-
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
-
-# Copiar build desde la etapa anterior
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copiar SOLO lo necesario del standalone build
+# (no necesita node_modules completo, Next.js incluye solo lo usado)
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-# Exponer puerto
 EXPOSE 3000
 
-# Usar dumb-init para manejar signals
-ENTRYPOINT ["dumb-init", "--"]
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Comando para iniciar la aplicación
-CMD ["npm", "start"]
+# El standalone server es un simple server.js (~80MB total vs ~300MB)
+CMD ["node", "server.js"]

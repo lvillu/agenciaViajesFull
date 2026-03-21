@@ -19,20 +19,20 @@ namespace agenciaViajes.Application.Features.Auth.SignUp
         public async Task<Result<UserResponse>> Handle(SignUpCommand request, CancellationToken cancellationToken)
         {
             // Validar que el usuario no exista
-            var userExists = await _authRepository.UserExistsAsync(request.Request.UserName, cancellationToken);
+            var userExists = await _authRepository.UserExistsAsync(request.Request.userName, cancellationToken);
             if (userExists)
             {
-                return Result<UserResponse>.Failure($"El nombre de usuario '{request.Request.UserName}' ya está registrado");
+                return Result<UserResponse>.Failure($"El nombre de usuario '{request.Request.userName}' ya está registrado");
             }
 
             // Crear nuevo usuario
             var user = new UserEntity
             {
-                Name = request.Request.Name,
-                LastName = request.Request.LastName,
-                UserName = request.Request.UserName,
-                Email = request.Request.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Request.Password),
+                Name = request.Request.name,
+                LastName = request.Request.lastName,
+                UserName = request.Request.userName,
+                Email = request.Request.email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Request.password),
                 Active = true,
                 RefreshToken = null,
                 RefreshTokenExpiryTime = null,

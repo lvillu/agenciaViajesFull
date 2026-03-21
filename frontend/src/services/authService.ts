@@ -5,7 +5,7 @@
 
 import { apiClient } from './apiClient';
 import { ApiResponse } from '@/types/api';
-import { LoginRequest, SignUpRequest, AuthResponse } from '@/types/user';
+import { LoginRequest, SignUpRequest, AuthResponse, UserResponse } from '@/types/user';
 
 const AUTH_ENDPOINTS = {
   LOGIN: '/login',
@@ -33,8 +33,8 @@ export const authService = {
   /**
    * Crea un nuevo usuario
    */
-  async signup(data: SignUpRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
+  async signup(data: SignUpRequest): Promise<UserResponse> {
+    const response = await apiClient.post<ApiResponse<UserResponse>>(
       AUTH_ENDPOINTS.SIGNUP,
       {
         name: data.name,
@@ -42,6 +42,7 @@ export const authService = {
         userName: data.userName,
         email: data.email,
         password: data.password,
+        confirmPassword: data.confirmPassword,
       }
     );
 

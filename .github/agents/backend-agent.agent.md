@@ -80,6 +80,74 @@ instructions: |
   - Inyección de dependencias vía constructor
   - Usa async/await para todas las operaciones de BD
   
+  ### Sistema de Rutas Centralizadas
+  
+  **IMPORTANTE:** Las rutas de la API están organizadas y centralizadas siguiendo este patrón:
+  
+  ```
+  Features/Configurations/
+  ├── Modules/
+  │   └── ModulesConfiguration.cs    # ⭐ Punto central de registro de TODAS las rutas
+  └── Routes/
+      ├── AuthRoutes.cs               # Rutas de autenticación
+      ├── UserRoutes.cs               # Rutas de usuarios
+      ├── {Module}Routes.cs           # Rutas de cada módulo
+  ```
+  
+  **Reglas obligatorias:**
+  1. ✅ **Cada módulo tiene su propio archivo de rutas** en `Features/Configurations/Routes/{Module}Routes.cs`
+  2. ✅ **Todas las rutas se registran centralizadamente** en `ModulesConfiguration.cs` usando `app.Add{Module}Routes()`
+  3. ❌ **NUNCA crear endpoints directamente en Program.cs**
+  4. ✅ **Agrupar rutas relacionadas** usando `app.MapGroup(BASE_URL)`
+  5. ✅ **Aplicar autenticación por grupo** con `.RequireAuthorization()` si las rutas deben estar protegidas
+  
+  **Plantilla de archivo de rutas:**
+  ```csharp
+  public static class {Module}Routes
+  {
+      public const string ROUTE_TAGS = "{Module}";
+      public const string BASE_URL = "/api/{Module}";
+  
+      public static void Add{Module}Routes(this IEndpointRouteBuilder app)
+      {
+          var group = app.MapGroup(BASE_URL)
+              .WithTags(ROUTE_TAGS)
+              .RequireAuthorization();  // Si requiere autenticación
+  
+          group.MapGet("/", Get{Module}List);
+          group.MapGet("/{id:int}", Get{Module}ById);
+          group.MapPost("/", Create{Module});
+          group.MapPut("/{id:int}", Update{Module});
+          group.MapDelete("/{id:int}", Delete{Module});
+      }
+  
+      private static async Task<IResult> Get{Module}List(ISender sender, CancellationToken cancellationToken)
+      {
+          var response = await sender.Send(new Get{Module}ListQuery(), cancellationToken);
+          return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
+      }
+      
+      // ... otros métodos privados para cada endpoint
+  }
+  ```
+  
+  **Registro en ModulesConfiguration.cs:**
+  ```csharp
+  public static void Configure(WebApplication app)
+  {
+      app.AddAuthRoutes();
+      app.AddUserRoutes();
+      app.Add{Module}Routes();  // ⭐ Agregar aquí cada nuevo módulo
+      app.AddApiRoutes();
+  }
+  ```
+  
+  **Beneficios:**
+  - 📂 Organización clara y separación por módulos
+  - 🔒 Seguridad centralizada (autenticación/autorización por grupo)
+  - 🔍 Fácil de encontrar y mantener
+  - ✅ Consistencia en toda la aplicación
+  
   ### Migraciones y Base de Datos PostgreSQL
   
   **Flujo de Migraciones con EF Core:**
@@ -419,6 +487,8 @@ instructions: |
      3. Command/Query
      4. Handler
      5. Validator (si aplica)
+     6. **Archivo de rutas** (si es un módulo nuevo): `Features/Configurations/Routes/{Module}Routes.cs`
+     7. **Registrar en ModulesConfiguration.cs**: Agregar `app.Add{Module}Routes();`
   
   4. ✅ **Verificar Repository**
      - ¿Existe la interfaz? → `Domain/Repositories/I{Entity}Repository.cs`
@@ -449,6 +519,13 @@ instructions: |
      - Usar `Results.Ok(response)` para éxito
      - Usar `Results.BadRequest(response)` o `Results.NotFound(response)` para errores
   
+  9. ✅ **Configuración de Rutas (Sistema Centralizado)**
+     - Crear o actualizar archivo `Features/Configurations/Routes/{Module}Routes.cs`
+     - Usar `MapGroup(BASE_URL)` para agrupar endpoints relacionados
+     - Aplicar `.RequireAuthorization()` si las rutas son protegidas
+     - Registrar en `ModulesConfiguration.cs` con `app.Add{Module}Routes();`
+     - NUNCA crear endpoints directamente en Program.cs
+  
   ## 🚫 ANTI-PATRONES A EVITAR
   
   1. ❌ **NO** poner lógica de negocio en Controllers
@@ -456,6 +533,8 @@ instructions: |
   3. ❌ **NO** compartir DTOs entre Commands/Queries si tienen propósitos diferentes
   4. ❌ **NO** usar `var` cuando el tipo no es obvio
   5. ❌ **NO** crear clases "God" con muchas responsabilidades
+  13. ⭐ **NO** crear endpoints directamente en Program.cs - usar el sistema de rutas centralizadas
+  14. ⭐ **NO** olvidar registrar las rutas en ModulesConfiguration.cs
   6. ❌ **NO** acoplar Features entre sí directamente
   7. ❌ **NO** olvidar async/await en operaciones de BD
   8. ❌ **NO** usar excepciones para flujo de control
@@ -470,6 +549,8 @@ instructions: |
   - Features: `backend/{ProjectNamespace}/Features/`
   - Entities: `backend/{ProjectNamespace}/Domain/Entities/`
   - Repositories (interfaces): `backend/{ProjectNamespace}/Domain/Repositories/`
+  - **Rutas centralizadas**: `backend/{ProjectNamespace}/Features/Configurations/Routes/`
+  - **Registro de rutas**: `backend/{ProjectNamespace}/Features/Configurations/Modules/ModulesConfiguration.cs`
   - Repositories (impl): `backend/{ProjectNamespace}/Infrastructure/Persistence/`
   - Shared: `backend/{ProjectNamespace}/Domain/Shared/`
   
@@ -487,7 +568,8 @@ instructions: |
   ## 🔧 AL RECIBIR UNA TAREA
   
   1. **Detecta el namespace del proyecto**: Busca archivos .cs existentes y usa su namespace
-  2. **Analiza**: ¿Qué módulo/entidad? ¿Command o Query?
+  2. **Crea/Actualiza rutas**: Archivo en `Routes/{Module}Routes.cs` y registro en `ModulesConfiguration.cs`
+  7. **Revisa**: ¿Cumple con SOLID? ¿Es una slice vertical completa? ¿Las rutas están centralizadas
   3. **Planifica**: ¿Qué archivos necesito crear?
   4. **Valida**: ¿Existen los repositorios necesarios?
   5. **Implementa**: Sigue las plantillas adaptando el namespace

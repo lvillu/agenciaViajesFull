@@ -45,6 +45,12 @@ namespace agenciaViajes.Application.Domain.Middleware
                 var jwtSettings = _configuration.GetSection("AppSettings");
                 var secretKey = jwtSettings.GetValue<string>("SecretKey");
 
+                if (string.IsNullOrEmpty(secretKey))
+                {
+                    context.Response.StatusCode = 500;
+                    GeneraExcepcion(context, "Configuracion de SecretKey invalida.");
+                    return;
+                }
 
                 var key = Encoding.UTF8.GetBytes(secretKey);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -57,7 +63,14 @@ namespace agenciaViajes.Application.Domain.Middleware
             }
             catch (SecurityTokenExpiredException)
             {
-                JwtSecurityToken jwtSecurityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                var jwtSecurityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (jwtSecurityToken == null)
+                {
+                    context.Response.StatusCode = 401;
+                    GeneraExcepcion(context, "Token invalido.");
+                    return;
+                }
 
                 // Si el token ha expirado, intenta refrescarlo con el refresh token
                 // Obtener el refresh token directamente desde el JWT (en los claims)
@@ -70,28 +83,30 @@ namespace agenciaViajes.Application.Domain.Middleware
                     return;
                 }
 
-                /* ESTA FUNCION OBTIENE EL USER DE LA BASE DE DATOS A PARTIR DEL REFRESHTOKEN
-                var user = await GetUserFromRefreshTokenAsync(refreshToken);
+                // Obtener el usuario de la base de datos a partir del refreshToken
+                var user = await tokenService.GetUserByRefreshTokenAsync(refreshToken);
                 if (user == null)
                 {
                     context.Response.StatusCode = 401; // Unauthorized
-                    await context.Response.WriteAsync("Refresh token invalido.");
+                    GeneraExcepcion(context, "Refresh token invalido.");
                     return;
                 }
-                */
 
-                /* VALIDA EL TIEMPO DE EXPIRAICON DEL REFRESH TOKEN
-                if(user.RefreshTokenExpires != null && user.RefreshTokenExpires < DateTime.Now)
+                // Validar el tiempo de expiración del Refresh Token
+                if(user.RefreshTokenExpiryTime != null && user.RefreshTokenExpiryTime < DateTime.UtcNow)
                 {
-                    await ClearRefreshTokenAsync(user.RefreshToken);
                     context.Response.StatusCode = 401; // Unauthorized
-                    await context.Response.WriteAsync("Refres Token expiro.");
+                    GeneraExcepcion(context, "Refresh Token expiro.");
                     return;
                 }
-                */
 
+                // Generar nuevo refresh token y guardarlo
+                var newRefreshToken = Guid.NewGuid().ToString();
+                user.RefreshToken = newRefreshToken;
+                user.RefreshTokenExpiryTime = tokenService.GenerateRefreshTokenExpires();
+                
                 // Generar nuevo token en base al usuario obtenido
-                var newToken = tokenService.GenerateToken("middleware", refreshToken);
+                var newToken = tokenService.GenerateToken(user, newRefreshToken);
                 // Cambiar el encabezado de autorización con el nuevo token
                 context.Request.Headers["New-Auth-Header"] = $"Bearer {newToken}";
                 // Ahora llamamos al siguiente middleware o API
@@ -121,39 +136,5 @@ namespace agenciaViajes.Application.Domain.Middleware
 
             context.Response.WriteAsync(result);
         }
-        /*
-        private async Task<User> GetUserFromRefreshTokenAsync(string refreshToken)
-        {
-            // Aquí accedemos al DbContext usando el IServiceProvider
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                return await dbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
-            }
-        }
-        */
-
-        /* 
-        private async Task ClearRefreshTokenAsync(string refreshToken)
-        {
-            // Aquí accedemos al DbContext usando el IServiceProvider
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                // Obtener el usuario que tiene el refresh token
-                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
-
-                if (user != null)
-                {
-                    // Limpiar los valores de refreshToken y refreshTokenExpires
-                    user.RefreshToken = null;
-                    user.RefreshTokenExpires = null;
-
-                    // Guardar los cambios en la base de datos
-                    await dbContext.SaveChangesAsync();
-                }
-            }
-        */
     }
 }

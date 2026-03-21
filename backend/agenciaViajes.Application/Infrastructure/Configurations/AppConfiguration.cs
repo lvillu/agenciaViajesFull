@@ -19,14 +19,12 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
             {
                 options.AddPolicy("AllowSpecificOrigin", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
-                          .WithExposedHeaders("Content-Length", "Content-Type") // Headers expuestos explícitamente
-                          .SetPreflightMaxAge(TimeSpan.FromHours(12))
-                          .SetIsOriginAllowedToAllowWildcardSubdomains()
-                          .WithHeaders(HeaderNames.CacheControl, "public, max-age=30") // Opcional
-                          .WithHeaders(HeaderNames.Vary, ""); // ⬅️ Esto elimina el header Vary
+                          .AllowCredentials()
+                          .WithExposedHeaders("Content-Length", "Content-Type")
+                          .SetPreflightMaxAge(TimeSpan.FromHours(12));
                 });
             });
 

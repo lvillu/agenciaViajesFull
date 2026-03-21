@@ -21,6 +21,17 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface UserResponse {
+  id: number;
+  name: string;
+  lastName: string;
+  userName: string;
+  email: string;
+  userIconUrl: string | null;
+  active: boolean;
+  createdAt: string;
+}
+
 export interface UserMeResponse {
   fullName: string;
   email: string;
