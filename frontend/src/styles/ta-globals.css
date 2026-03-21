@@ -161,7 +161,14 @@
 .ta-cal-dl.sel      { background: #ec5b13 !important; color: #ffffff !important; font-weight: 700; }
 .ta-cal-dl.tod.sel  { background: #ec5b13 !important; color: #ffffff !important; }
 .ta-cal-dl.other    { color: #cbd5e1; }
-.ta-cal-dl.dis      { color: #e2e8f0; cursor: not-allowed; pointer-events: none; }
+.ta-cal-dl.dis      {
+  color: #94a3b8;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: #f1f5f9;
+  opacity: 0.55;
+}
+.ta-cal-dl.dis:hover { background: #f1f5f9; color: #94a3b8; }
 
 .ta-cal-mpicker,
 .ta-cal-ypicker {

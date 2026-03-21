@@ -54,13 +54,14 @@ function toDateString(d: Date | null | undefined): string {
 const dayLabelPt = (opts: any) => {
   const ctx = opts?.context ?? {};
   const date = ctx.date ?? {};
+  const isDisabled = ctx.disabled === true || date.selectable === false;
   return {
     className: [
       'ta-cal-dl',
-      ctx.selected && 'sel',
-      date.today && 'tod',
+      ctx.selected && !isDisabled && 'sel',
+      date.today && !isDisabled && 'tod',
       date.currentMonth === false && 'other',
-      date.selectable === false && 'dis',
+      isDisabled && 'dis',
     ]
       .filter(Boolean)
       .join(' '),
