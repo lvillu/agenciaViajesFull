@@ -37,6 +37,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { ViewPaymentsModal } from '@/components/shared/ViewPaymentsModal';
@@ -159,52 +160,48 @@ export default function ReservasPage() {
   const getStatusChip = (sale: SaleWithTotals) => {
     if (sale.balance === 0) {
       return (
-        <Chip 
-          label="Liquidado" 
-          color="success" 
-          size="small" 
-          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        <Chip
+          label="Liquidado"
+          size="small"
+          sx={{ bgcolor: '#dcfce7', color: '#16a34a', fontWeight: 700, fontSize: '11px', border: 'none' }}
         />
       );
     }
     if (sale.isOverdue) {
       return (
-        <Chip 
-          label="Vencido" 
-          color="error" 
-          size="small" 
-          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        <Chip
+          label="Vencido"
+          size="small"
+          sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 700, fontSize: '11px', border: 'none' }}
         />
       );
     }
     if (sale.totalPaid > 0) {
       return (
-        <Chip 
-          label="Pago Parcial" 
-          color="warning" 
-          size="small" 
-          sx={{ color: '#FFFFFF', fontWeight: 500 }}
+        <Chip
+          label="Pago Parcial"
+          size="small"
+          sx={{ bgcolor: '#fef9c3', color: '#854d0e', fontWeight: 700, fontSize: '11px', border: 'none' }}
         />
       );
     }
     return (
-      <Chip 
-        label="Pendiente" 
-        color="default" 
-        size="small" 
-        sx={{ fontWeight: 500 }}
+      <Chip
+        label="Pendiente"
+        size="small"
+        sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '11px', border: 'none' }}
       />
     );
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
         <Breadcrumbs items={[{ label: 'Reservas' }]} />
         
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h1" sx={{ color: 'text.primary' }}>
+          <Typography variant="h1" sx={{ color: 'text.primary', fontWeight: 800 }}>
             Reservas
           </Typography>
           <Button 
@@ -212,28 +209,34 @@ export default function ReservasPage() {
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
+            sx={{ px: 3 }}
           >
             Nueva Reserva
           </Button>
         </Box>
 
         {/* Buscador */}
-        <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            placeholder="Buscar por cliente, proveedor, número de reserva o descripción..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
+        <Box sx={{ mb: 2 }}>
+          <Card sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+            <CardContent sx={{ p: '8px !important' }}>
+              <TextField
+                fullWidth
+                variant="standard"
+                placeholder="Buscar por cliente, proveedor, número de reserva o descripción..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  disableUnderline: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
+                    </InputAdornment>
+                  ),
+                  sx: { fontSize: '15px', py: 0.5 },
+                }}
+              />
+            </CardContent>
+          </Card>
         </Box>
 
         {/* Mensajes */}
@@ -244,42 +247,53 @@ export default function ReservasPage() {
         )}
 
         {/* Tabla */}
-        <Card 
-          sx={{ 
-            borderRadius: 3, 
-            boxShadow: 2,
-            my: '15px',
+        <Card
+          sx={{
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+            my: 2,
           }}
         >
-          <CardContent sx={{ p: 3 }}>
-            <TableContainer sx={{ maxHeight: 600, overflowY: 'auto' }}>
+          <CardContent sx={{ p: 0 }}>
+            <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.50' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Cliente</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Proveedor</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Descripción</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Fecha Viaje</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>Total</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>Pagado</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>Saldo</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Estado</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 600 }}>Acciones</TableCell>
+                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    {['Cliente', 'Proveedor', 'Descripción', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Ganancia', 'Estado', 'Acciones'].map((h, i) => (
+                      <TableCell
+                        key={h}
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.07em',
+                          color: 'text.secondary',
+                          py: 1.5,
+                          textAlign: (i >= 4 && i <= 7) ? 'right' : i === 9 ? 'center' : 'left',
+                          borderBottom: '2px solid',
+                          borderColor: 'divider',
+                        }}
+                      >
+                        {h}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           Cargando reservas...
                         </Typography>
                       </TableCell>
                     </TableRow>
                   )}
-                  {!loading && filteredSales.length === 0 && (
+                      {!loading && filteredSales.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body2" color="text.secondary">
                           {searchTerm
                             ? 'No se encontraron reservas que coincidan con la búsqueda'
@@ -292,7 +306,7 @@ export default function ReservasPage() {
                     filteredSales.map((sale) => (
                       <TableRow 
                         key={sale.id} 
-                        sx={{ '&:hover': { bgcolor: 'grey.50' } }}
+                        sx={{ '&:hover': { bgcolor: '#f8fafc' }, transition: 'background-color 0.15s' }}
                       >
                         <TableCell>
                           <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -332,38 +346,51 @@ export default function ReservasPage() {
                             {formatCurrency(sale.balance, sale.isDollar)}
                           </Typography>
                         </TableCell>
+                        <TableCell align="right">
+                          {sale.profitAmount != null && sale.profitAmount > 0 ? (
+                            <Typography sx={{ color: '#16a34a', fontWeight: 700 }}>
+                              {formatCurrency(sale.profitAmount, sale.isDollar)}
+                            </Typography>
+                          ) : sale.profitPercentage != null ? (
+                            <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
+                              {sale.profitPercentage}%
+                            </Typography>
+                          ) : (
+                            <Typography sx={{ color: '#cbd5e1' }}>—</Typography>
+                          )}
+                        </TableCell>
                         <TableCell>{getStatusChip(sale)}</TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                             <IconButton
                               size="small"
                               onClick={() => handleViewPayments(sale)}
-                              color="info"
                               title="Ver Pagos"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'primary.main', bgcolor: 'primary.light' } }}
                             >
                               <VisibilityIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
                               onClick={() => handleAddPayment(sale)}
-                              color="success"
                               title="Agregar Pago"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'success.main', bgcolor: '#dcfce7' } }}
                             >
                               <PaymentIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
                               onClick={() => handleEdit(sale)}
-                              color="primary"
                               title="Editar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: '#f1f5f9' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
                               onClick={() => handleOpenDelete(sale)}
-                              color="error"
                               title="Eliminar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'error.main', bgcolor: '#fee2e2' } }}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -436,6 +463,7 @@ export default function ReservasPage() {
           />
         )}
       </Container>
+      <Footer />
     </Box>
   );
 }

@@ -15,9 +15,10 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 import { Button } from '@/components/ui/Button';
 import { clientSchema, type ClientFormData } from '@/lib/validationSchemas';
 import { Client } from '@/types/client';
@@ -42,6 +43,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm<ClientFormData>({
@@ -94,83 +96,122 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: '12px',
+          border: '1px solid',
+          borderColor: 'divider',
         },
       }}
     >
-      <DialogTitle sx={{ m: 0, p: 2, pr: 6 }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          px: 4,
+          py: 2.5,
+          fontWeight: 800,
+          fontSize: '1.1rem',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          pr: 6,
+        }}
+      >
         {isEdit ? 'Editar Cliente' : 'Agregar Cliente'}
         <IconButton
           aria-label="close"
           onClick={onClose}
           sx={{
             position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
+            right: 12,
+            top: 12,
+            color: 'text.secondary',
+            '&:hover': { bgcolor: '#f1f5f9' },
           }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent dividers>
+        <DialogContent sx={{ px: 4, py: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Input
-              label="Nombre"
-              {...register('name')}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              required
-            />
+            {/* Nombre + Apellido */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input
+                label="Nombre"
+                placeholder="Ej. Juan"
+                {...register('name')}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+                required
+              />
+              <Input
+                label="Apellido"
+                placeholder="Ej. Pérez"
+                {...register('lastName')}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                required
+              />
+            </Box>
 
-            <Input
-              label="Apellido"
-              {...register('lastName')}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-              required
-            />
-
+            {/* Dirección */}
             <Input
               label="Dirección"
+              placeholder="Calle 123, Ciudad"
               {...register('address')}
               error={!!errors.address}
               helperText={errors.address?.message}
             />
 
-            <Input
-              label="Teléfono"
-              {...register('phone')}
-              error={!!errors.phone}
-              helperText={errors.phone?.message}
-              required
-            />
+            {/* Teléfono + Email */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input
+                label="Teléfono"
+                placeholder="+1 234 567 890"
+                type="tel"
+                {...register('phone')}
+                error={!!errors.phone}
+                helperText={errors.phone?.message}
+                required
+              />
+              <Input
+                label="Email"
+                placeholder="juan.perez@email.com"
+                type="email"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                required
+              />
+            </Box>
 
-            <Input
-              label="Email"
-              type="email"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              required
-            />
-
-            <Input
-              label="Fecha de Nacimiento"
-              type="date"
-              {...register('birthDate')}
-              error={!!errors.birthDate}
-              helperText={errors.birthDate?.message}
-              InputLabelProps={{
-                shrink: true,
-              }}
+            {/* Fecha de Nacimiento */}
+            <Controller
+              name="birthDate"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  label="Fecha de Nacimiento"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={!!errors.birthDate}
+                  helperText={errors.birthDate?.message}
+                />
+              )}
             />
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ p: 2, gap: 1 }}>
+        <DialogActions
+          sx={{
+            px: 4,
+            py: 2,
+            gap: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            bgcolor: '#f8fafc',
+          }}
+        >
           <Button
             onClick={onClose}
             variant="outlined"

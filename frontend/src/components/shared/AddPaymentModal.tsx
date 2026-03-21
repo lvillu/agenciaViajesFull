@@ -8,19 +8,19 @@
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Box,
   Typography,
   Alert,
   CircularProgress,
-  TextField,
+  IconButton,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 import { paymentService } from '@/services/paymentService';
 import {
   CreatePaymentSchema,
@@ -119,53 +119,151 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     : undefined;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Typography variant="h2">Agregar Pago</Typography>
-      </DialogTitle>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '12px',
+          bgcolor: '#f8f6f6',
+          border: '1px solid #e2e8f0',
+        },
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 3,
+          py: 2,
+          bgcolor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <span
+            className="material-symbols-outlined"
+            style={{ color: '#ec5b13', fontSize: '24px', lineHeight: 1 }}
+          >
+            payments
+          </span>
+          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#0f172a' }}>
+            Registrar Pago
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={handleClose}
+          size="small"
+          sx={{
+            color: '#64748b',
+            '&:hover': { bgcolor: '#f1f5f9' },
+            borderRadius: '50%',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>close</span>
+        </IconButton>
+      </Box>
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent>
-          {/* Información de la venta */}
-          <Box sx={{ mb: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Total de la Reserva:
+        <DialogContent sx={{ px: 3, py: 3 }}>
+          {/* Resumen financiero */}
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: '#0f172a',
+              mb: 2,
+            }}
+          >
+            Resumen Financiero
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 120,
+                p: 2,
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                bgcolor: '#ffffff',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#64748b', mb: 0.5 }}>
+                Total Reserva
               </Typography>
-              <Typography variant="body1" fontWeight="bold">
+              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
                 {formatCurrency(totalAmount, isDollar)}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Total Pagado:
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 120,
+                p: 2,
+                borderRadius: '8px',
+                border: '1px solid #bbf7d0',
+                bgcolor: 'rgba(240, 253, 244, 0.5)',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#15803d', mb: 0.5 }}>
+                Total Pagado
               </Typography>
-              <Typography variant="body1" color="success.main">
+              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#16a34a' }}>
                 {formatCurrency(totalPaid, isDollar)}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body1" fontWeight="medium">
-                Saldo Actual:
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 120,
+                p: 2,
+                borderRadius: '8px',
+                border: '1px solid #fecaca',
+                bgcolor: 'rgba(254, 242, 242, 0.5)',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#b91c1c', mb: 0.5 }}>
+                Saldo Actual
               </Typography>
-              <Typography variant="body1" color="error.main">
+              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#dc2626' }}>
                 {formatCurrency(totalAmount - totalPaid, isDollar)}
               </Typography>
             </Box>
-            {amount > 0 && (
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="body1" fontWeight="bold">
-                  Saldo Después del Pago:
-                </Typography>
-                <Typography
-                  variant="body1"
-                  fontWeight="bold"
-                  color={remainingBalance > 0 ? 'error.main' : 'success.main'}
-                >
-                  {formatCurrency(Math.max(0, remainingBalance), isDollar)}
-                </Typography>
-              </Box>
-            )}
           </Box>
+
+          {amount > 0 && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                p: 2,
+                mb: 3,
+                borderRadius: '8px',
+                border: `1px solid ${remainingBalance > 0 ? '#fecaca' : '#bbf7d0'}`,
+                bgcolor: remainingBalance > 0 ? 'rgba(254,242,242,0.6)' : 'rgba(240,253,244,0.6)',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+                Saldo después del pago:
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.875rem',
+                  fontWeight: 800,
+                  color: remainingBalance > 0 ? '#dc2626' : '#16a34a',
+                }}
+              >
+                {formatCurrency(Math.max(0, remainingBalance), isDollar)}
+              </Typography>
+            </Box>
+          )}
 
           {submitError && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -173,27 +271,59 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
             </Alert>
           )}
 
-          {/* Formulario */}
-          <Box sx={{ mb: 2 }}>
-            <Input
-              label="Fecha de Pago"
-              type="date"
-              {...register('paymentDate')}
-              error={!!errors.paymentDate}
-              helperText={errors.paymentDate?.message}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
+          {/* Detalles del pago */}
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: '#0f172a',
+              mb: 2,
+            }}
+          >
+            Detalles del Nuevo Pago
+          </Typography>
 
-          <Box sx={{ mb: 2 }}>
-            <Input
-              label={`Monto del Pago ${isDollar ? '(USD)' : '(MXN)'}`}
-              type="number"
-              inputProps={{ step: '0.01', min: '0' }}
-              {...register('amount', { valueAsNumber: true })}
-              error={!!errors.amount}
-              helperText={errors.amount?.message}
-            />
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ flex: 1, minWidth: 180 }}>
+              <Controller
+                name="paymentDate"
+                control={control}
+                render={({ field }) => (
+                  <DateInput
+                    label="Fecha de Pago"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    error={!!errors.paymentDate}
+                    helperText={errors.paymentDate?.message}
+                    required
+                  />
+                )}
+              />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 180 }}>
+              <Input
+                label={`Monto del Pago ${isDollar ? '(USD)' : '(MXN)'}`}
+                type="number"
+                placeholder="0.00"
+                inputProps={{ step: '0.01', min: '0' }}
+                InputProps={{
+                  startAdornment: (
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ color: '#94a3b8', fontSize: '20px', marginRight: '6px', lineHeight: 1 }}
+                    >
+                      attach_money
+                    </span>
+                  ),
+                }}
+                {...register('amount', { valueAsNumber: true })}
+                error={!!errors.amount}
+                helperText={errors.amount?.message}
+              />
+            </Box>
           </Box>
 
           {isDollar && (
@@ -217,32 +347,52 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
             </>
           )}
 
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 1 }}>
             <Controller
               name="notes"
               control={control}
               render={({ field }) => (
-                <TextField
+                <Input
                   {...field}
-                  label="Notas"
+                  label="Notas o Referencia"
                   multiline
                   rows={3}
-                  fullWidth
-                  variant="outlined"
-                  size="small"
+                  placeholder="Ej. Transferencia bancaria, pago en efectivo..."
                   error={!!errors.notes}
-                  helperText={errors.notes?.message || 'Opcional: Información adicional del pago'}
+                  helperText={errors.notes?.message}
                 />
               )}
             />
           </Box>
         </DialogContent>
-        <DialogActions>
+
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2.5,
+            gap: 1.5,
+            borderTop: '1px solid #e2e8f0',
+            bgcolor: '#f8fafc',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button onClick={handleClose} variant="outlined" disabled={loading}>
             Cancelar
           </Button>
-          <Button type="submit" variant="contained" color="primary" disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : 'Registrar Pago'}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            startIcon={
+              loading ? undefined : (
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  check_circle
+                </span>
+              )
+            }
+          >
+            {loading ? <CircularProgress size={22} sx={{ color: '#fff' }} /> : 'Registrar Pago'}
           </Button>
         </DialogActions>
       </form>

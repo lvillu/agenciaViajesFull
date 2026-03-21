@@ -13,6 +13,7 @@ export interface Sale {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -62,6 +63,7 @@ export interface CreateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -77,6 +79,7 @@ export interface UpdateSaleRequest {
   description?: string;
   totalAmount: number;
   isDollar: boolean;
+  profitPercentage?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -88,14 +91,15 @@ export interface UpdateSaleRequest {
 
 // Esquema de validación para crear venta
 export const CreateSaleSchema = z.object({
-  clientId: z.number().min(1, 'Debe seleccionar un cliente'),
-  providerId: z.number().min(1, 'Debe seleccionar un proveedor'),
+  clientId: z.coerce.number().min(1, 'Debe seleccionar un cliente'),
+  providerId: z.coerce.number().min(1, 'Debe seleccionar un proveedor'),
   reservationNumber: z.string().optional(),
   description: z.string().optional(),
-  totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
+  totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
-  exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
-  requiredDeposit: z.number().min(0).optional(),
+  profitPercentage: z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
+  exchangeRate: z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
+  requiredDeposit: z.coerce.number().min(0).optional(),
   finalPaymentDueDate: z.string().optional(),
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
@@ -131,14 +135,15 @@ export const CreateSaleSchema = z.object({
 
 // Esquema de validación para actualizar venta
 export const UpdateSaleSchema = z.object({
-  clientId: z.number().min(1, 'Debe seleccionar un cliente'),
-  providerId: z.number().min(1, 'Debe seleccionar un proveedor'),
+  clientId: z.coerce.number().min(1, 'Debe seleccionar un cliente'),
+  providerId: z.coerce.number().min(1, 'Debe seleccionar un proveedor'),
   reservationNumber: z.string().optional(),
   description: z.string().optional(),
-  totalAmount: z.number().min(0.01, 'El monto total debe ser mayor a 0'),
+  totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
-  exchangeRate: z.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
-  requiredDeposit: z.number().min(0).optional(),
+  profitPercentage: z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
+  exchangeRate: z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
+  requiredDeposit: z.coerce.number().min(0).optional(),
   finalPaymentDueDate: z.string().optional(),
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
@@ -182,4 +187,5 @@ export interface SaleWithTotals extends Sale {
   balance: number; // Saldo pendiente
   isOverdue: boolean; // Si pasó la fecha de liquidación
   requiresFullPayment: boolean; // Si requiere pago total
+  profitAmount?: number; // Monto de ganancia calculado por el backend
 }

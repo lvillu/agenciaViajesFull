@@ -16,7 +16,12 @@ import {
   MenuItem,
   Typography,
   Divider,
+  Badge,
+  Tooltip,
+  Container,
 } from '@mui/material';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
@@ -53,8 +58,8 @@ export const Header: React.FC = () => {
       text: '¿Estás seguro de que deseas cerrar sesión?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#2F80ED',
-      cancelButtonColor: '#EB5757',
+      confirmButtonColor: '#ec5b13',
+      cancelButtonColor: '#dc2626',
       confirmButtonText: 'Sí, cerrar sesión',
       cancelButtonText: 'Cancelar',
     });
@@ -68,70 +73,102 @@ export const Header: React.FC = () => {
   if (!mounted) return null;
 
   return (
-    <AppBar position="static" sx={{ mb: 4 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          onClick={() => router.push('/')}
-        >
-          Agencia Viajes
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {user && (
-            <Typography variant="body2">
-              {user.fullName || userName}
-            </Typography>
-          )}
-          <IconButton
-            onClick={handleMenuOpen}
-            sx={{
-              p: 0,
-              width: 40,
-              height: 40,
-            }}
+    <AppBar position="sticky">
+      <Container maxWidth="xl" disableGutters sx={{ px: { xs: 2, sm: 3, lg: 4 } }}>
+        <Toolbar sx={{ justifyContent: 'space-between', minHeight: 64 }}>
+          {/* Logo & Brand */}
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}
+            onClick={() => router.push('/')}
           >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: 'primary.main',
-                cursor: 'pointer',
-              }}
-              src={user?.userIconUrl || undefined}
-              alt={userName || 'Usuario'}
+            <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 32 }} />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700, color: 'text.primary', fontSize: '18px' }}
             >
-              {!user?.userIconUrl && userName?.charAt(0).toUpperCase()}
-            </Avatar>
-          </IconButton>
-        </Box>
+              Agencia Viajes
+            </Typography>
+          </Box>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <MenuItem onClick={handleSettings}>
-            ⚙️ Settings
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-            🚪 Logout
-          </MenuItem>
-        </Menu>
-      </Toolbar>
+          {/* Actions & Profile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {/* Notifications */}
+            <Tooltip title="Notificaciones">
+              <IconButton sx={{ color: 'text.secondary' }}>
+                <Badge color="primary" variant="dot">
+                  <NotificationsOutlinedIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+
+            {/* Divider */}
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{ mx: 1, height: 32, alignSelf: 'center', borderColor: 'divider' }}
+            />
+
+            {/* Profile */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                cursor: 'pointer',
+                borderRadius: '9999px',
+                px: 1,
+                py: 0.5,
+                '&:hover': { bgcolor: 'action.hover' },
+                transition: 'background-color 0.2s',
+              }}
+              onClick={handleMenuOpen}
+            >
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  bgcolor: 'primary.light',
+                  color: 'primary.main',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                }}
+                src={user?.userIconUrl || undefined}
+                alt={userName || 'Usuario'}
+              >
+                {!user?.userIconUrl && (userName?.charAt(0).toUpperCase() || 'U')}
+              </Avatar>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 500,
+                  color: 'text.primary',
+                  display: { xs: 'none', sm: 'block' },
+                  pr: 0.5,
+                }}
+              >
+                {user?.fullName || userName || 'Admin'}
+              </Typography>
+            </Box>
+          </Box>
+        </Toolbar>
+      </Container>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{ paper: { sx: { mt: 1, minWidth: 180, borderRadius: 2 } } }}
+      >
+        <MenuItem onClick={handleSettings}>⚙️ Configuración</MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+          🚪 Cerrar sesión
+        </MenuItem>
+      </Menu>
     </AppBar>
   );
 };

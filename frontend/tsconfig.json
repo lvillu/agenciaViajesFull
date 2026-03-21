@@ -39,11 +39,7 @@
     "src",
     ".next/types/**/*.ts"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
+  "references": [],
   "exclude": [
     "node_modules"
   ]

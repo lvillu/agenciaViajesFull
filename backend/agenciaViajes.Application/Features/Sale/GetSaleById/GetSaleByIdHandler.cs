@@ -37,6 +37,8 @@ namespace agenciaViajes.Application.Features.Sale.GetSaleById
                 Description = sale.Description,
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,
+                ProfitPercentage = sale.ProfitPercentage,
+                ProfitAmount = sale.ProfitPercentage.HasValue ? Math.Round(sale.TotalAmount * sale.ProfitPercentage.Value / 100, 2) : null,
                 RequiredDeposit = sale.RequiredDeposit,
                 FinalPaymentDueDate = sale.FinalPaymentDueDate,
                 TravelDate = sale.TravelDate,

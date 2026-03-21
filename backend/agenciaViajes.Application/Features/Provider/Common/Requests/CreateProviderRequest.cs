@@ -9,5 +9,6 @@ namespace agenciaViajes.Application.Features.Provider.Common.Requests
         public string ProviderContactName { get; set; } = string.Empty;
         public decimal? DepositPercentage { get; set; }
         public int? FinalPaymentDaysBefore { get; set; }
+        public decimal? ProfitPercentage { get; set; }
     }
 }

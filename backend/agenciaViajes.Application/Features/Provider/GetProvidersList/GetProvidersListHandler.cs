@@ -28,6 +28,7 @@ namespace agenciaViajes.Application.Features.Provider.GetProvidersList
                 ProviderContactName = p.ProviderContactName,
                 DepositPercentage = p.DepositPercentage,
                 FinalPaymentDaysBefore = p.FinalPaymentDaysBefore,
+                ProfitPercentage = p.ProfitPercentage,
                 Active = p.Active
             }).ToList();
 

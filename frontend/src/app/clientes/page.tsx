@@ -27,13 +27,15 @@ import {
   DialogActions,
   Chip,
   TextField,
-  InputAdornment,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Button } from '@/components/ui/Button';
 import { ClientFormModal } from '@/components/shared/ClientFormModal';
@@ -59,9 +61,12 @@ export default function ClientesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   // Filtrar clientes según el término de búsqueda
   const filteredClients = useMemo(() => {
+    setPage(0);
     if (!searchTerm.trim()) return clients;
 
     const term = searchTerm.toLowerCase();
@@ -73,7 +78,11 @@ export default function ClientesPage() {
         client.phone.toLowerCase().includes(term) ||
         (client.address && client.address.toLowerCase().includes(term))
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, searchTerm]);
+
+  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
+  const paginatedClients = filteredClients.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -161,9 +170,9 @@ export default function ClientesPage() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, px: { xs: 2, sm: 3, lg: 4 } }}>
         <Breadcrumbs items={[{ label: 'Clientes' }]} />
 
         {/* Header con título y botón */}
@@ -175,14 +184,15 @@ export default function ClientesPage() {
             mb: 3,
           }}
         >
-          <Typography variant="h1" sx={{ color: 'text.primary' }}>
+          <Typography variant="h1" sx={{ color: 'text.primary', fontWeight: 800 }}>
             Clientes
           </Typography>
           <Button
             variant="contained"
             color="primary"
-            startIcon={<AddIcon />}
+            startIcon={<PersonAddAlt1Icon />}
             onClick={handleOpenCreate}
+            sx={{ px: 3 }}
           >
             Agregar Cliente
           </Button>
@@ -195,48 +205,67 @@ export default function ClientesPage() {
           </Alert>
         )}
 
-        {/* Card con tabla de clientes */}
-        <Card 
-          sx={{ 
-            borderRadius: 3, 
-            boxShadow: 2,
-            my: '15px',
+        {/* Barra de búsqueda separada */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            px: 1,
+            py: 0.5,
+            mb: 2,
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          <CardContent sx={{ p: 3 }}>
-            {/* Campo de búsqueda */}
-            <Box sx={{ mb: 3 }}>
-              <TextField
-                fullWidth
-                placeholder="Buscar por nombre, apellido, email, teléfono o dirección..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                size="small"
-              />
-            </Box>
+          <SearchIcon sx={{ color: 'text.disabled', ml: 1, mr: 0.5, flexShrink: 0 }} />
+          <TextField
+            fullWidth
+            variant="standard"
+            placeholder="Buscar clientes por nombre, email o teléfono..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              sx: { fontSize: '15px', py: 1 },
+            }}
+          />
+        </Box>
 
+        {/* Card con tabla de clientes */}
+        <Card
+          sx={{
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
+        >
+          <CardContent sx={{ p: 0 }}>
             {/* Tabla con scroll */}
-            <TableContainer sx={{ maxHeight: 600, overflowY: 'auto' }}>
+            <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.50' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Nombre</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Apellido</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Teléfono</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Dirección</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Fecha Nac.</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Estado</TableCell>
-                    <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>
-                      Acciones
-                    </TableCell>
+                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    {['Nombre', 'Apellido', 'Email', 'Teléfono', 'Dirección', 'Fecha Nac.', 'Estado', 'Acciones'].map((h, i) => (
+                      <TableCell
+                        key={h}
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.07em',
+                          color: 'text.secondary',
+                          py: 1.5,
+                          textAlign: i === 7 ? 'center' : 'left',
+                          borderBottom: '2px solid',
+                          borderColor: 'divider',
+                        }}
+                      >
+                        {h}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -263,11 +292,12 @@ export default function ClientesPage() {
                   )}
 
                   {!loading &&
-                    filteredClients.map((client) => (
+                    paginatedClients.map((client) => (
                       <TableRow
                         key={client.id}
                         sx={{
-                          '&:hover': { bgcolor: 'grey.50' },
+                          '&:hover': { bgcolor: '#f8fafc' },
+                          transition: 'background-color 0.15s',
                         }}
                       >
                         <TableCell>
@@ -303,11 +333,13 @@ export default function ClientesPage() {
                         <TableCell>
                           <Chip
                             label={client.active ? 'Activo' : 'Inactivo'}
-                            color={client.active ? 'success' : 'error'}
                             size="small"
                             sx={{
-                              color: '#FFFFFF',
-                              fontWeight: 500,
+                              bgcolor: client.active ? '#dcfce7' : '#f1f5f9',
+                              color: client.active ? '#16a34a' : '#64748b',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              border: 'none',
                             }}
                           />
                         </TableCell>
@@ -315,17 +347,17 @@ export default function ClientesPage() {
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                             <IconButton
                               size="small"
-                              color="primary"
                               onClick={() => handleOpenEdit(client)}
                               title="Editar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'primary.main', bgcolor: 'primary.light' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
-                              color="error"
                               onClick={() => handleOpenDeleteDialog(client)}
                               title="Eliminar"
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'error.main', bgcolor: '#fee2e2' } }}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -336,9 +368,81 @@ export default function ClientesPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Paginación */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 3,
+                py: 1.5,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                bgcolor: '#f8fafc',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {filteredClients.length > 0
+                  ? `Mostrando ${page * rowsPerPage + 1} a ${Math.min((page + 1) * rowsPerPage, filteredClients.length)} de ${filteredClients.length} clientes`
+                  : 'Sin resultados'}
+              </Typography>
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronLeftIcon fontSize="small" />
+                  </IconButton>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <IconButton
+                      key={i}
+                      size="small"
+                      onClick={() => setPage(i)}
+                      sx={{
+                        width: 36, height: 36, borderRadius: 1.5,
+                        border: '1px solid',
+                        borderColor: page === i ? 'primary.main' : 'divider',
+                        bgcolor: page === i ? 'primary.main' : 'background.paper',
+                        color: page === i ? 'white' : 'text.secondary',
+                        fontWeight: page === i ? 700 : 400,
+                        fontSize: '14px',
+                        '&:hover': {
+                          bgcolor: page === i ? 'primary.dark' : '#f1f5f9',
+                        },
+                      }}
+                    >
+                      {i + 1}
+                    </IconButton>
+                  ))}
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronRightIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </Container>
+      <Footer />
 
       {/* Modal de crear/editar cliente */}
       <ClientFormModal

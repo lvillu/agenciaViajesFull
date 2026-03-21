@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 
 export default function SettingsPage() {
   const { user, loading, error, fetchUserInfo, isAuthenticated } = useAuth();
@@ -45,23 +46,35 @@ export default function SettingsPage() {
     return (
       <Box>
         <Header />
-        <Container maxWidth="md">
+        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, lg: 4 } }}>
           <Alert severity="error" sx={{ mt: 2 }}>
             {error}
           </Alert>
         </Container>
+        <Footer />
       </Box>
     );
   }
 
   return (
-    <Box>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <Container maxWidth="md">
-        <Paper elevation={0} sx={{ p: 4, bgcolor: 'background.paper' }}>
-          <Typography variant="h2" sx={{ mb: 3 }}>
-            Mi Perfil
-          </Typography>
+      <Box sx={{ flex: 1 }}>
+        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, lg: 4 }, py: 4 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              maxWidth: 800,
+            }}
+          >
+            <Typography variant="h1" sx={{ mb: 4, fontWeight: 800 }}>
+              Mi Perfil
+            </Typography>
 
           {user && (
             <Grid container spacing={3}>
@@ -73,7 +86,8 @@ export default function SettingsPage() {
                   sx={{
                     width: 120,
                     height: 120,
-                    bgcolor: user.userIconUrl ? 'transparent' : 'primary.main',
+                    bgcolor: user.userIconUrl ? 'transparent' : 'primary.light',
+                    color: 'primary.main',
                     fontSize: '3rem',
                   }}
                 >
@@ -152,7 +166,9 @@ export default function SettingsPage() {
             </Grid>
           )}
         </Paper>
-      </Container>
+        </Container>
+      </Box>
+      <Footer />
     </Box>
   );
 }

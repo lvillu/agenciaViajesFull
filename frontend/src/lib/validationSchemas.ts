@@ -93,6 +93,13 @@ export const providerSchema = z.object({
     .int('Debe ser un número entero')
     .min(0, 'Los días deben ser mayor o igual a 0')
     .optional(),
+  profitPercentage: z
+    .number({
+      invalid_type_error: 'Debe ser un número válido',
+    })
+    .min(0, 'El porcentaje debe ser mayor o igual a 0')
+    .max(100, 'El porcentaje no puede ser mayor a 100')
+    .optional(),
   active: z.boolean().optional(),
 });
 
