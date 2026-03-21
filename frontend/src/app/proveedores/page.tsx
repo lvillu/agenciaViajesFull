@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -66,7 +66,6 @@ export default function ProveedoresPage() {
 
   // Filtrar proveedores según el término de búsqueda
   const filteredProviders = useMemo(() => {
-    setPage(0);
     if (!searchTerm.trim()) return providers;
 
     const term = searchTerm.toLowerCase();
@@ -78,8 +77,12 @@ export default function ProveedoresPage() {
         provider.phone.toLowerCase().includes(term) ||
         provider.providerContactName.toLowerCase().includes(term)
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providers, searchTerm]);
+
+  // Resetear la página al cambiar el término de búsqueda o los proveedores
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm, providers]);
 
   const totalPages = Math.ceil(filteredProviders.length / rowsPerPage);
   const paginatedProviders = filteredProviders.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
