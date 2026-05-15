@@ -65,6 +65,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       amount: 0,
       exchangeRate: undefined,
       amountMXN: undefined,
+      transactionFee: undefined,
       notes: '',
     },
   });
@@ -346,6 +347,28 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
               )}
             </>
           )}
+
+          <Box sx={{ mb: 1 }}>
+            <Input
+              label="Comisión por Transferencia (opcional)"
+              type="number"
+              placeholder="0.00"
+              inputProps={{ step: '0.01', min: '0' }}
+              InputProps={{
+                startAdornment: (
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ color: '#94a3b8', fontSize: '20px', marginRight: '6px', lineHeight: 1 }}
+                  >
+                    percent
+                  </span>
+                ),
+              }}
+              {...register('transactionFee', { valueAsNumber: true })}
+              error={!!errors.transactionFee}
+              helperText={errors.transactionFee?.message || 'Cargo adicional por comisión bancaria'}
+            />
+          </Box>
 
           <Box sx={{ mb: 1 }}>
             <Controller

@@ -5,7 +5,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,9 +22,12 @@ import {
   CircularProgress,
   Alert,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import { Button } from '@/components/ui/Button';
 import { Payment } from '@/types/payment';
+import { Sale } from '@/types/sale';
+import { PaymentReceiptModal } from './PaymentReceiptModal';
 
 interface ViewPaymentsModalProps {
   open: boolean;
@@ -34,6 +37,7 @@ interface ViewPaymentsModalProps {
   error?: string | null;
   isDollar: boolean;
   totalAmount: number;
+  sale: Sale;
 }
 
 export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
@@ -44,7 +48,9 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   error = null,
   isDollar,
   totalAmount,
+  sale,
 }) => {
+  const [receiptPayment, setReceiptPayment] = useState<Payment | null>(null);
   const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const balance = totalAmount - totalPaid;
   const paidPercent = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
@@ -66,6 +72,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   };
 
   return (
+    <>
     <Dialog
       open={open}
       onClose={onClose}
@@ -355,6 +362,20 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                   >
                     Notas
                   </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.7rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.07em',
+                      color: '#475569',
+                      borderBottom: '1px solid #e2e8f0',
+                      py: 2,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Comprobante
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -402,6 +423,22 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                         {payment.notes || 'Sin notas'}
                       </Typography>
                     </TableCell>
+                    <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
+                      <Tooltip title="Ver comprobante">
+                        <IconButton
+                          size="small"
+                          onClick={() => setReceiptPayment(payment)}
+                          sx={{
+                            color: '#a63b00',
+                            '&:hover': { bgcolor: 'rgba(166,59,0,0.08)' },
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                            receipt_long
+                          </span>
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -420,21 +457,21 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           justifyContent: 'flex-end',
         }}
       >
-        <Button
-          onClick={() => window.print()}
-          variant="outlined"
-          startIcon={
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              receipt_long
-            </span>
-          }
-        >
-          Imprimir Recibo
-        </Button>
         <Button onClick={onClose} variant="contained" color="primary">
           Cerrar
         </Button>
       </DialogActions>
     </Dialog>
+
+    {/* Receipt Modal */}
+    {receiptPayment && (
+      <PaymentReceiptModal
+        open={!!receiptPayment}
+        onClose={() => setReceiptPayment(null)}
+        payment={receiptPayment}
+        sale={sale}
+      />
+    )}
+    </>
   );
 };
