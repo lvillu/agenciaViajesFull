@@ -76,5 +76,13 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Where(p => p.SaleId == saleId)
                 .SumAsync(p => p.Amount, cancellationToken);
         }
+
+        public async Task<int> GetNextFolioNumberAsync(CancellationToken cancellationToken = default)
+        {
+            var maxFolio = await _context.Payments
+                .MaxAsync(p => (int?)p.FolioNumber, cancellationToken);
+
+            return (maxFolio ?? 0) + 1;
+        }
     }
 }
