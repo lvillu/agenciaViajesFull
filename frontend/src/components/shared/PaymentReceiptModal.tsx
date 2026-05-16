@@ -13,7 +13,6 @@ import {
   Box,
   Typography,
   CircularProgress,
-  Divider,
 } from '@mui/material';
 import { Button } from '@/components/ui/Button';
 import { Payment } from '@/types/payment';
@@ -81,7 +80,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
     try {
       const html2pdf = (await import('html2pdf.js')).default;
       const options = {
-        margin: [8, 8, 8, 8],
+        margin: [8, 8, 8, 8] as [number, number, number, number],
         filename: `comprobante-${formatFolio(payment.folioNumber)}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },

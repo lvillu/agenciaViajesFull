@@ -56,6 +56,17 @@ namespace agenciaViajes.Application.Migrations
                     table.PrimaryKey("PK_agency_info", x => x.id);
                 });
 
+            // Asignar folio_number único a registros existentes antes de crear el índice único
+            migrationBuilder.Sql(@"
+                UPDATE payments
+                SET folio_number = sub.row_num
+                FROM (
+                    SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS row_num
+                    FROM payments
+                ) sub
+                WHERE payments.id = sub.id;
+            ");
+
             migrationBuilder.CreateIndex(
                 name: "idx_payments_folio_number",
                 table: "payments",
