@@ -25,6 +25,11 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                 .GreaterThan(0)
                 .When(x => x.AmountMXN.HasValue)
                 .WithMessage("El monto en MXN debe ser mayor a 0");
+
+            RuleFor(x => x.TransactionFee)
+                .GreaterThanOrEqualTo(0)
+                .When(x => x.TransactionFee.HasValue)
+                .WithMessage("La comisión por transferencia no puede ser negativa");
         }
     }
 }

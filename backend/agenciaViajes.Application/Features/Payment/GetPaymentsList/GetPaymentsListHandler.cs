@@ -24,12 +24,16 @@ namespace agenciaViajes.Application.Features.Payment.GetPaymentsList
             {
                 Id = payment.Id,
                 SaleId = payment.SaleId,
+                FolioNumber = payment.FolioNumber,
+                PaymentType = (int)payment.PaymentType,
+                PaymentTypeName = payment.PaymentType.ToString(),
                 SaleReservationNumber = payment.Sale?.ReservationNumber,
                 ClientName = payment.Sale?.Client != null ? $"{payment.Sale.Client.Name} {payment.Sale.Client.LastName}" : null,
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,
                 ExchangeRate = payment.ExchangeRate,
                 AmountMXN = payment.AmountMXN,
+                TransactionFee = payment.TransactionFee,
                 Notes = payment.Notes,
                 CreatedAt = payment.CreatedAt,
                 ModifiedAt = payment.ModifiedAt

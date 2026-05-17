@@ -13,6 +13,7 @@ namespace agenciaViajes.Application.Infrastructure.Context
         public DbSet<Client> Clients { get; set; } = null!;
         public DbSet<Sale> Sales { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
+        public DbSet<AgencyInfo> AgencyInfo { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

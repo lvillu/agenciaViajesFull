@@ -525,6 +525,30 @@ instructions: |
      - Aplicar `.RequireAuthorization()` si las rutas son protegidas
      - Registrar en `ModulesConfiguration.cs` con `app.Add{Module}Routes();`
      - NUNCA crear endpoints directamente en Program.cs
+
+  10. ✅ **Sincronizar KrakenD (`deploy/KrakenD/krakend.prod.tmpl`)**
+      - Por cada endpoint nuevo en el backend, agregar el bloque correspondiente en `krakend.prod.tmpl`
+      - Si el endpoint recibe query strings (ej: `?includeInactive`, `?saleId`), incluir `"input_query_strings"` en el bloque
+      - Si el endpoint recibe body (POST/PUT), incluir `"encoding": "no-op"` en el backend del bloque
+      - Sin este paso el endpoint será **inaccesible desde el frontend** en producción
+
+      **Plantilla de bloque KrakenD:**
+      ```json
+      {
+        "endpoint": "/{Module}/{id}",
+        "method": "GET",
+        "output_encoding": "no-op",
+        "input_headers": [ "Authorization", "Content-Type" ],
+        "input_query_strings": ["param1"],
+        "backend": [
+          {
+            "url_pattern": "/api/{Module}/{id}",
+            "host": ["http://api:8080"],
+            "method": "GET"
+          }
+        ]
+      }
+      ```
   
   ## 🚫 ANTI-PATRONES A EVITAR
   
@@ -542,6 +566,8 @@ instructions: |
   10. ❌ **NO** crear abstracciones prematuras
   11. ⭐ **NO** retornar solo `Result<T>.Data` en endpoints - SIEMPRE retorna el objeto `Result<T>` completo
   12. ⭐ **NO** usar `Values` como propiedad - la propiedad se llama `Data`
+  15. ⭐ **NO** crear un endpoint en el backend sin agregar su bloque en `deploy/KrakenD/krakend.prod.tmpl`
+  16. ⭐ **NO** olvidar `input_query_strings` en KrakenD cuando el endpoint acepta parámetros de query
   
   ## 📚 REFERENCIAS
   

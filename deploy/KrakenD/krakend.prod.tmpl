@@ -7,8 +7,7 @@
   "extra_config": {
     "security/cors": {
       "allow_origins": [
-        "http://localhost:3000",
-        "http://localhost:3001"
+        "CORS_ALLOWED_ORIGIN_PLACEHOLDER"
       ],
       "allow_methods": [
         "GET",
@@ -106,6 +105,7 @@
       "method": "GET",
       "output_encoding": "no-op",
       "input_headers": [ "Authorization", "Content-Type" ],
+      "input_query_strings": ["includeInactive"],
       "backend": [
         {
           "url_pattern": "/api/Provider",
@@ -173,6 +173,7 @@
       "method": "GET",
       "output_encoding": "no-op",
       "input_headers": [ "Authorization", "Content-Type" ],
+      "input_query_strings": ["includeInactive"],
       "backend": [
         {
           "url_pattern": "/api/Client",
@@ -240,6 +241,7 @@
       "method": "GET",
       "output_encoding": "no-op",
       "input_headers": [ "Authorization", "Content-Type" ],
+      "input_query_strings": ["includeInactive"],
       "backend": [
         {
           "url_pattern": "/api/Sale",

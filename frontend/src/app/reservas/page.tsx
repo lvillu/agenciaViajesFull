@@ -447,6 +447,7 @@ export default function ReservasPage() {
             error={errorPayments}
             isDollar={selectedSale.isDollar}
             totalAmount={selectedSale.totalAmount}
+            sale={selectedSale}
           />
         )}
 

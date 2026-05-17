@@ -8,10 +8,16 @@ import { z } from 'zod';
 export interface Payment {
   id: number;
   saleId: number;
+  folioNumber: number;
+  paymentType: number;       // 1=Anticipo, 2=Abono, 3=Liquidacion
+  paymentTypeName?: string;  // "Anticipo" | "Abono" | "Liquidacion"
+  saleReservationNumber?: string;
+  clientName?: string;
   paymentDate: string; // ISO date string (YYYY-MM-DD)
   amount: number;
   exchangeRate?: number;
   amountMXN?: number;
+  transactionFee?: number;
   notes?: string;
   createdAt?: string;
   modifiedAt?: string;
@@ -23,6 +29,7 @@ export interface CreatePaymentRequest {
   amount: number;
   exchangeRate?: number;
   amountMXN?: number;
+  transactionFee?: number;
   notes?: string;
 }
 
@@ -31,6 +38,7 @@ export interface UpdatePaymentRequest {
   amount: number;
   exchangeRate?: number;
   amountMXN?: number;
+  transactionFee?: number;
   notes?: string;
 }
 
@@ -41,6 +49,7 @@ export const CreatePaymentSchema = z.object({
   amount: z.number().min(0.01, 'El monto debe ser mayor a 0'),
   exchangeRate: z.number().min(0).optional(),
   amountMXN: z.number().min(0).optional(),
+  transactionFee: z.number().min(0, 'La comisión no puede ser negativa').optional(),
   notes: z.string().optional(),
 });
 
@@ -50,6 +59,7 @@ export const UpdatePaymentSchema = z.object({
   amount: z.number().min(0.01, 'El monto debe ser mayor a 0'),
   exchangeRate: z.number().min(0).optional(),
   amountMXN: z.number().min(0).optional(),
+  transactionFee: z.number().min(0, 'La comisión no puede ser negativa').optional(),
   notes: z.string().optional(),
 });
 

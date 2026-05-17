@@ -1,0 +1,12 @@
+# Dockerfile de KrakenD para producción
+# Sustituye el origen CORS en tiempo de ejecución via variable de entorno
+FROM devopsfaith/krakend:2.7
+
+COPY krakend.prod.tmpl /etc/krakend/krakend.prod.tmpl
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+RUN chmod +x /docker-entrypoint.sh
+
+EXPOSE 8080
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

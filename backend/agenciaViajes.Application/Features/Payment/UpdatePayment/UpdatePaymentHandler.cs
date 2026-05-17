@@ -1,3 +1,4 @@
+using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Payment.Common.Responses;
@@ -36,7 +37,7 @@ namespace agenciaViajes.Application.Features.Payment.UpdatePayment
 
             // Validar que el nuevo monto no exceda el saldo pendiente
             var totalPaid = await _saleRepository.GetTotalPaidAsync(request.Request.SaleId, cancellationToken);
-            // Restar el pago actual para calcular el nuevo saldo
+            // Restar el pago actual para calcular el nuevo saldo disponible
             var currentPaymentAmount = payment.SaleId == request.Request.SaleId ? payment.Amount : 0;
             var remainingBalance = sale.TotalAmount - (totalPaid - currentPaymentAmount);
 
@@ -45,27 +46,40 @@ namespace agenciaViajes.Application.Features.Payment.UpdatePayment
                 return Result<PaymentResponse>.Failure($"El monto del pago ({request.Request.Amount:C}) excede el saldo pendiente ({remainingBalance:C})");
             }
 
-            // Actualizar entidad - Convertir fecha a UTC
+            // Recalcular PaymentType: totalPaid sin contar el pago actual
+            var totalPaidExcludingCurrent = totalPaid - currentPaymentAmount;
+            var paymentType = totalPaidExcludingCurrent == 0
+                ? PaymentType.Anticipo
+                : request.Request.Amount >= remainingBalance
+                    ? PaymentType.Liquidacion
+                    : PaymentType.Abono;
+
+            // Actualizar entidad
             payment.SaleId = request.Request.SaleId;
+            payment.PaymentType = paymentType;
             payment.PaymentDate = request.Request.PaymentDate.ToUniversalTime();
             payment.Amount = request.Request.Amount;
             payment.ExchangeRate = request.Request.ExchangeRate;
             payment.AmountMXN = request.Request.AmountMXN;
+            payment.TransactionFee = request.Request.TransactionFee;
             payment.Notes = request.Request.Notes;
 
             payment = await _paymentRepository.UpdateAsync(payment, cancellationToken);
 
-            // Mapear a response
             var response = new PaymentResponse
             {
                 Id = payment.Id,
                 SaleId = payment.SaleId,
+                FolioNumber = payment.FolioNumber,
+                PaymentType = (int)payment.PaymentType,
+                PaymentTypeName = payment.PaymentType.ToString(),
                 SaleReservationNumber = sale.ReservationNumber,
                 ClientName = sale.Client != null ? $"{sale.Client.Name} {sale.Client.LastName}" : null,
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,
                 ExchangeRate = payment.ExchangeRate,
                 AmountMXN = payment.AmountMXN,
+                TransactionFee = payment.TransactionFee,
                 Notes = payment.Notes,
                 CreatedAt = payment.CreatedAt,
                 ModifiedAt = payment.ModifiedAt

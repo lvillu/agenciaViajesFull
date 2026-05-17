@@ -76,5 +76,14 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Where(p => p.SaleId == saleId)
                 .SumAsync(p => p.Amount, cancellationToken);
         }
+
+        public async Task<int> GetNextFolioNumberAsync(CancellationToken cancellationToken = default)
+        {
+            var nextFolio = await _context.Database
+                .SqlQueryRaw<long>("SELECT nextval('payments_folio_number_seq')")
+                .SingleAsync(cancellationToken);
+
+            return (int)nextFolio;
+        }
     }
 }

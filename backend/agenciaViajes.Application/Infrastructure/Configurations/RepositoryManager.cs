@@ -17,6 +17,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
             services.AddScoped<ISaleRepository, SaleRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<IAgencyInfoRepository, AgencyInfoRepository>();
 
 
             services.AddScoped<TransactionHelper>();
