@@ -51,6 +51,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+
 ModulesConfiguration.Configure(app);
 
 app.Run();
