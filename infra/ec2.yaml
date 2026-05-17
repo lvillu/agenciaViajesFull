@@ -10,6 +10,15 @@ Parameters:
     Description: URL del repositorio Git (HTTPS). Ej: https://github.com/usuario/repo.git
     Type: String
 
+  VpcId:
+    Description: VPC donde se crearán la instancia y su Security Group
+    Type: AWS::EC2::VPC::Id
+
+  SshAllowedCidr:
+    Description: Rango CIDR permitido para SSH (puerto 22)
+    Type: String
+    Default: 127.0.0.1/32
+
   # Resolución automática de la AMI de Ubuntu 24.04 LTS en la región actual.
   # No cambiar salvo que necesites una versión específica.
   AmiId:
@@ -23,12 +32,13 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Agencia Viajes — SSH, Frontend y API Gateway
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         # SSH — restringe a tu IP en producción real
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref SshAllowedCidr
         # Next.js Frontend
         - IpProtocol: tcp
           FromPort: 3000

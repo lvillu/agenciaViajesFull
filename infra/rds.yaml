@@ -8,6 +8,10 @@ Parameters:
       Security Group ID del EC2 (output SecurityGroupId de ec2.yaml).
       Solo esa instancia tendrá acceso al puerto 5432.
 
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC donde se creará el Security Group de RDS
+
   DBUsername:
     Type: String
     Default: postgres
@@ -24,12 +28,20 @@ Parameters:
     Default: ibarratravel
     Description: Nombre de la base de datos que creará RDS al arrancar
 
+  BackupRetentionPeriod:
+    Type: Number
+    Default: 7
+    MinValue: 0
+    MaxValue: 35
+    Description: Días de retención de respaldos automáticos (0 deshabilita backups)
+
 Resources:
 
   ValaviDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Agencia Viajes — PostgreSQL accesible solo desde EC2
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
@@ -57,7 +69,7 @@ Resources:
       MasterUserPassword: !Ref DBPassword
       # false = no asigna IP pública. El EC2 accede por IP privada dentro del VPC.
       PubliclyAccessible: false
-      BackupRetentionPeriod: 0
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
       MultiAZ: false
       # Propiedad correcta en CloudFormation (VpcSecurityGroups, no VPCSecurityGroups)
       VpcSecurityGroups:

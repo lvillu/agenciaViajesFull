@@ -23,7 +23,7 @@ namespace agenciaViajes.Application.Migrations
                 table: "payments",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.AddColumn<decimal>(
                 name: "transaction_fee",
@@ -67,6 +67,39 @@ namespace agenciaViajes.Application.Migrations
                 WHERE payments.id = sub.id;
             ");
 
+            migrationBuilder.Sql(@"
+                UPDATE payments
+                SET payment_type = CASE
+                    WHEN payment_rank = 1 THEN 1
+                    WHEN payment_rank = payment_count THEN 3
+                    ELSE 2
+                END
+                FROM (
+                    SELECT
+                        id,
+                        ROW_NUMBER() OVER (PARTITION BY sale_id ORDER BY payment_date, id) AS payment_rank,
+                        COUNT(*) OVER (PARTITION BY sale_id) AS payment_count
+                    FROM payments
+                ) ranked_payments
+                WHERE payments.id = ranked_payments.id;
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE SEQUENCE IF NOT EXISTS payments_folio_number_seq
+                AS integer
+                START WITH 1
+                INCREMENT BY 1;
+
+                SELECT setval(
+                    'payments_folio_number_seq',
+                    COALESCE((SELECT MAX(folio_number) FROM payments), 0)
+                );
+
+                ALTER TABLE payments
+                ALTER COLUMN folio_number
+                SET DEFAULT nextval('payments_folio_number_seq');
+            ");
+
             migrationBuilder.CreateIndex(
                 name: "idx_payments_folio_number",
                 table: "payments",
@@ -83,6 +116,14 @@ namespace agenciaViajes.Application.Migrations
             migrationBuilder.DropIndex(
                 name: "idx_payments_folio_number",
                 table: "payments");
+
+            migrationBuilder.Sql(@"
+                ALTER TABLE payments
+                ALTER COLUMN folio_number
+                DROP DEFAULT;
+
+                DROP SEQUENCE IF EXISTS payments_folio_number_seq;
+            ");
 
             migrationBuilder.DropColumn(
                 name: "folio_number",

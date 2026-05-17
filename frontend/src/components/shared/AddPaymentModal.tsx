@@ -364,7 +364,9 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                   </span>
                 ),
               }}
-              {...register('transactionFee', { valueAsNumber: true })}
+              {...register('transactionFee', {
+                setValueAs: (value) => (value === '' ? undefined : Number(value)),
+              })}
               error={!!errors.transactionFee}
               helperText={errors.transactionFee?.message || 'Cargo adicional por comisión bancaria'}
             />

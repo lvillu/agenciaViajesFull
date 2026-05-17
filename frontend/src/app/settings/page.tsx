@@ -302,7 +302,8 @@ export default function SettingsPage() {
 
             {errorAgency && (
               <Alert severity="warning" sx={{ mb: 3 }}>
-                {errorAgency === 'Error al obtener información de la agencia'
+                {errorAgency === 'Error al obtener información de la agencia' ||
+                errorAgency === 'No se ha configurado la información de la agencia'
                   ? 'No hay información de agencia registrada aún. Completa el formulario para crearla.'
                   : errorAgency}
               </Alert>

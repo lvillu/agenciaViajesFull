@@ -79,10 +79,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
         public async Task<int> GetNextFolioNumberAsync(CancellationToken cancellationToken = default)
         {
-            var maxFolio = await _context.Payments
-                .MaxAsync(p => (int?)p.FolioNumber, cancellationToken);
+            var nextFolio = await _context.Database
+                .SqlQueryRaw<long>("SELECT nextval('payments_folio_number_seq')")
+                .SingleAsync(cancellationToken);
 
-            return (maxFolio ?? 0) + 1;
+            return (int)nextFolio;
         }
     }
 }

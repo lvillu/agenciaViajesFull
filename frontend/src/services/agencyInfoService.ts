@@ -4,7 +4,7 @@ import { AgencyInfo, UpdateAgencyInfoRequest } from '@/types/agencyInfo';
 
 export const agencyInfoService = {
   async getAgencyInfo(): Promise<AgencyInfo> {
-    const response = await apiClient.get<ApiResponse<AgencyInfo>>('/api/AgencyInfo');
+    const response = await apiClient.get<ApiResponse<AgencyInfo>>('/AgencyInfo');
 
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al obtener información de la agencia');
@@ -14,7 +14,7 @@ export const agencyInfoService = {
   },
 
   async updateAgencyInfo(data: UpdateAgencyInfoRequest): Promise<AgencyInfo> {
-    const response = await apiClient.put<ApiResponse<AgencyInfo>>('/api/AgencyInfo', data);
+    const response = await apiClient.put<ApiResponse<AgencyInfo>>('/AgencyInfo', data);
 
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al actualizar información de la agencia');
