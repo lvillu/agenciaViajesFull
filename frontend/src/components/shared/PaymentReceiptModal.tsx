@@ -29,7 +29,7 @@ interface PaymentReceiptModalProps {
 
 const PAYMENT_TYPE_LABEL: Record<number, string> = {
   1: 'ANTICIPO',
-  2: 'ABONO',
+  2: 'ABONADO',
   3: 'LIQUIDACIÓN',
 };
 
@@ -103,8 +103,6 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
   const amount = payment.amount;
   const totalPaid = sale.totalPaid ?? 0;
   const balance = sale.remainingBalance ?? sale.totalAmount - totalPaid;
-  const subTotal = amount / 1.16;
-  const iva = amount - subTotal;
   const transactionFee = payment.transactionFee ?? 0;
   const paymentTypeLabel = PAYMENT_TYPE_LABEL[payment.paymentType] ?? 'PAGO';
 
@@ -317,7 +315,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 bgcolor: '#f2f4f6',
               }}
             >
-              {/* Total Renta */}
+              {/* Total Reserva */}
               <Box sx={{ p: 2, borderRight: '1px solid #e1bfb3' }}>
                 <Typography
                   sx={{
@@ -330,7 +328,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     display: 'block',
                   }}
                 >
-                  TOTAL RENTA
+                  TOTAL RESERVA
                 </Typography>
                 <Typography
                   sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#191c1e', lineHeight: '2rem', letterSpacing: '0.01em' }}
@@ -429,41 +427,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 </Typography>
               </Box>
 
-              {/* Subtotal */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  px: 3,
-                  py: 1.5,
-                  borderBottom: '1px solid #f1f5f9',
-                }}
-              >
-                <Typography sx={{ flex: 1, fontSize: '0.85rem', color: '#334155' }}>
-                  Sub-Total de la Operación
-                </Typography>
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', minWidth: 110, textAlign: 'right' }}>
-                  {formatCurrency(subTotal, currency)}
-                </Typography>
-              </Box>
 
-              {/* IVA */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  px: 3,
-                  py: 1.5,
-                  borderBottom: '1px solid #f1f5f9',
-                }}
-              >
-                <Typography sx={{ flex: 1, fontSize: '0.85rem', color: '#334155' }}>
-                  I.V.A. (16%)
-                </Typography>
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', minWidth: 110, textAlign: 'right' }}>
-                  {formatCurrency(iva, currency)}
-                </Typography>
-              </Box>
 
               {/* Transaction Fee (conditional) */}
               {transactionFee > 0 && (
@@ -496,7 +460,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 }}
               >
                 <Typography sx={{ flex: 1, fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>
-                  Total Liquidado en esta Fecha
+                  Abono
                 </Typography>
                 <Typography
                   sx={{
