@@ -28,6 +28,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# NEXT_PUBLIC_* vars se hornean en el bundle al compilar, deben venir como ARG
+ARG NEXT_PUBLIC_API_URL=http://localhost:5050
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 RUN npm run build
 
 # ---- Etapa 3: Production (imagen mínima) ----

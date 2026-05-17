@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Agencia Viajes EC2 Free Tier (Ubuntu 24.04)
+
+Parameters:
+  KeyName:
+    Description: Nombre del EC2 KeyPair (.pem) para acceso SSH
+    Type: AWS::EC2::KeyPair::KeyName
+
+  RepoUrl:
+    Description: URL del repositorio Git (HTTPS). Ej: https://github.com/usuario/repo.git
+    Type: String
+
+  # Resolución automática de la AMI de Ubuntu 24.04 LTS en la región actual.
+  # No cambiar salvo que necesites una versión específica.
+  AmiId:
+    Description: AMI de Ubuntu 24.04 LTS (se resuelve automáticamente desde SSM)
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+
+Resources:
+
+  ValaviSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Agencia Viajes — SSH, Frontend y API Gateway
+      SecurityGroupIngress:
+        # SSH — restringe a tu IP en producción real
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        # Next.js Frontend
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+        # KrakenD API Gateway
+        - IpProtocol: tcp
+          FromPort: 5050
+          ToPort: 5050
+          CidrIp: 0.0.0.0/0
+        # HTTP (reservado para futuro reverse proxy / certbot)
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: agencia-viajes-sg
+
+  ValaviEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref ValaviSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            # Free tier permite hasta 30 GB de gp2.
+            # 20 GB cubre el SO + imágenes Docker + logs con margen.
+            VolumeSize: 20
+            VolumeType: gp2
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+          # Redirige logs a /var/log/user-data.log para depuración
+          exec > /var/log/user-data.log 2>&1
+
+          echo "==> Actualizando sistema..."
+          apt-get update -y
+          apt-get upgrade -y
+
+          echo "==> Instalando Docker CE..."
+          curl -fsSL https://get.docker.com | sh
+          # Añadir usuario ubuntu al grupo docker (evita usar sudo)
+          usermod -aG docker ubuntu
+
+          echo "==> Instalando Docker Compose plugin v2..."
+          apt-get install -y docker-compose-plugin
+
+          echo "==> Instalando git..."
+          apt-get install -y git
+
+          echo "==> Clonando repositorio..."
+          APP_DIR="/home/ubuntu/agenciaViajesFull"
+          git clone ${RepoUrl} "$APP_DIR"
+          chown -R ubuntu:ubuntu "$APP_DIR"
+
+          echo "==> Copiando plantilla de variables de entorno..."
+          cp "$APP_DIR/.env.prod.example" "$APP_DIR/.env"
+          chmod +x "$APP_DIR/deploy/KrakenD/docker-entrypoint.sh"
+
+          echo "==> Setup completado."
+          echo "SIGUIENTE PASO: SSH al servidor y edita /home/ubuntu/agenciaViajesFull/.env"
+      Tags:
+        - Key: Name
+          Value: agencia-viajes-ec2
+
+  # Elastic IP — IP estática que no cambia al reiniciar la instancia.
+  # Imprescindible para que los GitHub Secrets (EC2_HOST) sigan siendo válidos.
+  ValaviElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref ValaviEC2
+      Tags:
+        - Key: Name
+          Value: agencia-viajes-eip
+
+Outputs:
+  ElasticIP:
+    Description: IP pública estática de la instancia (usa este valor en GitHub Secrets como EC2_HOST)
+    Value: !Ref ValaviElasticIP
+
+  PublicIP:
+    Description: IP pública de la instancia (igual que ElasticIP una vez asociada)
+    Value: !GetAtt ValaviEC2.PublicIp
+
+  SecurityGroupId:
+    Description: Security Group ID — pásalo como parámetro EC2SecurityGroupId al desplegar rds.yaml
+    Value: !GetAtt ValaviSecurityGroup.GroupId
