@@ -39,11 +39,23 @@ const PAYMENT_TYPE_COLOR: Record<number, string> = {
   3: '#15803d',
 };
 
-const formatCurrency = (amount: number, currency: string = 'MXN') =>
-  `$${amount.toFixed(2)} ${currency}`;
+const formatCurrency = (amount: number, currency: string = 'MXN') => {
+  const formatted = new Intl.NumberFormat('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `$${formatted} ${currency}`;
+};
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString + 'T12:00:00');
+  if (!dateString) return '—';
+  // Only append time if it's a plain date (YYYY-MM-DD) to avoid timezone shifts.
+  // If the string already contains a time component, use it as-is.
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+    ? dateString + 'T12:00:00'
+    : dateString;
+  const date = new Date(normalized);
+  if (isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString('es-MX', {
     year: 'numeric',
     month: 'long',
@@ -107,7 +119,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
@@ -345,28 +357,27 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   position: 'relative',
                 }}
               >
-                <Box
-                  sx={{
+                <div
+                  style={{
                     display: 'inline-block',
-                    px: 1,
-                    py: 0.2,
-                    bgcolor: paymentTypeColor,
+                    padding: '3px 10px',
+                    backgroundColor: paymentTypeColor,
                     borderRadius: '4px',
-                    mb: 0.5,
+                    marginBottom: '6px',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: '0.55rem',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      color: '#fff',
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      color: '#ffffff',
+                      WebkitTextFillColor: '#ffffff',
+                      lineHeight: '1.2',
                     }}
                   >
                     {paymentTypeLabel}
-                  </Typography>
-                </Box>
+                  </span>
+                </div>
                 <Typography
                   sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#a63b00', lineHeight: 1 }}
                 >
