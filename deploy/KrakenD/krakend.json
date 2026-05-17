@@ -421,6 +421,33 @@
           "method": "GET"
         }
       ]
+    },
+    {
+      "endpoint": "/AgencyInfo",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/AgencyInfo",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/AgencyInfo",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/AgencyInfo",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
     }
   ]
 }
