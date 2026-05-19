@@ -10,6 +10,11 @@ Parameters:
     Description: URL del repositorio Git (HTTPS). Ej: https://github.com/usuario/repo.git
     Type: String
 
+  BranchName:
+    Description: Rama del repositorio a clonar
+    Type: String
+    Default: dev
+
   VpcId:
     Description: VPC donde se crearán la instancia y su Security Group
     Type: AWS::EC2::VPC::Id
@@ -98,7 +103,7 @@ Resources:
 
           echo "==> Clonando repositorio..."
           APP_DIR="/home/ubuntu/agenciaViajesFull"
-          git clone ${RepoUrl} "$APP_DIR"
+          git clone --branch ${BranchName} ${RepoUrl} "$APP_DIR"
           chown -R ubuntu:ubuntu "$APP_DIR"
 
           echo "==> Copiando plantilla de variables de entorno..."

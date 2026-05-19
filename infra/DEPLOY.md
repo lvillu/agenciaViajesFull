@@ -6,77 +6,60 @@
 
 ### Prerequisitos
 
-- AWS CLI instalado y configurado (`aws configure`)
-- Un **Key Pair** creado en us-east-1 (consola AWS → EC2 → Key Pairs)
-- El archivo `.pem` descargado y con permisos correctos:
-  ```bash
-  chmod 400 tu-clave.pem
-  ```
+- Cuenta AWS con acceso a la consola ([console.aws.amazon.com](https://console.aws.amazon.com))
+- Región seleccionada: **us-east-1** (N. Virginia) — verificarlo en la esquina superior derecha de la consola
+- Un **Key Pair** creado (consola → EC2 → Network & Security → **Key Pairs** → Create key pair)
+  - Tipo: **RSA**, formato: **.pem**
+  - Descargarlo y guardarlo en un lugar seguro — solo se descarga una vez
 
 ---
 
 ### Paso 1 — Desplegar la infraestructura EC2
 
-```bash
-aws cloudformation create-stack \
-  --stack-name agencia-viajes-ec2 \
-  --template-body file://infra/ec2.yaml \
-  --parameters \
-    ParameterKey=KeyName,ParameterValue=NOMBRE_DE_TU_KEY_PAIR \
-    ParameterKey=RepoUrl,ParameterValue=https://github.com/TU_USUARIO/TU_REPO.git \
-  --region us-east-1
-```
+1. Ir a la consola → **CloudFormation** → **Stacks** → **Create stack** → **With new resources (standard)**
+2. En *Specify template* elegir **Upload a template file** → subir `infra/ec2.yaml` → **Next**
+3. Rellenar los parámetros:
 
-Esperar a que termine (~2 min):
-```bash
-aws cloudformation wait stack-create-complete \
-  --stack-name agencia-viajes-ec2 \
-  --region us-east-1
-```
+| Parámetro | Valor |
+|---|---|
+| **Stack name** | `agencia-viajes-ec2` |
+| **KeyName** | Nombre del Key Pair creado en el prerequisito |
+| **RepoUrl** | `https://github.com/TU_USUARIO/TU_REPO.git` |
+| **BranchName** | Rama a desplegar (ej. `master`, `dev`) — por defecto `master` |
+| **VpcId** | Seleccionar la VPC por defecto de la lista |
+| **SshAllowedCidr** | Tu IP pública + `/32` (ej. `203.0.113.5/32`) — o `0.0.0.0/0` solo para pruebas |
+| **AmiId** | Dejar el valor por defecto (se resuelve automáticamente) |
 
-Obtener los outputs y **anotar ambos valores**:
-```bash
-aws cloudformation describe-stacks \
-  --stack-name agencia-viajes-ec2 \
-  --query "Stacks[0].Outputs" \
-  --region us-east-1
-```
+4. Hacer clic en **Next** → **Next** → **Submit**
+5. Esperar ~2 min hasta que el estado sea **CREATE_COMPLETE** (refrescar con el ícono 🔄)
+6. Ir a la pestaña **Outputs** del stack y **anotar ambos valores**:
 
 | Output | Para qué sirve |
 |---|---|
-| `ElasticIP` | IP pública fija del servidor (para conectarte por SSH y configurar la app) |
+| `ElasticIP` | IP pública fija del servidor (para SSH y configurar la app) |
 | `SecurityGroupId` | Se pasa como parámetro al stack de RDS |
 
 ---
 
 ### Paso 2 — Desplegar la base de datos RDS
 
-```bash
-aws cloudformation create-stack \
-  --stack-name agencia-viajes-rds \
-  --template-body file://infra/rds.yaml \
-  --parameters \
-    ParameterKey=EC2SecurityGroupId,ParameterValue=sg-XXXXXXXXXXXXXXXXX \
-    ParameterKey=DBPassword,ParameterValue=TuPasswordSeguro123! \
-  --region us-east-1
-```
+1. Ir a **CloudFormation** → **Stacks** → **Create stack** → **With new resources (standard)**
+2. En *Specify template* elegir **Upload a template file** → subir `infra/rds.yaml` → **Next**
+3. Rellenar los parámetros:
 
-> Reemplaza `sg-XXXXXXXXXXXXXXXXX` con el `SecurityGroupId` del paso anterior.
+| Parámetro | Valor |
+|---|---|
+| **Stack name** | `agencia-viajes-rds` |
+| **EC2SecurityGroupId** | El `SecurityGroupId` obtenido en el paso anterior |
+| **VpcId** | La misma VPC por defecto que elegiste para el EC2 |
+| **DBPassword** | Password seguro de mínimo 8 caracteres — **anotarlo** |
+| **DBUsername** | `postgres` (valor por defecto) |
+| **DBName** | `ibarratravel` (valor por defecto) |
+| **BackupRetentionPeriod** | `7` (valor por defecto) |
 
-Esperar a que termine (~10–15 min, RDS tarda más):
-```bash
-aws cloudformation wait stack-create-complete \
-  --stack-name agencia-viajes-rds \
-  --region us-east-1
-```
-
-Obtener el endpoint y **anotarlo**:
-```bash
-aws cloudformation describe-stacks \
-  --stack-name agencia-viajes-rds \
-  --query "Stacks[0].Outputs" \
-  --region us-east-1
-```
+4. Hacer clic en **Next** → **Next** → **Submit**
+5. Esperar ~10–15 min hasta **CREATE_COMPLETE** (RDS tarda más que EC2)
+6. Ir a la pestaña **Outputs** del stack y **anotar**:
 
 | Output | Para qué sirve |
 |---|---|
@@ -86,7 +69,7 @@ aws cloudformation describe-stacks \
 
 ### Paso 3 — Configurar las variables de entorno en el servidor
 
-Conectarse al EC2:
+Conectarse al EC2 via SSH usando el `ElasticIP` del paso 1:
 ```bash
 ssh -i tu-clave.pem ubuntu@TU_ELASTIC_IP
 ```
@@ -199,11 +182,8 @@ docker system df
 
 ## Eliminar la infraestructura
 
-```bash
-# Primero RDS (depende del SG del EC2)
-aws cloudformation delete-stack --stack-name agencia-viajes-rds --region us-east-1
-aws cloudformation wait stack-delete-complete --stack-name agencia-viajes-rds --region us-east-1
+> Eliminar primero RDS, ya que depende del Security Group del EC2.
 
-# Luego EC2
-aws cloudformation delete-stack --stack-name agencia-viajes-ec2 --region us-east-1
-```
+1. Ir a **CloudFormation** → **Stacks** → seleccionar `agencia-viajes-rds` → **Delete** → confirmar
+2. Esperar a que desaparezca de la lista (~5 min)
+3. Seleccionar `agencia-viajes-ec2` → **Delete** → confirmar
