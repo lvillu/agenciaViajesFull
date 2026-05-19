@@ -7,7 +7,7 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
 
   RepoUrl:
-    Description: URL del repositorio Git (HTTPS). Ej: https://github.com/usuario/repo.git
+    Description: "URL del repositorio Git (HTTPS). Ej: https://github.com/usuario/repo.git"
     Type: String
 
   BranchName:
