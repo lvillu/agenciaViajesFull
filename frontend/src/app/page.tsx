@@ -79,7 +79,7 @@ export default function HomePage() {
               </Typography>
             </Box>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MenuCard
                   title="Proveedores"
                   description="Gestiona tus socios comerciales, contratos y condiciones de pago."
@@ -88,7 +88,7 @@ export default function HomePage() {
                   actionLabel="Ver Proveedores"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MenuCard
                   title="Clientes"
                   description="Accede a la base de datos de viajeros, perfiles e historial de compras."
@@ -97,7 +97,7 @@ export default function HomePage() {
                   actionLabel="Ver Directorio"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MenuCard
                   title="Reservas"
                   description="Administra reservas, pagos y el estado de cada viaje."
@@ -106,7 +106,7 @@ export default function HomePage() {
                   actionLabel="Ver Reservas"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MenuCard
                   title="Dashboard"
                   description="Visualiza estadísticas, reportes y métricas de rendimiento."

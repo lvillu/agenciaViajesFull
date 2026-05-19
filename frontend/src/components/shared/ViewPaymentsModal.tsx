@@ -78,12 +78,14 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          bgcolor: '#f8f6f6',
-          overflow: 'hidden',
-          border: '1px solid #e2e8f0',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            bgcolor: '#f8f6f6',
+            overflow: 'hidden',
+            border: '1px solid #e2e8f0',
+          },
         },
       }}
     >

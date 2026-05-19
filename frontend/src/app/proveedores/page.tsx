@@ -214,9 +214,11 @@ export default function ProveedoresPage() {
             placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              disableUnderline: true,
-              sx: { fontSize: '15px', py: 1 },
+            slotProps={{
+              input: {
+                disableUnderline: true,
+                sx: { fontSize: '15px', py: 1 },
+              },
             }}
           />
         </Box>

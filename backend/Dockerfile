@@ -54,7 +54,8 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Healthcheck con wget (curl no está en alpine)
+# Se usa -qO- en lugar de --spider porque MinimalAPIs solo acepta GET (no HEAD)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+    CMD wget -qO- http://localhost:8080/health > /dev/null || exit 1
 
 ENTRYPOINT ["dotnet", "agenciaViajes.Api.dll"]

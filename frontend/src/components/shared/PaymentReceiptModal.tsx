@@ -112,12 +112,14 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          bgcolor: '#f7f9fb',
-          border: '1px solid #e2e8f0',
-          overflow: 'hidden',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            bgcolor: '#f7f9fb',
+            border: '1px solid #e2e8f0',
+            overflow: 'hidden',
+          },
         },
       }}
     >

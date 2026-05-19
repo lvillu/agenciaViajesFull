@@ -226,9 +226,11 @@ export default function ClientesPage() {
             placeholder="Buscar clientes por nombre, email o teléfono..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              disableUnderline: true,
-              sx: { fontSize: '15px', py: 1 },
+            slotProps={{
+              input: {
+                disableUnderline: true,
+                sx: { fontSize: '15px', py: 1 },
+              },
             }}
           />
         </Box>
