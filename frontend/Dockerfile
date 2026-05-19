@@ -4,19 +4,22 @@
 # ============================================================
 
 # ---- Etapa 1: Instalar dependencias (cacheada) ----
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
 # Solo copiar manifiestos para aprovechar cache de capas
 COPY package.json package-lock.json* ./
 
+# Actualizar npm a v11 para consistencia con el lockfile generado localmente
+RUN npm install -g npm@^11
+
 # Instalar dependencias con cache mount para acelerar rebuilds
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline
 
 # ---- Etapa 2: Build ----
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -35,7 +38,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 # ---- Etapa 3: Production (imagen mínima) ----
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 

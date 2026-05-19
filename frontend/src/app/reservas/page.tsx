@@ -225,14 +225,16 @@ export default function ReservasPage() {
                 placeholder="Buscar por cliente, proveedor, número de reserva o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  disableUnderline: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
-                    </InputAdornment>
-                  ),
-                  sx: { fontSize: '15px', py: 0.5 },
+                slotProps={{
+                  input: {
+                    disableUnderline: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: 'text.disabled', ml: 1 }} />
+                      </InputAdornment>
+                    ),
+                    sx: { fontSize: '15px', py: 0.5 },
+                  },
                 }}
               />
             </CardContent>
@@ -329,7 +331,7 @@ export default function ReservasPage() {
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
-                          <Typography fontWeight="medium">
+                          <Typography sx={{ fontWeight: 'medium' }}>
                             {formatCurrency(sale.totalAmount, sale.isDollar)}
                           </Typography>
                         </TableCell>
@@ -341,7 +343,7 @@ export default function ReservasPage() {
                         <TableCell align="right">
                           <Typography
                             color={sale.balance > 0 ? 'error.main' : 'success.main'}
-                            fontWeight="medium"
+                            sx={{ fontWeight: 'medium' }}
                           >
                             {formatCurrency(sale.balance, sale.isDollar)}
                           </Typography>

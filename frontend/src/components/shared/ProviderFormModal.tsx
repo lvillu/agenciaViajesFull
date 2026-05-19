@@ -119,16 +119,18 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          border: '1px solid',
-          borderColor: 'divider',
-          overflow: 'hidden',
-          minHeight: '620px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+            minHeight: '620px',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+          },
         },
       }}
     >

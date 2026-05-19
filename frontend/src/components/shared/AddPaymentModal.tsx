@@ -125,11 +125,13 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          bgcolor: '#f8f6f6',
-          border: '1px solid #e2e8f0',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            bgcolor: '#f8f6f6',
+            border: '1px solid #e2e8f0',
+          },
         },
       }}
     >

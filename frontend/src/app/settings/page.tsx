@@ -180,7 +180,7 @@ export default function SettingsPage() {
           {user && (
             <Grid container spacing={3}>
               {/* Avatar y Información Principal */}
-              <Grid item xs={12} sm="auto">
+              <Grid size={{ xs: 12, sm: "auto" }}>
                 <Avatar
                   src={user.userIconUrl || undefined}
                   alt={user.fullName}
@@ -197,7 +197,7 @@ export default function SettingsPage() {
               </Grid>
 
               {/* Detalles del Usuario */}
-              <Grid item xs={12} sm>
+              <Grid size={{ xs: 12, sm: 'auto' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
                   <Typography variant="h3" sx={{ mb: 1 }}>
                     {user.fullName}
@@ -212,14 +212,14 @@ export default function SettingsPage() {
               </Grid>
 
               {/* Información Detallada */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="h5" sx={{ mb: 2 }}>
                   Información de Cuenta
                 </Typography>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
                       <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
                         NOMBRE COMPLETO
@@ -230,7 +230,7 @@ export default function SettingsPage() {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
                       <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
                         USUARIO
@@ -241,7 +241,7 @@ export default function SettingsPage() {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
                       <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
                         EMAIL
@@ -252,7 +252,7 @@ export default function SettingsPage() {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
                       <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
                         FOTO DE PERFIL
@@ -328,7 +328,7 @@ export default function SettingsPage() {
             ) : (
               <form onSubmit={handleSubmitAgency(onSubmitAgency)}>
                 <Grid container spacing={2.5}>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Input
                       label="Nombre de la Agencia *"
                       {...registerAgency('name')}
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Input
                       label="Dirección"
                       {...registerAgency('address')}
@@ -346,7 +346,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Ciudad"
                       {...registerAgency('city')}
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={4}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
                     <Input
                       label="Estado"
                       {...registerAgency('state')}
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={2}>
+                  <Grid size={{ xs: 12, sm: 2 }}>
                     <Input
                       label="C.P."
                       {...registerAgency('zipCode')}
@@ -373,7 +373,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Teléfono"
                       {...registerAgency('phone')}
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Email"
                       type="email"
@@ -392,7 +392,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Registro SECTUR"
                       {...registerAgency('secturReg')}
@@ -401,7 +401,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="URL del Logo (opcional)"
                       {...registerAgency('logoUrl')}
@@ -410,7 +410,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Facebook"
                       {...registerAgency('facebook')}
@@ -419,7 +419,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       label="Instagram"
                       {...registerAgency('instagram')}
@@ -428,7 +428,7 @@ export default function SettingsPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
                       <Button
                         type="submit"

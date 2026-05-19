@@ -70,7 +70,7 @@ function SaleFormContent() {
     setValue,
     formState: { errors },
   } = useForm<CreateSaleFormData | UpdateSaleFormData>({
-    resolver: zodResolver(isEditing ? UpdateSaleSchema : CreateSaleSchema),
+    resolver: zodResolver(isEditing ? UpdateSaleSchema : CreateSaleSchema) as any,
     defaultValues: {
       clientId: 0,
       providerId: 0,

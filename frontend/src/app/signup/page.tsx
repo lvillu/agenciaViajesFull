@@ -208,7 +208,7 @@ export default function SignUpPage() {
             <Grid container spacing={2}>
 
               {/* Nombre + Apellido */}
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Input
                   label="Nombre"
                   InputProps={{
@@ -220,7 +220,7 @@ export default function SignUpPage() {
                   autoComplete="given-name"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Input
                   label="Apellido"
                   {...register('lastName')}
@@ -231,7 +231,7 @@ export default function SignUpPage() {
               </Grid>
 
               {/* Usuario */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Input
                   label="Usuario"
                   InputProps={{
@@ -245,7 +245,7 @@ export default function SignUpPage() {
               </Grid>
 
               {/* Email */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Input
                   label="Correo Electrónico"
                   type="email"
@@ -261,7 +261,7 @@ export default function SignUpPage() {
               </Grid>
 
               {/* Contraseña + Confirmar */}
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Input
                   label="Contraseña"
                   type="password"
@@ -274,7 +274,7 @@ export default function SignUpPage() {
                   autoComplete="new-password"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Input
                   label="Confirmar"
                   type="password"

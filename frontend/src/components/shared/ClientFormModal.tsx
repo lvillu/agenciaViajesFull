@@ -94,11 +94,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          border: '1px solid',
-          borderColor: 'divider',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid',
+            borderColor: 'divider',
+          },
         },
       }}
     >
