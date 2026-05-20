@@ -33,10 +33,10 @@ Parameters:
 
 Resources:
 
-  ValaviSecurityGroup:
+  IbarraTravelSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Agencia Viajes — SSH, Frontend y API Gateway
+      GroupDescription: Agencia Viajes - SSH, Frontend y API Gateway
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         # SSH — restringe a tu IP en producción real
@@ -63,14 +63,14 @@ Resources:
         - Key: Name
           Value: agencia-viajes-sg
 
-  ValaviEC2:
+  IbarraTravelEC2:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
       ImageId: !Ref AmiId
       KeyName: !Ref KeyName
-      SecurityGroups:
-        - !Ref ValaviSecurityGroup
+      SecurityGroupIds:
+        - !GetAtt IbarraTravelSecurityGroup.GroupId
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -118,10 +118,10 @@ Resources:
 
   # Elastic IP — IP estática que no cambia al reiniciar la instancia.
   # Imprescindible para que los GitHub Secrets (EC2_HOST) sigan siendo válidos.
-  ValaviElasticIP:
+  IbarraTravelElasticIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref ValaviEC2
+      InstanceId: !Ref IbarraTravelEC2
       Tags:
         - Key: Name
           Value: agencia-viajes-eip
@@ -129,12 +129,12 @@ Resources:
 Outputs:
   ElasticIP:
     Description: IP pública estática de la instancia (usa este valor en GitHub Secrets como EC2_HOST)
-    Value: !Ref ValaviElasticIP
+    Value: !Ref IbarraTravelElasticIP
 
   PublicIP:
     Description: IP pública de la instancia (igual que ElasticIP una vez asociada)
-    Value: !GetAtt ValaviEC2.PublicIp
+    Value: !GetAtt IbarraTravelEC2.PublicIp
 
   SecurityGroupId:
     Description: Security Group ID — pásalo como parámetro EC2SecurityGroupId al desplegar rds.yaml
-    Value: !GetAtt ValaviSecurityGroup.GroupId
+    Value: !GetAtt IbarraTravelSecurityGroup.GroupId

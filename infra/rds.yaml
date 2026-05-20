@@ -4,6 +4,8 @@ Description: Agencia Viajes RDS PostgreSQL 16 Free Tier
 Parameters:
   EC2SecurityGroupId:
     Type: String
+    AllowedPattern: "^sg-[0-9a-f]+$"
+    ConstraintDescription: "Debe ser un Security Group ID valido (ej. sg-0abc123456789def0)"
     Description: >
       Security Group ID del EC2 (output SecurityGroupId de ec2.yaml).
       Solo esa instancia tendrá acceso al puerto 5432.
@@ -37,10 +39,10 @@ Parameters:
 
 Resources:
 
-  ValaviDBSecurityGroup:
+  IbarraTravelDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Agencia Viajes — PostgreSQL accesible solo desde EC2
+      GroupDescription: Agencia Viajes - PostgreSQL accesible solo desde EC2
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -52,7 +54,7 @@ Resources:
         - Key: Name
           Value: agencia-viajes-rds-sg
 
-  ValaviDB:
+  IbarraTravelDB:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: agencia-viajes-db
@@ -71,9 +73,9 @@ Resources:
       PubliclyAccessible: false
       BackupRetentionPeriod: !Ref BackupRetentionPeriod
       MultiAZ: false
-      # Propiedad correcta en CloudFormation (VpcSecurityGroups, no VPCSecurityGroups)
-      VpcSecurityGroups:
-        - !GetAtt ValaviDBSecurityGroup.GroupId
+      # Propiedad correcta en CloudFormation: VPCSecurityGroups (VPC en mayúsculas)
+      VPCSecurityGroups:
+        - !GetAtt IbarraTravelDBSecurityGroup.GroupId
       DeletionProtection: false
       Tags:
         - Key: Name
@@ -83,7 +85,7 @@ Outputs:
   DBEndpoint:
     Description: >
       Endpoint del RDS. Úsalo como valor de RDS_HOST en el archivo .env del EC2.
-    Value: !GetAtt ValaviDB.Endpoint.Address
+    Value: !GetAtt IbarraTravelDB.Endpoint.Address
 
   DBName:
     Description: Nombre de la base de datos creada
