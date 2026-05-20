@@ -35,7 +35,15 @@ ENV NODE_ENV=production
 ARG NEXT_PUBLIC_API_URL=http://localhost:5050
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-RUN npm run build
+# NODE_OPTIONS permite limitar el heap de Node.js desde docker-compose (build arg)
+ARG NODE_OPTIONS=--max-old-space-size=512
+ENV NODE_OPTIONS=${NODE_OPTIONS}
+
+# Cache mount: persiste .next/cache entre builds de Docker.
+# Next.js reutiliza los módulos webpack ya compilados → solo recompila lo que cambió.
+# 1er build: igual. Builds siguientes: de ~4 min a ~30-90 s.
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # ---- Etapa 3: Production (imagen mínima) ----
 FROM node:22-alpine AS runner
@@ -58,6 +66,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 
 EXPOSE 3000
+
+ENV PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"

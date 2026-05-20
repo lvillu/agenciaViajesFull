@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Agencia Viajes EC2 Free Tier (Ubuntu 24.04)
+Description: Agencia Viajes EC2 t3.micro (Ubuntu 24.04)
 
 Parameters:
   KeyName:
@@ -66,7 +66,7 @@ Resources:
   IbarraTravelEC2:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t3.micro
       ImageId: !Ref AmiId
       KeyName: !Ref KeyName
       SecurityGroupIds:
@@ -74,10 +74,10 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-            # Free tier permite hasta 30 GB de gp2.
+            # gp3 ofrece 3000 IOPS baseline sin costo adicional (mejor rendimiento que gp2).
             # 20 GB cubre el SO + imágenes Docker + logs con margen.
             VolumeSize: 20
-            VolumeType: gp2
+            VolumeType: gp3
             DeleteOnTermination: true
       UserData:
         Fn::Base64: !Sub |
@@ -97,6 +97,21 @@ Resources:
 
           echo "==> Instalando Docker Compose plugin v2..."
           apt-get install -y docker-compose-plugin
+
+          echo "==> Configurando swap 2 GB (esencial para builds Docker en 1 GB RAM)..."
+          fallocate -l 2G /swapfile
+          chmod 600 /swapfile
+          mkswap /swapfile
+          swapon /swapfile
+          echo '/swapfile none swap sw 0 0' >> /etc/fstab
+          # Swappiness baja: usar swap solo cuando la RAM este casi llena
+          sysctl -w vm.swappiness=10
+          echo 'vm.swappiness=10' >> /etc/sysctl.conf
+
+          echo "==> Habilitando Docker BuildKit (builds mas rapidos y eficientes)..."
+          echo '{"features":{"buildkit":true}}' > /etc/docker/daemon.json
+          systemctl restart docker
+          sleep 5
 
           echo "==> Instalando git..."
           apt-get install -y git

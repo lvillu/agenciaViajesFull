@@ -32,6 +32,14 @@ services:
       AppSettings__RefreshTokenExpiresInMinutes: ${REFRESH_TOKEN_EXPIRES_IN_MINUTES:-1440}
       # Orígenes CORS: separados por coma. Ejemplo: http://54.123.45.67:3000
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      # GC conservador: devuelve memoria al OS más agresivamente (escala 0-9)
+      DOTNET_GCConserveMemory: "9"
+    mem_limit: 350m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "8080:8080"
     networks:
@@ -44,7 +52,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
 
   # KrakenD API Gateway (CORS dinámico vía entrypoint)
   krakend:
@@ -57,6 +65,14 @@ services:
       # Origen permitido para CORS: URL pública del frontend
       # Ejemplo: http://54.123.45.67:3000  o  https://tudominio.com
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
+      # GC agresivo de Go: reduce footprint de memoria (default=100)
+      GOGC: "25"
+    mem_limit: 128m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "5050:8080"
     depends_on:
@@ -78,8 +94,19 @@ services:
         # Debe ser la URL pública de KrakenD (accesible desde el browser).
         # Ejemplo: http://54.123.45.67:5050  o  https://api.tudominio.com
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        # Limita el heap de Node.js durante el build de Next.js (puede superar 1 GB sin límite)
+        NODE_OPTIONS: "--max-old-space-size=512"
     image: agencia_viajes_frontend:prod
     container_name: agencia_viajes_frontend
+    environment:
+      # Limita el heap de Node.js del servidor standalone en tiempo de ejecución
+      NODE_OPTIONS: "--max-old-space-size=256"
+    mem_limit: 350m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "3000:3000"
     depends_on:
