@@ -31,10 +31,6 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        var allMigrations = context.Database.GetMigrations().ToList();
-        var pendingMigrations = (await context.Database.GetPendingMigrationsAsync()).ToList();
-        Console.WriteLine($"[DIAG] Migrations in assembly: {allMigrations.Count} | Pending: {pendingMigrations.Count}");
-        Console.WriteLine($"[DIAG] DbContext assembly: {context.GetType().Assembly.GetName().Name}");
         await context.Database.MigrateAsync();
         Console.WriteLine("[OK] Migraciones aplicadas correctamente");
     }
