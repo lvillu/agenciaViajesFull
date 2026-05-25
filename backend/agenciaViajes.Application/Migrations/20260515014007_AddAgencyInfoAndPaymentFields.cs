@@ -90,10 +90,15 @@ namespace agenciaViajes.Application.Migrations
                 START WITH 1
                 INCREMENT BY 1;
 
-                SELECT setval(
-                    'payments_folio_number_seq',
-                    COALESCE((SELECT MAX(folio_number) FROM payments), 0)
-                );
+                DO $$
+                DECLARE
+                    v_max INTEGER;
+                BEGIN
+                    SELECT MAX(folio_number) INTO v_max FROM payments;
+                    IF v_max IS NOT NULL AND v_max >= 1 THEN
+                        PERFORM setval('payments_folio_number_seq', v_max);
+                    END IF;
+                END $$;
 
                 ALTER TABLE payments
                 ALTER COLUMN folio_number
