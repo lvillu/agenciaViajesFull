@@ -11,7 +11,9 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
         {
 
             services.AddDbContext<AppDbContext>(options =>
-              options.UseNpgsql(configuration.GetConnectionString("IbarraTravelDB")));
+              options.UseNpgsql(
+                  configuration.GetConnectionString("IbarraTravelDB"),
+                  npgsql => npgsql.MigrationsAssembly("agenciaViajes.Application")));
 
 
             return services;
