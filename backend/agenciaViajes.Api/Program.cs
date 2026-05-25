@@ -4,6 +4,7 @@ using agenciaViajes.Application.Features.Configurations.Modules;
 using agenciaViajes.Application.Infrastructure.Configurations;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,13 +25,34 @@ Logging.AddLogging();
 
 var app = builder.Build();
 
-// Aplicar migraciones automáticamente al iniciar
+// Aplicar migraciones automáticamente al iniciar (con logs diagnósticos)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
+
+        // Diagnostics: listar ensamblados cargados y migraciones detectadas
+        try
+        {
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).OrderBy(n => n);
+            Console.WriteLine("[DIAG] Assemblies cargados: " + string.Join(", ", loadedAssemblies));
+        }
+        catch { /* no bloquear arranque por diagnóstico */ }
+
+        try
+        {
+            var migrations = context.Database.GetMigrations();
+            var pending = context.Database.GetPendingMigrations();
+            Console.WriteLine("[DIAG] Migrations encontradas: " + string.Join(", ", migrations));
+            Console.WriteLine("[DIAG] Migrations pendientes: " + string.Join(", ", pending));
+        }
+        catch (Exception diagEx)
+        {
+            Console.WriteLine($"[DIAG] Error al listar migraciones: {diagEx.Message}");
+        }
+
         await context.Database.MigrateAsync();
         Console.WriteLine("[OK] Migraciones aplicadas correctamente");
     }
