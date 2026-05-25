@@ -4,6 +4,7 @@ using agenciaViajes.Application.Features.Configurations.Modules;
 using agenciaViajes.Application.Infrastructure.Configurations;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,31 @@ using (var scope = app.Services.CreateScope())
 
         try
         {
+            // Mostrar información del servicio IMigrationsAssembly
+            try
+            {
+                var migrationsAssembly = services.GetService<IMigrationsAssembly>();
+                if (migrationsAssembly != null)
+                {
+                    Console.WriteLine("[DIAG] MigrationsAssembly: " + migrationsAssembly.Assembly.FullName);
+                    Console.WriteLine("[DIAG] Migrations keys: " + string.Join(", ", migrationsAssembly.Migrations.Keys));
+
+                    var migrationTypes = migrationsAssembly.Assembly.GetTypes()
+                        .Where(t => typeof(Migration).IsAssignableFrom(t))
+                        .Select(t => t.FullName)
+                        .OrderBy(n => n);
+                    Console.WriteLine("[DIAG] Migration types en ensamblado: " + string.Join(", ", migrationTypes));
+                }
+                else
+                {
+                    Console.WriteLine("[DIAG] IMigrationsAssembly no disponible en el contenedor de servicios");
+                }
+            }
+            catch (Exception innerEx)
+            {
+                Console.WriteLine($"[DIAG] Error al inspeccionar IMigrationsAssembly: {innerEx.Message}");
+            }
+
             var migrations = context.Database.GetMigrations();
             var pending = context.Database.GetPendingMigrations();
             Console.WriteLine("[DIAG] Migrations encontradas: " + string.Join(", ", migrations));

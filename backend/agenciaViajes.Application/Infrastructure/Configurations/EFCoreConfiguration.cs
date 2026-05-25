@@ -10,9 +10,12 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
         public static IServiceCollection InjectDbContext(this IServiceCollection services, IConfiguration configuration)
         {
 
-            services.AddDbContext<AppDbContext>(options =>
-              options.UseNpgsql(
-                  configuration.GetConnectionString("IbarraTravelDB")));
+                        // Especificar explícitamente la assembly donde residen las migraciones
+                        var migrationsAssemblyName = typeof(AppDbContext).Assembly.GetName().Name;
+                        services.AddDbContext<AppDbContext>(options =>
+                            options.UseNpgsql(
+                                    configuration.GetConnectionString("IbarraTravelDB"),
+                                    npgsql => npgsql.MigrationsAssembly(migrationsAssemblyName)));
 
 
             return services;
