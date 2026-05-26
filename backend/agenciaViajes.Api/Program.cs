@@ -80,8 +80,8 @@ using (var scope = app.Services.CreateScope())
                                 {
                                     foreach (var ca in cad)
                                     {
-                                        var args = ca.ConstructorArguments.Select(a => a.Value == null ? "<null>" : a.Value.ToString());
-                                        Console.WriteLine($"[DIAG-CA] Type: {t.FullName} | AttrType: {ca.AttributeType.FullName} | CtorArgs: {string.Join(", ", args)}");
+                                        var ctorArgs = ca.ConstructorArguments.Select(caArg => caArg.Value == null ? "<null>" : caArg.Value.ToString());
+                                        Console.WriteLine($"[DIAG-CA] Type: {t.FullName} | AttrType: {ca.AttributeType.FullName} | CtorArgs: {string.Join(", ", ctorArgs)}");
                                     }
                                 }
                             }
