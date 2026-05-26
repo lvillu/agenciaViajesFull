@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Linq;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,21 @@ using (var scope = app.Services.CreateScope())
                                 var hasMigrationAttr = t.GetCustomAttributes(false).OfType<MigrationAttribute>().FirstOrDefault();
                                 var attrId = hasMigrationAttr?.Id ?? "<none>";
                                 Console.WriteLine($"[DIAG-T] Type: {t.FullName} | AttrId: {attrId} | Public: {isPublic} | Abstract: {isAbstract}");
+
+                                // Mostrar CustomAttributeData para diagnosticar metadatos en el ensamblado
+                                var cad = t.GetCustomAttributesData().ToArray();
+                                if (cad.Length == 0)
+                                {
+                                    Console.WriteLine($"[DIAG-CA] Type: {t.FullName} no tiene CustomAttributeData");
+                                }
+                                else
+                                {
+                                    foreach (var ca in cad)
+                                    {
+                                        var args = ca.ConstructorArguments.Select(a => a.Value == null ? "<null>" : a.Value.ToString());
+                                        Console.WriteLine($"[DIAG-CA] Type: {t.FullName} | AttrType: {ca.AttributeType.FullName} | CtorArgs: {string.Join(", ", args)}");
+                                    }
+                                }
                             }
                             catch (Exception te)
                             {
