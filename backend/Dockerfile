@@ -28,7 +28,10 @@ RUN dotnet publish agenciaViajes.Api/agenciaViajes.Api.csproj \
     --no-restore \
     --runtime linux-musl-x64 \
     --self-contained false \
-    /p:UseAppHost=false
+    /p:UseAppHost=false \
+    /p:PublishTrimmed=false \
+    /p:DebugSymbols=true \
+    /p:DebugType=portable
 
 # ---- Etapa 3: Runtime (imagen mínima) ----
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
