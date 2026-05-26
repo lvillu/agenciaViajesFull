@@ -54,11 +54,26 @@ using (var scope = app.Services.CreateScope())
                         Console.WriteLine("[DIAG] MigrationsAssembly: " + migrationsAssembly.Assembly.FullName);
                         Console.WriteLine("[DIAG] Migrations keys: " + string.Join(", ", migrationsAssembly.Migrations.Keys));
 
-                        var migrationTypes = migrationsAssembly.Assembly.GetTypes()
-                            .Where(t => typeof(Migration).IsAssignableFrom(t))
-                            .Select(t => t.FullName)
-                            .OrderBy(n => n);
-                        Console.WriteLine("[DIAG] Migration types en ensamblado: " + string.Join(", ", migrationTypes));
+                        var allTypes = migrationsAssembly.Assembly.GetTypes().OrderBy(t => t.FullName).ToArray();
+                        var migrationTypes = allTypes.Where(t => typeof(Migration).IsAssignableFrom(t)).ToArray();
+                        Console.WriteLine("[DIAG] Migration types en ensamblado: " + string.Join(", ", migrationTypes.Select(t => t.FullName)));
+
+                        // Inspeccionar cada tipo para encontrar MigrationAttribute y su Id
+                        foreach (var t in migrationTypes)
+                        {
+                            try
+                            {
+                                var isPublic = t.IsPublic;
+                                var isAbstract = t.IsAbstract;
+                                var hasMigrationAttr = t.GetCustomAttributes(false).OfType<MigrationAttribute>().FirstOrDefault();
+                                var attrId = hasMigrationAttr?.Id ?? "<none>";
+                                Console.WriteLine($"[DIAG-T] Type: {t.FullName} | AttrId: {attrId} | Public: {isPublic} | Abstract: {isAbstract}");
+                            }
+                            catch (Exception te)
+                            {
+                                Console.WriteLine($"[DIAG-T] Error inspeccionando tipo {t.FullName}: {te.Message}");
+                            }
+                        }
                     }
                     else
                     {
