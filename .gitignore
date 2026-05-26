@@ -49,7 +49,6 @@ packages/
 .nuget/
 
 # Entity Framework
-**/Migrations/*.Designer.cs
 
 # Local database
 *.db
