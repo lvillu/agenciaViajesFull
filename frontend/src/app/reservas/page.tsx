@@ -86,9 +86,14 @@ export default function ReservasPage() {
     );
   }, [salesWithTotals, searchTerm]);
 
-  // Navegar a crear
+  // Navegar a crear (usar URL absoluta para evitar que se arrastren query params)
   const handleCreate = () => {
-    router.push('/reservas/nueva');
+    if (typeof window !== 'undefined') {
+      const url = new URL('/reservas/nueva', window.location.origin);
+      router.push(url.toString());
+    } else {
+      router.push('/reservas/nueva');
+    }
   };
 
   // Navegar a editar

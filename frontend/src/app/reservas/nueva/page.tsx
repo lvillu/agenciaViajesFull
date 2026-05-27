@@ -505,14 +505,20 @@ function SaleFormContent() {
               </Box>
 
               {/* Descripción */}
-              <Input
-                label="Descripción"
-                multiline
-                rows={4}
-                placeholder="Ingresa detalles de la reserva, solicitudes especiales o notas..."
-                {...register('description')}
-                error={!!errors.description}
-                helperText={errors.description?.message || 'Ej: Reserva Paq. Rivera Maya - 3 días, 2 noches'}
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Descripción"
+                    multiline
+                    rows={4}
+                    placeholder="Ingresa detalles de la reserva, solicitudes especiales o notas..."
+                    error={!!errors.description}
+                    helperText={errors.description?.message || 'Ej: Reserva Paq. Rivera Maya - 3 días, 2 noches'}
+                  />
+                )}
               />
 
               {/* % de Ganancia y Valor Ganancia */}
