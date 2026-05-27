@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,6 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace agenciaViajes.Application.Migrations
 {
     /// <inheritdoc />
+    [Migration("20260216020746_InitialCreate")]
     public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
