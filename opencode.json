@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    ".doc/frontend-conventions.md",
+    ".doc/backend-conventions.md",
+    ".doc/travel_agency_styles.md",
+    ".doc/design_system_estilos_base_md.md"
+  ]
+}
