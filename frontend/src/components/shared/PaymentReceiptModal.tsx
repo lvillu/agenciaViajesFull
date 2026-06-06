@@ -19,6 +19,7 @@ import { Payment } from '@/types/payment';
 import { Sale } from '@/types/sale';
 import { AgencyInfo } from '@/types/agencyInfo';
 import { agencyInfoService } from '@/services/agencyInfoService';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 interface PaymentReceiptModalProps {
   open: boolean;
@@ -31,14 +32,6 @@ const PAYMENT_TYPE_LABEL: Record<number, string> = {
   1: 'ANTICIPO',
   2: 'ABONADO',
   3: 'LIQUIDACIÓN',
-};
-
-const formatCurrency = (amount: number, currency: string = 'MXN') => {
-  const formatted = new Intl.NumberFormat('es-MX', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return `$${formatted} ${currency}`;
 };
 
 const formatDate = (dateString: string) => {
@@ -116,8 +109,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         paper: {
           sx: {
             borderRadius: '12px',
-            bgcolor: '#f7f9fb',
-            border: '1px solid #e2e8f0',
+            bgcolor: 'background.paper',
+            border: '1px solid #D8DAEA',
             overflow: 'hidden',
           },
         },
@@ -132,25 +125,25 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
           px: 3,
           py: 2,
           bgcolor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid #D8DAEA',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
               p: 1,
-              bgcolor: 'rgba(236, 91, 19, 0.1)',
+              bgcolor: 'rgba(91, 169, 179, 0.1)',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
-              color: '#ec5b13',
+              color: '#5BA9B3',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px', lineHeight: 1 }}>
               receipt_long
             </span>
           </Box>
-          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#0f172a' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#525252' }}>
             Comprobante de Pago
           </Typography>
         </Box>
@@ -159,7 +152,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
       <DialogContent sx={{ px: 3, py: 3 }}>
         {loadingAgency ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress sx={{ color: '#ec5b13' }} />
+            <CircularProgress sx={{ color: 'primary.main' }} />
           </Box>
         ) : (
           /* ─── RECEIPT AREA (printed/PDF) ─── */
@@ -168,7 +161,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
             sx={{
               bgcolor: '#ffffff',
               borderRadius: '12px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid #D8DAEA',
               overflow: 'hidden',
               fontFamily: '"Inter", "Roboto", sans-serif',
             }}
@@ -176,7 +169,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
             {/* Receipt Header */}
             <Box
               sx={{
-                background: 'linear-gradient(135deg, #a63b00 0%, #f26522 100%)',
+                background: 'linear-gradient(135deg, #3D7A82 0%, #5BA9B3 100%)',
                 px: 3,
                 py: 2.5,
                 display: 'flex',
@@ -312,9 +305,9 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               sx={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr 1fr',
-                borderTop: '1px solid #e1bfb3',
-                borderBottom: '1px solid #e1bfb3',
-                bgcolor: '#f2f4f6',
+                borderTop: '1px solid #D8DAEA',
+                borderBottom: '1px solid #D8DAEA',
+                bgcolor: 'rgba(189, 191, 220, 0.08)',
               }}
             >
               {/* Total Reserva */}
@@ -325,7 +318,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
-                    color: '#594138',
+                    color: '#8B8DA8',
                     mb: 0.5,
                     display: 'block',
                   }}
@@ -333,21 +326,21 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   TOTAL RESERVA
                 </Typography>
                 <Typography
-                  sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#191c1e', lineHeight: '2rem', letterSpacing: '0.01em' }}
+                  sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#525252', lineHeight: '2rem', letterSpacing: '0.01em' }}
                 >
                   {formatCurrency(sale.totalAmount, currency)}
                 </Typography>
               </Box>
 
               {/* Pagado */}
-              <Box sx={{ p: 2, borderRight: '1px solid #e1bfb3', bgcolor: 'rgba(242,101,34,0.08)' }}>
+              <Box sx={{ p: 2, borderRight: '1px solid #D8DAEA', bgcolor: 'rgba(91,169,179,0.06)' }}>
                 <Typography
                   sx={{
                     fontSize: '0.65rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
-                    color: '#a63b00',
+                    color: '#3D7A82',
                     mb: 0.5,
                     display: 'block',
                   }}
@@ -355,7 +348,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   PAGADO ({paymentTypeLabel})
                 </Typography>
                 <Typography
-                  sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#a63b00', lineHeight: '2rem', letterSpacing: '0.01em' }}
+                  sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#3D7A82', lineHeight: '2rem', letterSpacing: '0.01em' }}
                 >
                   {formatCurrency(totalPaid, currency)}
                 </Typography>
@@ -398,8 +391,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   display: 'flex',
                   px: 3,
                   py: 1.25,
-                  bgcolor: '#f8fafc',
-                  borderBottom: '1px solid #f1f5f9',
+                  bgcolor: 'rgba(189, 191, 220, 0.15)',
+                  borderBottom: '1px solid #D8DAEA',
                 }}
               >
                 <Typography
@@ -409,7 +402,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    color: '#64748b',
+                    color: '#8B8DA8',
                   }}
                 >
                   Concepto
@@ -420,7 +413,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    color: '#64748b',
+                    color: '#8B8DA8',
                     textAlign: 'right',
                     minWidth: 110,
                   }}
@@ -442,10 +435,10 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     borderBottom: '1px solid #f1f5f9',
                   }}
                 >
-                  <Typography sx={{ flex: 1, fontSize: '0.85rem', color: '#334155' }}>
+                  <Typography sx={{ flex: 1, fontSize: '0.85rem', color: '#525252' }}>
                     Comisión por Transferencia
                   </Typography>
-                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', minWidth: 110, textAlign: 'right' }}>
+                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#525252', minWidth: 110, textAlign: 'right' }}>
                     {formatCurrency(transactionFee, currency)}
                   </Typography>
                 </Box>
@@ -458,17 +451,17 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   alignItems: 'center',
                   px: 3,
                   py: 2,
-                  bgcolor: '#f8fafc',
+                  bgcolor: 'rgba(189, 191, 220, 0.12)',
                 }}
               >
-                <Typography sx={{ flex: 1, fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>
+                <Typography sx={{ flex: 1, fontSize: '0.9rem', fontWeight: 700, color: '#525252' }}>
                   Abono
                 </Typography>
                 <Typography
                   sx={{
                     fontSize: '1.2rem',
                     fontWeight: 800,
-                    color: '#a63b00',
+                    color: '#5BA9B3',
                     minWidth: 110,
                     textAlign: 'right',
                   }}
@@ -484,8 +477,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 sx={{
                   px: 3,
                   py: 2,
-                  borderTop: '1px solid #f1f5f9',
-                  bgcolor: '#fafafa',
+                  borderTop: '1px solid #D8DAEA',
+                  bgcolor: 'rgba(189, 191, 220, 0.05)',
                 }}
               >
                 <Typography
@@ -511,7 +504,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               sx={{
                 px: 3,
                 py: 2,
-                borderTop: '1px solid #e2e8f0',
+                borderTop: '1px solid #D8DAEA',
                 textAlign: 'center',
               }}
             >
@@ -539,8 +532,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 <Box
                   sx={{
                     p: 3,
-                    bgcolor: '#f2f4f6',
-                    border: '1px solid #e1bfb3',
+                    bgcolor: 'rgba(189, 191, 220, 0.08)',
+                    border: '1px solid #D8DAEA',
                     borderRadius: '8px',
                   }}
                 >
@@ -550,7 +543,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
-                      color: '#594138',
+                    color: '#8B8DA8',
                       mb: 1.5,
                     }}
                   >
@@ -580,12 +573,12 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   </Box>
                 </Box>
 
-                {/* Logo placeholder */}
+                {/* Logo */}
                 <Box
                   sx={{
                     p: 3,
-                    bgcolor: '#f2f4f6',
-                    border: '1px solid #e1bfb3',
+                    bgcolor: 'rgba(189, 191, 220, 0.08)',
+                    border: '1px solid #D8DAEA',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
@@ -593,7 +586,18 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     minHeight: 120,
                   }}
                 >
-                  {/* Logo will be added here */}
+                  <Box
+                    component="img"
+                    src="/IbarraTravel_logo.png"
+                    alt="Ibarra Travel"
+                    sx={{
+                      maxWidth: '100%',
+                      maxHeight: 100,
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
                 </Box>
               </Box>
             )}
@@ -606,8 +610,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
           px: 3,
           py: 2.5,
           gap: 1.5,
-          borderTop: '1px solid #e2e8f0',
-          bgcolor: '#f8fafc',
+          borderTop: '1px solid #D8DAEA',
+          bgcolor: 'rgba(189, 191, 220, 0.12)',
           justifyContent: 'flex-end',
         }}
       >

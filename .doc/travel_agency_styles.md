@@ -1,5 +1,7 @@
 # Travel Agency - Sistema de Estilos y Componentes
 
+> **⚠️ OBSOLETO:** Este documento ha sido reemplazado por `.doc/ola-marina-plan.md`, que define la paleta actual (primary `#5BA9B3`). Consulta `ola-marina-plan.md` para cualquier referencia de estilos nueva.
+
 ## 📋 Índice
 1. [Configuración Base](#configuración-base)
 2. [Paleta de Colores](#paleta-de-colores)

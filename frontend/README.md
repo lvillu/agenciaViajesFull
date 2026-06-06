@@ -1,4 +1,4 @@
-# Agencia Viajes - Frontend
+# Ibarra Travel - Frontend
 
 Frontend del sistema de gestión de viajes construido con **Next.js 15** y **React 19**.
 

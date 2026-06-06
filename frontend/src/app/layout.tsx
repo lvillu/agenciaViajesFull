@@ -13,21 +13,21 @@ import '@/styles/ta-globals.css';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#ec5b13',
-      light: 'rgba(236, 91, 19, 0.1)',
+      main: '#5BA9B3',
+      light: 'rgba(91, 169, 179, 0.1)',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#f8f6f6',
+      main: '#BDBFDC',
     },
     background: {
-      default: '#f8f6f6',
+      default: 'rgba(189, 191, 220, 0.18)',
       paper: '#ffffff',
     },
     text: {
-      primary: '#0f172a',
-      secondary: '#475569',
-      disabled: '#94a3b8',
+      primary: '#525252',
+      secondary: '#8B8DA8',
+      disabled: '#ADB0C8',
     },
     success: {
       main: '#16a34a',
@@ -38,7 +38,7 @@ const theme = createTheme({
     error: {
       main: '#dc2626',
     },
-    divider: '#e2e8f0',
+    divider: '#D8DAEA',
   },
   typography: {
     fontFamily: '"Public Sans", system-ui, sans-serif',
@@ -95,9 +95,9 @@ const theme = createTheme({
           fontSize: '14px',
         },
         contained: {
-          boxShadow: '0 4px 14px rgba(236, 91, 19, 0.25)',
+          boxShadow: '0 4px 14px rgba(91, 169, 179, 0.25)',
           '&:hover': {
-            boxShadow: '0 4px 14px rgba(236, 91, 19, 0.35)',
+            boxShadow: '0 4px 14px rgba(91, 169, 179, 0.35)',
           },
         },
       },
@@ -109,7 +109,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid #D8DAEA',
         },
       },
     },
@@ -125,7 +125,7 @@ const theme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 12,
-            backgroundColor: '#f8fafc',
+            backgroundColor: 'rgba(189, 191, 220, 0.08)',
           },
         },
       },
@@ -144,8 +144,8 @@ const theme = createTheme({
         root: {
           backgroundColor: 'rgba(255,255,255,0.85)',
           backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid #e2e8f0',
-          color: '#0f172a',
+          borderBottom: '1px solid #D8DAEA',
+          color: '#525252',
           boxShadow: 'none',
         },
       },
@@ -168,9 +168,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Agencia Viajes</title>
+        <title>Ibarra Travel</title>
         <meta name="description" content="Sistema de gestión de viajes" />
+        <link rel="icon" href="/IbarraTravel_logo.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -182,7 +184,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body style={{ margin: 0, backgroundColor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <body style={{ margin: 0, backgroundColor: 'rgba(189,191,220,0.18)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <PrimeReactProvider value={{ unstyled: true }}>
           <ThemeProvider theme={theme}>
             <CssBaseline />

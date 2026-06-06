@@ -284,11 +284,11 @@ export default function SettingsPage() {
               <Box
                 sx={{
                   p: 1,
-                  bgcolor: 'rgba(236, 91, 19, 0.1)',
+                  bgcolor: 'rgba(91, 169, 179, 0.1)',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: '#ec5b13',
+                  color: '#5BA9B3',
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '22px', lineHeight: 1 }}>
@@ -323,7 +323,7 @@ export default function SettingsPage() {
 
             {loadingAgency ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                <CircularProgress sx={{ color: '#ec5b13' }} />
+                <CircularProgress sx={{ color: 'primary.main' }} />
               </Box>
             ) : (
               <form onSubmit={handleSubmitAgency(onSubmitAgency)}>
