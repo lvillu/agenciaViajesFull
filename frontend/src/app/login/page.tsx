@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { loginSchema, type LoginFormData } from '@/lib/validationSchemas';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,17 +70,20 @@ export default function LoginPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
-              <span
-                className="material-symbols-outlined"
-                style={{ color: '#5BA9B3', fontSize: 22 }}
-              >
-                flight_takeoff
-              </span>
+              <Image
+                src="/IbarraTravel_logo.png"
+                alt="Ibarra Travel"
+                fill
+                priority
+                style={{ objectFit: 'contain' }}
+              />
             </Box>
             <Typography sx={{ fontSize: '20px', fontWeight: 700, color: '#525252' }}>
-              Agencia Viajes
+              Ibarra Travel
             </Typography>
           </Box>
 

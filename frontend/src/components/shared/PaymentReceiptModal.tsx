@@ -573,7 +573,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                   </Box>
                 </Box>
 
-                {/* Logo placeholder */}
+                {/* Logo */}
                 <Box
                   sx={{
                     p: 3,
@@ -586,7 +586,18 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     minHeight: 120,
                   }}
                 >
-                  {/* Logo will be added here */}
+                  <Box
+                    component="img"
+                    src="/IbarraTravel_logo.png"
+                    alt="Ibarra Travel"
+                    sx={{
+                      maxWidth: '100%',
+                      maxHeight: 100,
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
                 </Box>
               </Box>
             )}

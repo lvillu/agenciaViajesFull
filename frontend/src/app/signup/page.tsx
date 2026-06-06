@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { signupSchema, type SignUpFormData } from '@/lib/validationSchemas';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 const ICON_STYLE: React.CSSProperties = {
   fontFamily: '"Material Symbols Outlined"',
@@ -110,11 +111,19 @@ export default function SignUpPage() {
             border: '1px solid rgba(255,255,255,0.2)',
           }}
         >
-          <span style={{ ...ICON_STYLE, color: '#5BA9B3', fontSize: '22px' }}>explore</span>
+          <Box sx={{ position: 'relative', width: 24, height: 24 }}>
+            <Image
+              src="/IbarraTravel_logo.png"
+              alt="Ibarra Travel"
+              fill
+              priority
+              style={{ objectFit: 'contain' }}
+            />
+          </Box>
           <Typography
             sx={{ fontWeight: 700, color: '#ffffff', fontSize: '15px', letterSpacing: '-0.02em' }}
           >
-            Agencia Viajes
+            Ibarra Travel
           </Typography>
         </Box>
 
@@ -171,11 +180,19 @@ export default function SignUpPage() {
               mb: 5,
             }}
           >
-            <span style={{ ...ICON_STYLE, color: '#5BA9B3', fontSize: '30px' }}>explore</span>
+            <Box sx={{ position: 'relative', width: 32, height: 32 }}>
+              <Image
+                src="/IbarraTravel_logo.png"
+                alt="Ibarra Travel"
+                fill
+                priority
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>
             <Typography
               sx={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: '#525252' }}
             >
-              Agencia Viajes
+              Ibarra Travel
             </Typography>
           </Box>
 

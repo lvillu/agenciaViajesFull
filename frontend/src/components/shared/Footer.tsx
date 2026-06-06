@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Box, Container, Typography, Link } from '@mui/material';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import Image from 'next/image';
 
 export const Footer: React.FC = () => {
   return (
@@ -34,9 +34,16 @@ export const Footer: React.FC = () => {
       >
         {/* Brand */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+          <Box sx={{ position: 'relative', width: 28, height: 22 }}>
+            <Image
+              src="/IbarraTravel_logo.png"
+              alt="Ibarra Travel"
+              fill
+              style={{ objectFit: 'contain' }}
+            />
+          </Box>
           <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
-            Agencia Viajes
+            Ibarra Travel
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             © 2024 Management Suite
