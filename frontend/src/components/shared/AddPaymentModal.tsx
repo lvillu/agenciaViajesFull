@@ -129,8 +129,8 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
         paper: {
           sx: {
             borderRadius: '12px',
-            bgcolor: '#f8f6f6',
-            border: '1px solid #e2e8f0',
+            bgcolor: 'background.paper',
+            border: '1px solid #D8DAEA',
           },
         },
       }}
@@ -144,17 +144,17 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
           px: 3,
           py: 2,
           bgcolor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid #D8DAEA',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <span
             className="material-symbols-outlined"
-            style={{ color: '#ec5b13', fontSize: '24px', lineHeight: 1 }}
+            style={{ color: '#5BA9B3', fontSize: '24px', lineHeight: 1 }}
           >
             payments
           </span>
-          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#0f172a' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#525252' }}>
             Registrar Pago
           </Typography>
         </Box>
@@ -162,8 +162,8 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
           onClick={handleClose}
           size="small"
           sx={{
-            color: '#64748b',
-            '&:hover': { bgcolor: '#f1f5f9' },
+            color: '#8B8DA8',
+            '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.2)' },
             borderRadius: '50%',
           }}
         >
@@ -180,7 +180,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: '#0f172a',
+              color: '#525252',
               mb: 2,
             }}
           >
@@ -193,14 +193,14 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                 minWidth: 120,
                 p: 2,
                 borderRadius: '8px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 bgcolor: '#ffffff',
               }}
             >
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#64748b', mb: 0.5 }}>
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#8B8DA8', mb: 0.5 }}>
                 Total Reserva
               </Typography>
-              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
+              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#525252' }}>
                 {formatCurrency(totalAmount, isDollar)}
               </Typography>
             </Box>
@@ -210,14 +210,14 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                 minWidth: 120,
                 p: 2,
                 borderRadius: '8px',
-                border: '1px solid #bbf7d0',
-                bgcolor: 'rgba(240, 253, 244, 0.5)',
+                border: '1px solid rgba(91, 169, 179, 0.3)',
+                bgcolor: 'rgba(91, 169, 179, 0.06)',
               }}
             >
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#15803d', mb: 0.5 }}>
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#3D7A82', mb: 0.5 }}>
                 Total Pagado
               </Typography>
-              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#16a34a' }}>
+              <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#5BA9B3' }}>
                 {formatCurrency(totalPaid, isDollar)}
               </Typography>
             </Box>
@@ -228,7 +228,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                 p: 2,
                 borderRadius: '8px',
                 border: '1px solid #fecaca',
-                bgcolor: 'rgba(254, 242, 242, 0.5)',
+                bgcolor: 'rgba(254, 242, 242, 0.4)',
               }}
             >
               <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#b91c1c', mb: 0.5 }}>
@@ -253,7 +253,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                 bgcolor: remainingBalance > 0 ? 'rgba(254,242,242,0.6)' : 'rgba(240,253,244,0.6)',
               }}
             >
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#525252' }}>
                 Saldo después del pago:
               </Typography>
               <Typography
@@ -281,7 +281,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: '#0f172a',
+              color: '#525252',
               mb: 2,
             }}
           >
@@ -316,7 +316,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
                   startAdornment: (
                     <span
                       className="material-symbols-outlined"
-                      style={{ color: '#94a3b8', fontSize: '20px', marginRight: '6px', lineHeight: 1 }}
+                      style={{ color: '#ADB0C8', fontSize: '20px', marginRight: '6px', lineHeight: 1 }}
                     >
                       attach_money
                     </span>
@@ -398,8 +398,8 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
             px: 3,
             py: 2.5,
             gap: 1.5,
-            borderTop: '1px solid #e2e8f0',
-            bgcolor: '#f8fafc',
+            borderTop: '1px solid #D8DAEA',
+            bgcolor: 'rgba(189, 191, 220, 0.12)',
             justifyContent: 'flex-end',
           }}
         >

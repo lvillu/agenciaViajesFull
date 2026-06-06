@@ -227,10 +227,10 @@ function SaleFormContent() {
 
   if (loadingSale) {
     return (
-      <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: '#ec5b13' }} />
+          <CircularProgress sx={{ color: 'primary.main' }} />
         </Box>
         <Footer />
       </Box>
@@ -238,7 +238,7 @@ function SaleFormContent() {
   }
 
   return (
-    <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
       <Box sx={{ flex: 1, maxWidth: '896px', mx: 'auto', width: '100%', px: 3, py: 4 }}>
@@ -251,10 +251,10 @@ function SaleFormContent() {
 
         {/* Page Title */}
         <Box sx={{ mb: 4 }}>
-          <Typography sx={{ fontSize: '1.875rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+          <Typography sx={{ fontSize: '1.875rem', fontWeight: 800, color: '#525252', lineHeight: 1.2 }}>
             {isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva'}
           </Typography>
-          <Typography sx={{ fontSize: '0.875rem', color: '#64748b', mt: 0.5 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: '#8B8DA8', mt: 0.5 }}>
             {isEditing
               ? 'Actualiza los datos de la reserva.'
               : 'Completa los datos para registrar el paquete de viaje.'}
@@ -274,7 +274,7 @@ function SaleFormContent() {
             <Box
               sx={{
                 bgcolor: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 borderRadius: '12px',
                 p: 3,
               }}
@@ -287,13 +287,13 @@ function SaleFormContent() {
                   gap: 1,
                   pb: 2,
                   mb: 3,
-                  borderBottom: '1px solid #f1f5f9',
+                  borderBottom: '1px solid #D8DAEA',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                <span className="material-symbols-outlined" style={{ color: '#5BA9B3', fontSize: '20px', lineHeight: 1 }}>
                   handshake
                 </span>
-                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#525252' }}>
                   Cliente &amp; Información del Proveedor
                 </Typography>
               </Box>
@@ -330,12 +330,12 @@ function SaleFormContent() {
                         onClick={handleOpenClientModal}
                         sx={{
                           mb: '2px',
-                          bgcolor: '#ec5b13',
+                          bgcolor: '#5BA9B3',
                           color: '#ffffff',
                           width: 44,
                           height: 44,
                           borderRadius: '10px',
-                          '&:hover': { bgcolor: '#d44e0e' },
+                          '&:hover': { bgcolor: '#4A969F' },
                           flexShrink: 0,
                         }}
                       >
@@ -376,7 +376,7 @@ function SaleFormContent() {
             <Box
               sx={{
                 bgcolor: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 borderRadius: '12px',
                 p: 3,
               }}
@@ -388,13 +388,13 @@ function SaleFormContent() {
                   gap: 1,
                   pb: 2,
                   mb: 3,
-                  borderBottom: '1px solid #f1f5f9',
+                  borderBottom: '1px solid #D8DAEA',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                <span className="material-symbols-outlined" style={{ color: '#5BA9B3', fontSize: '20px', lineHeight: 1 }}>
                   inventory_2
                 </span>
-                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#525252' }}>
                   Detalles del Paquete
                 </Typography>
               </Box>
@@ -420,7 +420,7 @@ function SaleFormContent() {
                         sx={{
                           fontSize: '0.875rem',
                           fontWeight: 600,
-                          color: errors.totalAmount ? '#ef4444' : '#334155',
+                          color: errors.totalAmount ? '#ef4444' : '#525252',
                           mb: 0.75,
                           display: 'block',
                         }}
@@ -451,9 +451,9 @@ function SaleFormContent() {
                           padding: '0 12px',
                           fontSize: '14px',
                           fontFamily: '"Public Sans", system-ui, sans-serif',
-                          color: '#0f172a',
+                          color: '#525252',
                           boxSizing: 'border-box',
-                          border: `1px solid ${errors.totalAmount ? '#ef4444' : '#cbd5e1'}`,
+                          border: `1px solid ${errors.totalAmount ? '#ef4444' : '#D8DAEA'}`,
                           background: '#ffffff',
                           outline: 'none',
                           transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -471,7 +471,7 @@ function SaleFormContent() {
                 {/* Toggle USD */}
                 <Box>
                   <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', mb: 0.75, display: 'block' }}
+                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252', mb: 0.75, display: 'block' }}
                   >
                     Moneda (¿USD?)
                   </Typography>
@@ -491,13 +491,13 @@ function SaleFormContent() {
                           checked={field.value}
                           onChange={(e) => field.onChange(e.target.checked)}
                           sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': { color: '#ec5b13' },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#ec5b13' },
+                            '& .MuiSwitch-switchBase.Mui-checked': { color: '#5BA9B3' },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5BA9B3' },
                           }}
                         />
                       )}
                     />
-                    <Typography sx={{ fontSize: '0.875rem', color: '#475569', fontWeight: 500 }}>
+                    <Typography sx={{ fontSize: '0.875rem', color: '#8B8DA8', fontWeight: 500 }}>
                       {isDollar ? 'USD Activo' : 'MXN'}
                     </Typography>
                   </Box>
@@ -536,7 +536,7 @@ function SaleFormContent() {
                       inputProps={{ step: '0.01', min: '0', max: '100' }}
                       InputProps={{
                         endAdornment: (
-                          <Typography sx={{ fontSize: '14px', color: '#94a3b8', pr: 0.5 }}>%</Typography>
+                          <Typography sx={{ fontSize: '14px', color: '#ADB0C8', pr: 0.5 }}>%</Typography>
                         ),
                       }}
                       error={!!(errors as any).profitPercentage}
@@ -555,7 +555,7 @@ function SaleFormContent() {
                 />
                 <Box>
                   <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', mb: 0.75, display: 'block' }}
+                    sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252', mb: 0.75, display: 'block' }}
                   >
                     Valor de Ganancia
                   </Typography>
@@ -565,9 +565,9 @@ function SaleFormContent() {
                       alignItems: 'center',
                       height: '44px',
                       px: 1.5,
-                      bgcolor: '#f1f5f9',
+                      bgcolor: 'rgba(189, 191, 220, 0.12)',
                       borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
+                      border: '1px solid #D8DAEA',
                     }}
                   >
                     <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
@@ -576,7 +576,7 @@ function SaleFormContent() {
                         : '—'}
                     </Typography>
                     {profitPercentage && totalAmount > 0 && (
-                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b', ml: 1 }}>
+                      <Typography sx={{ fontSize: '0.75rem', color: '#8B8DA8', ml: 1 }}>
                         ({profitPercentage}% de {formatCurrency(totalAmount)})
                       </Typography>
                     )}
@@ -589,7 +589,7 @@ function SaleFormContent() {
             <Box
               sx={{
                 bgcolor: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 borderRadius: '12px',
                 p: 3,
               }}
@@ -601,13 +601,13 @@ function SaleFormContent() {
                   gap: 1,
                   pb: 2,
                   mb: 3,
-                  borderBottom: '1px solid #f1f5f9',
+                  borderBottom: '1px solid #D8DAEA',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: '#ec5b13', fontSize: '20px', lineHeight: 1 }}>
+                <span className="material-symbols-outlined" style={{ color: '#5BA9B3', fontSize: '20px', lineHeight: 1 }}>
                   event
                 </span>
-                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#525252' }}>
                   Fechas &amp; Pago
                 </Typography>
               </Box>
@@ -735,11 +735,11 @@ function SaleFormContent() {
                           <Checkbox
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
-                            sx={{ color: '#ec5b13', '&.Mui-checked': { color: '#ec5b13' } }}
+                            sx={{ color: '#D8DAEA', '&.Mui-checked': { color: '#5BA9B3' } }}
                           />
                         }
                         label={
-                          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155' }}>
+                          <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}>
                             Reserva activa
                           </Typography>
                         }
@@ -796,10 +796,10 @@ function SaleFormContent() {
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ bgcolor: '#f8f6f6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Header />
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: '#ec5b13' }} />
+          <CircularProgress sx={{ color: 'primary.main' }} />
         </Box>
         <Footer />
       </Box>

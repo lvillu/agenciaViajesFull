@@ -194,7 +194,7 @@ export default function ReservasPage() {
       <Chip
         label="Pendiente"
         size="small"
-        sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '11px', border: 'none' }}
+        sx={{ bgcolor: 'rgba(189, 191, 220, 0.25)', color: '#8B8DA8', fontWeight: 700, fontSize: '11px', border: 'none' }}
       />
     );
   };
@@ -267,7 +267,7 @@ export default function ReservasPage() {
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
                     {['Cliente', 'Proveedor', 'Descripción', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Ganancia', 'Estado', 'Acciones'].map((h, i) => (
                       <TableCell
                         key={h}
@@ -313,7 +313,7 @@ export default function ReservasPage() {
                     filteredSales.map((sale) => (
                       <TableRow 
                         key={sale.id} 
-                        sx={{ '&:hover': { bgcolor: '#f8fafc' }, transition: 'background-color 0.15s' }}
+                        sx={{ '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.1)' }, transition: 'background-color 0.15s' }}
                       >
                         <TableCell>
                           <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -389,7 +389,7 @@ export default function ReservasPage() {
                               size="small"
                               onClick={() => handleEdit(sale)}
                               title="Editar"
-                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: '#f1f5f9' } }}
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: 'rgba(189, 191, 220, 0.15)' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>

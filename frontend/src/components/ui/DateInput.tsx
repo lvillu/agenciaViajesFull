@@ -115,7 +115,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   const labelSx = {
     fontSize: '0.875rem',
     fontWeight: 600,
-    color: error ? '#ef4444' : '#334155',
+    color: error ? '#ef4444' : '#525252',
     mb: 0.75,
     display: 'block',
   };

@@ -110,7 +110,7 @@ export default function SignUpPage() {
             border: '1px solid rgba(255,255,255,0.2)',
           }}
         >
-          <span style={{ ...ICON_STYLE, color: '#ec5b13', fontSize: '22px' }}>explore</span>
+          <span style={{ ...ICON_STYLE, color: '#5BA9B3', fontSize: '22px' }}>explore</span>
           <Typography
             sx={{ fontWeight: 700, color: '#ffffff', fontSize: '15px', letterSpacing: '-0.02em' }}
           >
@@ -171,9 +171,9 @@ export default function SignUpPage() {
               mb: 5,
             }}
           >
-            <span style={{ ...ICON_STYLE, color: '#ec5b13', fontSize: '30px' }}>explore</span>
+            <span style={{ ...ICON_STYLE, color: '#5BA9B3', fontSize: '30px' }}>explore</span>
             <Typography
-              sx={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: '#0f172a' }}
+              sx={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: '#525252' }}
             >
               Agencia Viajes
             </Typography>
@@ -182,11 +182,11 @@ export default function SignUpPage() {
           {/* Heading */}
           <Box sx={{ mb: 5, textAlign: { xs: 'center', lg: 'left' } }}>
             <Typography
-              sx={{ fontSize: '28px', fontWeight: 700, color: '#0f172a', mb: 0.75, letterSpacing: '-0.02em' }}
+              sx={{ fontSize: '28px', fontWeight: 700, color: '#525252', mb: 0.75, letterSpacing: '-0.02em' }}
             >
               Crear Cuenta
             </Typography>
-            <Typography sx={{ fontSize: '14px', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '14px', color: '#8B8DA8' }}>
               Comienza tu viaje completando tus datos a continuación.
             </Typography>
           </Box>
@@ -295,21 +295,21 @@ export default function SignUpPage() {
                 size="small"
                 sx={{
                   p: 0,
-                  color: '#cbd5e1',
-                  '&.Mui-checked': { color: '#ec5b13' },
+                  color: '#D8DAEA',
+                  '&.Mui-checked': { color: '#5BA9B3' },
                 }}
               />
               <Typography
                 component="label"
                 htmlFor="terms"
-                sx={{ fontSize: '13px', color: '#475569', cursor: 'pointer', lineHeight: 1.4 }}
+                sx={{ fontSize: '13px', color: '#8B8DA8', cursor: 'pointer', lineHeight: 1.4 }}
               >
                 Acepto los{' '}
-                <MuiLink href="#" underline="hover" sx={{ color: '#ec5b13', fontWeight: 600 }}>
+                <MuiLink href="#" underline="hover" sx={{ color: '#5BA9B3', fontWeight: 600 }}>
                   Términos de Servicio
                 </MuiLink>{' '}
                 y la{' '}
-                <MuiLink href="#" underline="hover" sx={{ color: '#ec5b13', fontWeight: 600 }}>
+                <MuiLink href="#" underline="hover" sx={{ color: '#5BA9B3', fontWeight: 600 }}>
                   Política de Privacidad
                 </MuiLink>
               </Typography>
@@ -328,12 +328,12 @@ export default function SignUpPage() {
 
           {/* Login link */}
           <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography sx={{ fontSize: '13px', color: '#475569' }}>
+            <Typography sx={{ fontSize: '13px', color: '#8B8DA8' }}>
               ¿Ya tienes cuenta?{' '}
               <MuiLink
                 href="/login"
                 underline="hover"
-                sx={{ cursor: 'pointer', fontWeight: 700, color: '#ec5b13', ml: 0.5 }}
+                sx={{ cursor: 'pointer', fontWeight: 700, color: '#5BA9B3', ml: 0.5 }}
               >
                 Iniciar Sesión
               </MuiLink>
@@ -345,7 +345,7 @@ export default function SignUpPage() {
             sx={{
               mt: 4,
               pt: 4,
-              borderTop: '1px solid #f1f5f9',
+              borderTop: '1px solid #D8DAEA',
               display: 'flex',
               justifyContent: 'center',
               gap: 2,
@@ -359,15 +359,15 @@ export default function SignUpPage() {
                 width: 44,
                 height: 44,
                 p: 0,
-                bgcolor: '#f8fafc',
+                bgcolor: '#ffffff',
                 borderRadius: '50%',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'background-color 0.2s',
-                '&:hover': { bgcolor: '#f1f5f9' },
+                '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.15)' },
               }}
             >
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -383,16 +383,16 @@ export default function SignUpPage() {
                 width: 44,
                 height: 44,
                 p: 0,
-                bgcolor: '#f8fafc',
+                bgcolor: '#ffffff',
                 borderRadius: '50%',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #D8DAEA',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'background-color 0.2s',
                 color: '#1877F2',
-                '&:hover': { bgcolor: '#f1f5f9' },
+                '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.15)' },
               }}
             >
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">

@@ -56,7 +56,7 @@ const formatDate = (dateStr?: string) => {
 
 // ─── Skeleton para una card ──────────────────────────────────────────────────
 const CardSkeleton: React.FC = () => (
-  <Card sx={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: 'none', flex: 1, minWidth: 0 }}>
+  <Card sx={{ borderRadius: '12px', border: '1px solid #D8DAEA', boxShadow: 'none', flex: 1, minWidth: 0 }}>
     <CardContent sx={{ p: 3 }}>
       <Skeleton variant="rectangular" width={40} height={40} sx={{ borderRadius: '10px', mb: 2 }} />
       <Skeleton variant="text" width="60%" height={18} />
@@ -81,7 +81,7 @@ const SalesDetailModal: React.FC<SalesDetailModalProps> = ({ open, title, sales,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid #e2e8f0',
+        borderBottom: '1px solid #D8DAEA',
         pb: 2,
         fontWeight: 700,
         fontSize: '18px',
@@ -103,7 +103,7 @@ const SalesDetailModal: React.FC<SalesDetailModalProps> = ({ open, title, sales,
         <TableContainer>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: '#f8f6f6' }}>
+              <TableRow sx={{ bgcolor: 'rgba(189,191,220,0.18)' }}>
                 {['Cliente', 'Proveedor', '# Reserva', 'Total', 'Saldo', 'Fecha límite', 'Viaje'].map((h) => (
                   <TableCell
                     key={h}
@@ -118,7 +118,7 @@ const SalesDetailModal: React.FC<SalesDetailModalProps> = ({ open, title, sales,
               {sales.map((s) => (
                 <TableRow
                   key={s.id}
-                  sx={{ '&:hover': { bgcolor: 'rgba(236,91,19,0.04)' }, transition: 'background 0.15s' }}
+                  sx={{ '&:hover': { bgcolor: 'rgba(91,169,179,0.04)' }, transition: 'background 0.15s' }}
                 >
                   <TableCell sx={{ fontSize: '13px', fontWeight: 500 }}>{s.clientName || '—'}</TableCell>
                   <TableCell sx={{ fontSize: '13px' }}>{s.providerName || '—'}</TableCell>
@@ -180,7 +180,7 @@ const StatCard: React.FC<StatCardProps> = ({
     onClick={clickable ? onClick : undefined}
     sx={{
       borderRadius: '12px',
-      border: '1px solid #e2e8f0',
+      border: '1px solid #D8DAEA',
       boxShadow: 'none',
       flex: 1,
       minWidth: 0,
@@ -270,9 +270,9 @@ export const DashboardCards: React.FC<DashboardCardsProps> = ({ data, loading, e
         {/* Card 1 — Ganancias estimadas */}
         <StatCard
           icon={<TrendingUpIcon />}
-          iconBg="rgba(236,91,19,0.10)"
-          iconColor="#ec5b13"
-          accentColor="#ec5b13"
+          iconBg="rgba(91,169,179,0.12)"
+          iconColor="#5BA9B3"
+          accentColor="#5BA9B3"
           label="Ganancias estimadas"
           value={formatCurrency(data.estimatedProfitCurrentMonth)}
           subLabel={`Mes en curso · ${currentMonthName}`}
@@ -281,9 +281,9 @@ export const DashboardCards: React.FC<DashboardCardsProps> = ({ data, loading, e
         {/* Card 2 — Reservas por liquidar */}
         <StatCard
           icon={<EventNoteIcon />}
-          iconBg="rgba(99,102,241,0.10)"
-          iconColor="#6366f1"
-          accentColor="#6366f1"
+          iconBg="rgba(173,97,213,0.12)"
+          iconColor="#AD61D5"
+          accentColor="#AD61D5"
           label="Reservas por liquidar"
           value={String(data.pendingSettlementCount)}
           subLabel={`Mes en curso · Ver detalle`}

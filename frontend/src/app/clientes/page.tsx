@@ -219,7 +219,7 @@ export default function ClientesPage() {
             alignItems: 'center',
           }}
         >
-          <SearchIcon sx={{ color: 'text.disabled', ml: 1, mr: 0.5, flexShrink: 0 }} />
+          <SearchIcon sx={{ color: '#ADB0C8', ml: 1, mr: 0.5, flexShrink: 0 }} />
           <TextField
             fullWidth
             variant="standard"
@@ -249,7 +249,7 @@ export default function ClientesPage() {
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
                     {['Nombre', 'Apellido', 'Email', 'Teléfono', 'Dirección', 'Fecha Nac.', 'Estado', 'Acciones'].map((h, i) => (
                       <TableCell
                         key={h}
@@ -298,7 +298,7 @@ export default function ClientesPage() {
                       <TableRow
                         key={client.id}
                         sx={{
-                          '&:hover': { bgcolor: '#f8fafc' },
+                          '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.1)' },
                           transition: 'background-color 0.15s',
                         }}
                       >
@@ -337,8 +337,8 @@ export default function ClientesPage() {
                             label={client.active ? 'Activo' : 'Inactivo'}
                             size="small"
                             sx={{
-                              bgcolor: client.active ? '#dcfce7' : '#f1f5f9',
-                              color: client.active ? '#16a34a' : '#64748b',
+                              bgcolor: client.active ? '#dcfce7' : 'rgba(189, 191, 220, 0.25)',
+                              color: client.active ? '#16a34a' : '#8B8DA8',
                               fontWeight: 700,
                               fontSize: '11px',
                               border: 'none',
@@ -381,7 +381,7 @@ export default function ClientesPage() {
                 py: 1.5,
                 borderTop: '1px solid',
                 borderColor: 'divider',
-                bgcolor: '#f8fafc',
+                bgcolor: 'rgba(189, 191, 220, 0.15)',
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
