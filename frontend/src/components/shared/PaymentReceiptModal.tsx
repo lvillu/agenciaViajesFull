@@ -43,11 +43,13 @@ const formatDate = (dateString: string) => {
     : dateString;
   const date = new Date(normalized);
   if (isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString('es-MX', {
+  const formatted = date.toLocaleDateString('es-MX', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+  // Capitalize the month name (e.g. "26 de mayo de 2026" → "26 de Mayo de 2026")
+  return formatted.replace(/de ([a-záéíóúñ])/i, (_, letter) => 'de ' + letter.toUpperCase());
 };
 
 const formatFolio = (n: number) => String(n).padStart(4, '0');
@@ -93,11 +95,9 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
   const isDollar = sale.isDollar;
   const currency = isDollar ? 'USD' : 'MXN';
-  const amount = payment.amount;
   const totalPaid = sale.totalPaid ?? 0;
   const balance = sale.remainingBalance ?? sale.totalAmount - totalPaid;
-  const transactionFee = payment.transactionFee ?? 0;
-  const paymentTypeLabel = PAYMENT_TYPE_LABEL[payment.paymentType] ?? 'PAGO';
+  const paymentTypeLabel = PAYMENT_TYPE_LABEL[payment.paymentType] ?? 'RECIBO PAGO';
 
   return (
     <Dialog
@@ -166,37 +166,64 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               fontFamily: '"Inter", "Roboto", sans-serif',
             }}
           >
-            {/* Receipt Header */}
+            {/* Receipt Header — 3 columns: Logo | Agency Info | Folio + Date */}
             <Box
               sx={{
                 background: 'linear-gradient(135deg, #3D7A82 0%, #5BA9B3 100%)',
                 px: 3,
                 py: 2.5,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr auto',
+                gap: 3,
+                alignItems: 'center',
               }}
             >
-              <Box>
-                <Typography
+              {/* Column 1 — Logo */}
+              {agencyInfo && (
+                <Box
+                  component="img"
+                  src="/IbarraTravel_logo.png"
+                  alt="Ibarra Travel"
                   sx={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    mb: 0.25,
+                    width: 150,
+                    height: 130,
+                    borderRadius: '8px',
+                    objectFit: 'contain',
+                    bgcolor: 'rgba(255,255,255,0.95)',
+                    p: 1,
                   }}
-                >
-                  Comprobante de Pago
-                </Typography>
-                <Typography
-                  sx={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: 800, lineHeight: 1 }}
-                >
-                  N° {formatFolio(payment.folioNumber)}
-                </Typography>
-              </Box>
+                />
+              )}
 
+              {/* Column 2 — Agency Info (white text) */}
+              {agencyInfo && (
+                <Box>
+                  <Typography
+                    sx={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.1, mb: 1.5 }}
+                  >
+                    {agencyInfo.name?.toUpperCase()}
+                  </Typography>
+                  {agencyInfo.address && (
+                    <Typography sx={{ color: '#ffffff', fontSize: '0.8rem', lineHeight: 1.5 }}>
+                      {agencyInfo.address}
+                      {agencyInfo.city ? `, ${agencyInfo.city}` : ''}
+                      {agencyInfo.state ? `, ${agencyInfo.state}` : ''}
+                    </Typography>
+                  )}
+                  {agencyInfo.zipCode && (
+                    <Typography sx={{ color: '#ffffff', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                      C. P. {agencyInfo.zipCode}
+                    </Typography>
+                  )}
+                  {agencyInfo.secturReg && (
+                    <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                      Reg. SECTUR {agencyInfo.secturReg}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
+              {/* Column 3 — Date + Folio Number */}
               <Box sx={{ textAlign: 'right' }}>
                 <Box
                   sx={{
@@ -205,7 +232,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     py: 0.5,
                     borderRadius: '999px',
                     bgcolor: 'rgba(255,255,255,0.2)',
-                    mb: 1,
+                    mb: 0.5,
                   }}
                 >
                   <Typography
@@ -220,8 +247,25 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     {paymentTypeLabel}
                   </Typography>
                 </Box>
-                <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', fontWeight: 500 }}>
+                <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', fontWeight: 500, display: 'block' }}>
                   {formatDate(payment.paymentDate)}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    mb: 0.25,
+                  }}
+                >
+                  Comprobante de Pago
+                </Typography>
+                <Typography
+                  sx={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.1, mb: 1.5 }}
+                >
+                  N° {formatFolio(payment.folioNumber)}
                 </Typography>
               </Box>
             </Box>
@@ -294,7 +338,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 >
                   Descripción del Servicio
                 </Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#334155', lineHeight: 1.5 }}>
+                <Typography sx={{ fontSize: '0.85rem', color: '#334155', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
                   {sale.description}
                 </Typography>
               </Box>
@@ -345,7 +389,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     display: 'block',
                   }}
                 >
-                  PAGADO ({paymentTypeLabel})
+                  ANTICIPO PAGADO
                 </Typography>
                 <Typography
                   sx={{ fontSize: '1.3rem', fontWeight: 600, color: '#3D7A82', lineHeight: '2rem', letterSpacing: '0.01em' }}
@@ -383,122 +427,6 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               </Box>
             </Box>
 
-            {/* Breakdown Table */}
-            <Box sx={{ borderTop: '1px solid #f1f5f9' }}>
-              {/* Header row */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  px: 3,
-                  py: 1.25,
-                  bgcolor: 'rgba(189, 191, 220, 0.15)',
-                  borderBottom: '1px solid #D8DAEA',
-                }}
-              >
-                <Typography
-                  sx={{
-                    flex: 1,
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8B8DA8',
-                  }}
-                >
-                  Concepto
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8B8DA8',
-                    textAlign: 'right',
-                    minWidth: 110,
-                  }}
-                >
-                  Importe
-                </Typography>
-              </Box>
-
-
-
-              {/* Transaction Fee (conditional) */}
-              {transactionFee > 0 && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    px: 3,
-                    py: 1.5,
-                    borderBottom: '1px solid #f1f5f9',
-                  }}
-                >
-                  <Typography sx={{ flex: 1, fontSize: '0.85rem', color: '#525252' }}>
-                    Comisión por Transferencia
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#525252', minWidth: 110, textAlign: 'right' }}>
-                    {formatCurrency(transactionFee, currency)}
-                  </Typography>
-                </Box>
-              )}
-
-              {/* Total */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  px: 3,
-                  py: 2,
-                  bgcolor: 'rgba(189, 191, 220, 0.12)',
-                }}
-              >
-                <Typography sx={{ flex: 1, fontSize: '0.9rem', fontWeight: 700, color: '#525252' }}>
-                  Abono
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '1.2rem',
-                    fontWeight: 800,
-                    color: '#5BA9B3',
-                    minWidth: 110,
-                    textAlign: 'right',
-                  }}
-                >
-                  {formatCurrency(amount + transactionFee, currency)}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Notes */}
-            {payment.notes && (
-              <Box
-                sx={{
-                  px: 3,
-                  py: 2,
-                  borderTop: '1px solid #D8DAEA',
-                  bgcolor: 'rgba(189, 191, 220, 0.05)',
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: '#94a3b8',
-                    mb: 0.5,
-                  }}
-                >
-                  Notas
-                </Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                  {payment.notes}
-                </Typography>
-              </Box>
-            )}
-
             {/* Footer */}
             <Box
               sx={{
@@ -516,91 +444,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               </Typography>
             </Box>
 
-            {/* Agency Card */}
-            {agencyInfo && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: 2,
-                  mx: 3,
-                  mb: 3,
-                  mt: 2,
-                }}
-              >
-                {/* Agency Info */}
-                <Box
-                  sx={{
-                    p: 3,
-                    bgcolor: 'rgba(189, 191, 220, 0.08)',
-                    border: '1px solid #D8DAEA',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                    color: '#8B8DA8',
-                      mb: 1.5,
-                    }}
-                  >
-                    AGENCIA DE VIAJES EN LÍNEA
-                  </Typography>
-                  <Box sx={{ fontSize: '0.85rem', lineHeight: 1.7 }}>
-                    <Typography sx={{ fontWeight: 700, color: '#191c1e', fontSize: '0.85rem' }}>
-                      {agencyInfo.name?.toUpperCase()}
-                    </Typography>
-                    {agencyInfo.address && (
-                      <Typography sx={{ color: '#191c1e', fontSize: '0.85rem' }}>
-                        {agencyInfo.address}
-                        {agencyInfo.city ? `, ${agencyInfo.city}` : ''}
-                        {agencyInfo.state ? `, ${agencyInfo.state}` : ''}
-                      </Typography>
-                    )}
-                    {agencyInfo.zipCode && (
-                      <Typography sx={{ color: '#191c1e', fontSize: '0.85rem' }}>
-                        C. P. {agencyInfo.zipCode}
-                      </Typography>
-                    )}
-                    {agencyInfo.secturReg && (
-                      <Typography sx={{ color: '#191c1e', fontSize: '0.85rem' }}>
-                        Reg. SECTUR {agencyInfo.secturReg}
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
 
-                {/* Logo */}
-                <Box
-                  sx={{
-                    p: 3,
-                    bgcolor: 'rgba(189, 191, 220, 0.08)',
-                    border: '1px solid #D8DAEA',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 120,
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src="/IbarraTravel_logo.png"
-                    alt="Ibarra Travel"
-                    sx={{
-                      maxWidth: '100%',
-                      maxHeight: 100,
-                      width: 'auto',
-                      height: 'auto',
-                      objectFit: 'contain',
-                    }}
-                  />
-                </Box>
-              </Box>
-            )}
           </Box>
         )}
       </DialogContent>
