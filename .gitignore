@@ -195,3 +195,4 @@ swagger.json
 # Database snapshots
 db_snapshots/
 backups/
+frontend/package-lock.json

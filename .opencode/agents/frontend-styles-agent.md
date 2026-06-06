@@ -14,13 +14,13 @@ para que coincidan con el sistema de diseño TravelAgency.
 
 ## Antes de revisar
 
-1. Lee `.doc/travel_agency_styles.md` — paleta oficial, tipografía, espaciados, patrones de UI.
+1. Lee `.doc/ola-marina-plan.md` — paleta oficial, tipografía, espaciados, patrones de UI.
 2. Lee `.doc/design_system_estilos_base_md.md` — tokens base y convenciones generales.
 3. Solicita al usuario la lista de archivos modificados en la sesión (o revísalos desde el contexto).
 
 ## Qué revisar
 
-- **Colores**: primary `#ec5b13`, backgrounds, textos — deben usar los valores de la paleta oficial.
+- **Colores**: primary `#5BA9B3`, backgrounds, textos — deben usar los valores de la paleta oficial.
 - **Tipografía**: font-family Public Sans, tamaños y pesos correctos.
 - **Espaciados**: padding/margin/gap siguiendo las escalas definidas.
 - **Border radius**: `rounded-lg`, `rounded-xl`, `rounded-2xl` según el componente.

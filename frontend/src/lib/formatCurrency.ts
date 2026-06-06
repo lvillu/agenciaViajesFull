@@ -9,14 +9,14 @@
  */
 export function formatCurrency(
   amount: number,
-  isDollarOrCurrency?: boolean | string
+  isDollarOrCurrency?: boolean | 'MXN' | 'USD'
 ): string {
   let currency = 'MXN';
 
   if (typeof isDollarOrCurrency === 'boolean') {
     currency = isDollarOrCurrency ? 'USD' : 'MXN';
-  } else if (typeof isDollarOrCurrency === 'string') {
-    currency = isDollarOrCurrency.toUpperCase();
+  } else if (isDollarOrCurrency === 'MXN' || isDollarOrCurrency === 'USD') {
+    currency = isDollarOrCurrency;
   }
 
   const formatted = new Intl.NumberFormat('es-MX', {

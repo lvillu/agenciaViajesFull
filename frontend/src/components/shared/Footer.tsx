@@ -39,6 +39,7 @@ export const Footer: React.FC = () => {
               src="/IbarraTravel_logo.png"
               alt="Ibarra Travel"
               fill
+              sizes="28px"
               style={{ objectFit: 'contain' }}
             />
           </Box>

@@ -87,6 +87,7 @@ export const Header: React.FC = () => {
                 alt="Ibarra Travel"
                 fill
                 priority
+                sizes="40px"
                 style={{ objectFit: 'contain' }}
               />
             </Box>

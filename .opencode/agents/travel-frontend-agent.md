@@ -17,13 +17,12 @@ Responder preguntas sobre el diseño visual, la paleta de colores, componentes e
 
 ## Contexto del proyecto
 
-Lee `.doc/travel_agency_styles.md` para la paleta oficial (#ec5b13), tipografia Public Sans, espaciados y patrones de UI especificos de TravelAgency.
+Lee `.doc/ola-marina-plan.md` para la paleta oficial (#5BA9B3), tipografia Public Sans, espaciados y patrones de UI especificos de TravelAgency.
 Lee `.doc/frontend-conventions.md` para las convenciones generales del codigo.
 
 ## Reglas visuales clave
 
-- Primary: #ec5b13
+- Primary: #5BA9B3
 - Font: Public Sans
 - Inputs: label fijo arriba, placeholder visible (InputLabelProps={{ shrink: true }} en MUI)
 - PrimeReact: siempre unstyled={true}, nunca importar CSS de tema
-- Header y Footer: no modificar sin aprobacion explicita

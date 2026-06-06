@@ -117,6 +117,7 @@ export default function SignUpPage() {
               alt="Ibarra Travel"
               fill
               priority
+              sizes="24px"
               style={{ objectFit: 'contain' }}
             />
           </Box>
@@ -186,6 +187,7 @@ export default function SignUpPage() {
                 alt="Ibarra Travel"
                 fill
                 priority
+                sizes="32px"
                 style={{ objectFit: 'contain' }}
               />
             </Box>

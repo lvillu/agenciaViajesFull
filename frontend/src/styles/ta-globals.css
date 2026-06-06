@@ -160,7 +160,7 @@
 .ta-cal-dl.tod      { background: rgba(189, 191, 220, 0.2); font-weight: 700; color: #525252; }
 .ta-cal-dl.sel      { background: #5BA9B3 !important; color: #ffffff !important; font-weight: 700; }
 .ta-cal-dl.tod.sel  { background: #5BA9B3 !important; color: #ffffff !important; }
-.ta-cal-dl.other    { color: #cbd5e1; }
+.ta-cal-dl.other    { color: #ADB0C8; }
 .ta-cal-dl.dis      {
   color: #94a3b8;
   cursor: not-allowed;

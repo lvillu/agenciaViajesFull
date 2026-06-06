@@ -79,6 +79,7 @@ export default function LoginPage() {
                 alt="Ibarra Travel"
                 fill
                 priority
+                sizes="40px"
                 style={{ objectFit: 'contain' }}
               />
             </Box>
