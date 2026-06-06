@@ -19,6 +19,7 @@ import { Payment } from '@/types/payment';
 import { Sale } from '@/types/sale';
 import { AgencyInfo } from '@/types/agencyInfo';
 import { agencyInfoService } from '@/services/agencyInfoService';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 interface PaymentReceiptModalProps {
   open: boolean;
@@ -31,14 +32,6 @@ const PAYMENT_TYPE_LABEL: Record<number, string> = {
   1: 'ANTICIPO',
   2: 'ABONADO',
   3: 'LIQUIDACIÓN',
-};
-
-const formatCurrency = (amount: number, currency: string = 'MXN') => {
-  const formatted = new Intl.NumberFormat('es-MX', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return `$${formatted} ${currency}`;
 };
 
 const formatDate = (dateString: string) => {

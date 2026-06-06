@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
+import { formatCurrency } from '@/lib/formatCurrency';
 import { paymentService } from '@/services/paymentService';
 import {
   CreatePaymentSchema,
@@ -107,12 +108,6 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     reset();
     setSubmitError(null);
     onClose();
-  };
-
-  const formatCurrency = (amount: number, isDollar: boolean) => {
-    return isDollar
-      ? `$${amount.toFixed(2)} USD`
-      : `$${amount.toFixed(2)} MXN`;
   };
 
   const calculatedAmountMXN = isDollar && exchangeRate && exchangeRate > 0
@@ -344,7 +339,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
 
               {calculatedAmountMXN && calculatedAmountMXN > 0 && (
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  Valor en pesos: <strong>${calculatedAmountMXN.toFixed(2)} MXN</strong>
+                  Valor en pesos: <strong>{formatCurrency(calculatedAmountMXN, false)}</strong>
                 </Alert>
               )}
             </>

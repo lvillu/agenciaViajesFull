@@ -36,6 +36,7 @@ import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
 import { useProviders } from '@/hooks/useProviders';
 import { useAlert } from '@/hooks/useAlert';
+import { formatCurrency } from '@/lib/formatCurrency';
 import {
   CreateSaleSchema,
   UpdateSaleSchema,
@@ -166,16 +167,6 @@ function SaleFormContent() {
         setValue('requiredDeposit', calculatedDeposit);
       }
     }
-  };
-
-  // Formatear moneda para mostrar
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
   };
 
   // Handlers para el modal de cliente
@@ -572,12 +563,12 @@ function SaleFormContent() {
                   >
                     <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
                       {profitPercentage && totalAmount > 0
-                        ? formatCurrency(totalAmount * profitPercentage / 100)
+                        ? formatCurrency(totalAmount * profitPercentage / 100, isDollar)
                         : '—'}
                     </Typography>
                     {profitPercentage && totalAmount > 0 && (
                       <Typography sx={{ fontSize: '0.75rem', color: '#8B8DA8', ml: 1 }}>
-                        ({profitPercentage}% de {formatCurrency(totalAmount)})
+                        ({profitPercentage}% de {formatCurrency(totalAmount, isDollar)})
                       </Typography>
                     )}
                   </Box>

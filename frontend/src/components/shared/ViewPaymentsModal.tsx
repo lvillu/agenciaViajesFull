@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Payment } from '@/types/payment';
 import { Sale } from '@/types/sale';
+import { formatCurrency } from '@/lib/formatCurrency';
 import { PaymentReceiptModal } from './PaymentReceiptModal';
 
 interface ViewPaymentsModalProps {
@@ -55,12 +56,6 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   const balance = totalAmount - totalPaid;
   const paidPercent = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
   const pendingPercent = 100 - paidPercent;
-
-  const formatCurrency = (amount: number, isDollar: boolean) => {
-    return isDollar
-      ? `$${amount.toFixed(2)} USD`
-      : `$${amount.toFixed(2)} MXN`;
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -408,7 +403,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                         </TableCell>
                         <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9' }}>
                           <Typography sx={{ fontSize: '0.875rem', color: '#334155' }}>
-                            {payment.amountMXN ? `$${payment.amountMXN.toFixed(2)} MXN` : '-'}
+                            {payment.amountMXN ? formatCurrency(payment.amountMXN, false) : '-'}
                           </Typography>
                         </TableCell>
                       </>

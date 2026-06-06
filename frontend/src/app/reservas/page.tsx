@@ -46,6 +46,7 @@ import { useSales } from '@/hooks/useSales';
 import { usePayments } from '@/hooks/usePayments';
 import { Sale, SaleWithTotals } from '@/types/sale';
 import { saleService } from '@/services/saleService';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function ReservasPage() {
   const router = useRouter();
@@ -144,12 +145,6 @@ export default function ReservasPage() {
   const handlePaymentAdded = () => {
     fetchPayments();
     fetchSales();
-  };
-
-  const formatCurrency = (amount: number, isDollar: boolean) => {
-    return isDollar
-      ? `$${amount.toFixed(2)} USD`
-      : `$${amount.toFixed(2)} MXN`;
   };
 
   const formatDate = (dateString?: string) => {
