@@ -27,6 +27,7 @@ namespace agenciaViajes.Application.Features.User.GetMe
             // Mapear a response
             var response = new UserMeResponse
             {
+                Id = user.Id,
                 FullName = $"{user.Name} {user.LastName}",
                 Email = user.Email,
                 UserName = user.UserName,

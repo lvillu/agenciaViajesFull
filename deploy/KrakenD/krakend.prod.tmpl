@@ -101,6 +101,33 @@
       ]
     },
     {
+      "endpoint": "/User/avatar",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/avatar",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/User/avatar/{userId}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/avatar/{userId}",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
       "endpoint": "/User/subaccounts",
       "method": "GET",
       "output_encoding": "no-op",

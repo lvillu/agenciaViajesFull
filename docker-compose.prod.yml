@@ -32,6 +32,8 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
       # GC conservador: devuelve memoria al OS más agresivamente (escala 0-9)
       DOTNET_GCConserveMemory: "9"
+    volumes:
+      - uploads:/app/uploads
     mem_limit: 350m
     logging:
       driver: "json-file"
@@ -114,6 +116,10 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+
+volumes:
+  uploads:
+    driver: local
 
 networks:
   agencia_viajes_network:
