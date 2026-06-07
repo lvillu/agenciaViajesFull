@@ -38,6 +38,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
         public static IServiceCollection AddAppConfig(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<AppSettings>(config.GetSection("AppSettings"));
+            services.Configure<UploadsPathSettings>(config.GetSection("UploadsPath"));
 
             return services;
         }

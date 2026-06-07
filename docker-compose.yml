@@ -49,6 +49,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
     networks:
       - agencia_viajes_network
     restart: unless-stopped
@@ -112,6 +114,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads:
     driver: local
 
 networks:

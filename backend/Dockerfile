@@ -45,6 +45,9 @@ RUN addgroup -g 1001 -S appgroup && \
 # Copiar artefactos publicados
 COPY --from=publish --chown=appuser:appgroup /app/publish .
 
+# Crear directorio para uploads de avatares y asignar permisos
+RUN mkdir -p /app/uploads/avatars && chown -R appuser:appgroup /app/uploads
+
 USER appuser
 
 EXPOSE 8080
