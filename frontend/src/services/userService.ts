@@ -6,7 +6,7 @@
 import { apiClient } from './apiClient';
 import { ApiResponse } from '@/types/api';
 import { UserMeResponse, UpdateUserRequest } from '@/types/user';
-import { SubAccount, CreateSubAccountRequest } from '@/types/subAccount';
+import { SubAccount, CreateSubAccountRequest, UpdateSubAccountRequest } from '@/types/subAccount';
 
 const USER_ENDPOINTS = {
   ME: '/User/me',
@@ -65,6 +65,19 @@ export const userService = {
 
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al crear subcuenta');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Actualiza una subcuenta
+   */
+  async updateSubAccount(id: number, data: UpdateSubAccountRequest): Promise<SubAccount> {
+    const response = await apiClient.put<ApiResponse<SubAccount>>(`${USER_ENDPOINTS.SUBACCOUNTS}/${id}`, data);
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al actualizar subcuenta');
     }
 
     return response.data.data;
