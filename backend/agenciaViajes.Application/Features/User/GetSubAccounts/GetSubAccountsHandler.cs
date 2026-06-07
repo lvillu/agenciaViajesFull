@@ -31,6 +31,7 @@ namespace agenciaViajes.Application.Features.User.GetSubAccounts
                 UserName = u.UserName,
                 Email = u.Email,
                 Active = u.Active,
+                Role = u.Role,
                 CreatedAt = u.CreatedAt
             }).ToList();
 

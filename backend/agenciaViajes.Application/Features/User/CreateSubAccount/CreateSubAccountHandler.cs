@@ -60,6 +60,7 @@ namespace agenciaViajes.Application.Features.User.CreateSubAccount
                 UserName = created.UserName,
                 Email = created.Email,
                 Active = created.Active,
+                Role = created.Role,
                 CreatedAt = DateTime.UtcNow
             };
 
