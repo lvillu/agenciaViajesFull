@@ -17,10 +17,84 @@ namespace agenciaViajes.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.24")
+                .HasAnnotation("ProductVersion", "8.0.27")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            // Sequence for payments folio numbers
+            modelBuilder.HasSequence<int>("payments_folio_number_seq");
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.AgencyInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("city");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("facebook");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("instagram");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("logo_url");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("SecturReg")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("sectur_reg");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("state");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("zip_code");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("agency_info", (string)null);
+                });
 
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Client", b =>
                 {
@@ -114,6 +188,10 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnType("numeric(10,4)")
                         .HasColumnName("exchange_rate");
 
+                    b.Property<int>("FolioNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("folio_number");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
@@ -127,11 +205,24 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
 
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_type");
+
                     b.Property<int>("SaleId")
                         .HasColumnType("integer")
                         .HasColumnName("sale_id");
 
+                    b.Property<decimal?>("TransactionFee")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("transaction_fee");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("FolioNumber")
+                        .IsUnique()
+                        .HasDatabaseName("idx_payments_folio_number");
 
                     b.HasIndex("PaymentDate")
                         .HasDatabaseName("idx_payments_payment_date");

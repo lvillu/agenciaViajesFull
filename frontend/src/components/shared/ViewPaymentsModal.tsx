@@ -5,7 +5,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,9 +22,13 @@ import {
   CircularProgress,
   Alert,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import { Button } from '@/components/ui/Button';
 import { Payment } from '@/types/payment';
+import { Sale } from '@/types/sale';
+import { formatCurrency } from '@/lib/formatCurrency';
+import { PaymentReceiptModal } from './PaymentReceiptModal';
 
 interface ViewPaymentsModalProps {
   open: boolean;
@@ -34,6 +38,7 @@ interface ViewPaymentsModalProps {
   error?: string | null;
   isDollar: boolean;
   totalAmount: number;
+  sale: Sale;
 }
 
 export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
@@ -44,17 +49,13 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   error = null,
   isDollar,
   totalAmount,
+  sale,
 }) => {
+  const [receiptPayment, setReceiptPayment] = useState<Payment | null>(null);
   const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const balance = totalAmount - totalPaid;
   const paidPercent = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
   const pendingPercent = 100 - paidPercent;
-
-  const formatCurrency = (amount: number, isDollar: boolean) => {
-    return isDollar
-      ? `$${amount.toFixed(2)} USD`
-      : `$${amount.toFixed(2)} MXN`;
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -66,17 +67,20 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   };
 
   return (
+    <>
     <Dialog
       open={open}
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          bgcolor: '#f8f6f6',
-          overflow: 'hidden',
-          border: '1px solid #e2e8f0',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            bgcolor: 'background.paper',
+            overflow: 'hidden',
+            border: '1px solid #D8DAEA',
+          },
         },
       }}
     >
@@ -89,32 +93,32 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           px: 3,
           py: 2,
           bgcolor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid #D8DAEA',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
               p: 1,
-              bgcolor: 'rgba(236, 91, 19, 0.1)',
+              bgcolor: 'rgba(91, 169, 179, 0.1)',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
-              color: '#ec5b13',
+              color: '#5BA9B3',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px', lineHeight: 1 }}>
               payments
             </span>
           </Box>
-          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#0f172a' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '1.125rem', color: '#525252' }}>
             Pagos de la Reserva
           </Typography>
         </Box>
         <IconButton
           onClick={onClose}
           size="small"
-          sx={{ color: '#64748b', '&:hover': { bgcolor: '#f1f5f9' }, borderRadius: '50%' }}
+          sx={{ color: '#8B8DA8', '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.2)' }, borderRadius: '50%' }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>close</span>
         </IconButton>
@@ -130,7 +134,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
               minWidth: 150,
               p: 2.5,
               borderRadius: '12px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid #D8DAEA',
               bgcolor: '#ffffff',
             }}
           >
@@ -140,16 +144,16 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: '#64748b',
+                color: '#8B8DA8',
                 mb: 0.5,
               }}
             >
               Total Reserva
             </Typography>
-            <Typography sx={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 700, color: '#525252', lineHeight: 1.2 }}>
               {formatCurrency(totalAmount, isDollar)}
             </Typography>
-            <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#94a3b8', mt: 1 }}>
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#ADB0C8', mt: 1 }}>
               Base de reserva
             </Typography>
           </Box>
@@ -161,8 +165,8 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
               minWidth: 150,
               p: 2.5,
               borderRadius: '12px',
-              border: '1px solid #a7f3d0',
-              bgcolor: 'rgba(240,253,244,0.5)',
+              border: '1px solid rgba(91, 169, 179, 0.3)',
+              bgcolor: 'rgba(91, 169, 179, 0.06)',
             }}
           >
             <Typography
@@ -171,20 +175,20 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: '#047857',
+                color: '#3D7A82',
                 mb: 0.5,
               }}
             >
               Total Pagado
             </Typography>
-            <Typography sx={{ fontSize: '1.4rem', fontWeight: 700, color: '#16a34a', lineHeight: 1.2 }}>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 700, color: '#5BA9B3', lineHeight: 1.2 }}>
               {formatCurrency(totalPaid, isDollar)}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#16a34a', lineHeight: 1 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#5BA9B3', lineHeight: 1 }}>
                 trending_up
               </span>
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#16a34a' }}>
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#5BA9B3' }}>
                 {paidPercent}% Completado
               </Typography>
             </Box>
@@ -241,7 +245,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
 
         {/* Título de historial + badge */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+          <Typography sx={{ fontSize: '1.05rem', fontWeight: 700, color: '#525252' }}>
             Historial de Pagos
           </Typography>
           {!loading && !error && (
@@ -249,11 +253,11 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
               sx={{
                 px: 1.5,
                 py: 0.5,
-                bgcolor: '#f1f5f9',
+                bgcolor: 'rgba(189, 191, 220, 0.2)',
                 borderRadius: '999px',
               }}
             >
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569' }}>
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#8B8DA8' }}>
                 {payments.length} {payments.length === 1 ? 'Movimiento' : 'Movimientos'}
               </Typography>
             </Box>
@@ -263,7 +267,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
         {/* Estado de carga */}
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress sx={{ color: '#ec5b13' }} />
+            <CircularProgress sx={{ color: 'primary.main' }} />
           </Box>
         )}
 
@@ -281,19 +285,19 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           <TableContainer
             component={Paper}
             elevation={0}
-            sx={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}
+            sx={{ border: '1px solid #D8DAEA', borderRadius: '12px', overflowX: 'auto' }}
           >
-            <Table>
+            <Table sx={{ minWidth: 600 }}>
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
                   <TableCell
                     sx={{
                       fontWeight: 700,
                       fontSize: '0.7rem',
                       textTransform: 'uppercase',
                       letterSpacing: '0.07em',
-                      color: '#475569',
-                      borderBottom: '1px solid #e2e8f0',
+                      color: '#8B8DA8',
+                      borderBottom: '1px solid #D8DAEA',
                       py: 2,
                     }}
                   >
@@ -305,8 +309,8 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                       fontSize: '0.7rem',
                       textTransform: 'uppercase',
                       letterSpacing: '0.07em',
-                      color: '#475569',
-                      borderBottom: '1px solid #e2e8f0',
+                      color: '#8B8DA8',
+                      borderBottom: '1px solid #D8DAEA',
                       py: 2,
                     }}
                   >
@@ -348,12 +352,26 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                       fontSize: '0.7rem',
                       textTransform: 'uppercase',
                       letterSpacing: '0.07em',
-                      color: '#475569',
-                      borderBottom: '1px solid #e2e8f0',
+                      color: '#8B8DA8',
+                      borderBottom: '1px solid #D8DAEA',
                       py: 2,
                     }}
                   >
                     Notas
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.7rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.07em',
+                      color: '#8B8DA8',
+                      borderBottom: '1px solid #D8DAEA',
+                      py: 2,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Comprobante
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -361,31 +379,31 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                 {payments.map((payment) => (
                   <TableRow
                     key={payment.id}
-                    sx={{ '&:hover': { bgcolor: '#f8fafc' }, '&:last-child td': { border: 0 } }}
+                    sx={{ '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.1)' }, '&:last-child td': { border: 0 } }}
                   >
                     <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9' }}>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}>
                         {formatDate(payment.paymentDate)}
                       </Typography>
-                      <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', mt: 0.25 }}>
+                      <Typography sx={{ fontSize: '0.7rem', color: '#ADB0C8', mt: 0.25 }}>
                         ID: PAY-{payment.id}
                       </Typography>
                     </TableCell>
                     <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9' }}>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#16a34a' }}>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#5BA9B3' }}>
                         {formatCurrency(payment.amount, isDollar)}
                       </Typography>
                     </TableCell>
                     {isDollar && (
                       <>
                         <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9' }}>
-                          <Typography sx={{ fontSize: '0.875rem', color: '#334155' }}>
+                          <Typography sx={{ fontSize: '0.875rem', color: '#525252' }}>
                             {payment.exchangeRate ? `$${payment.exchangeRate.toFixed(2)}` : '-'}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9' }}>
                           <Typography sx={{ fontSize: '0.875rem', color: '#334155' }}>
-                            {payment.amountMXN ? `$${payment.amountMXN.toFixed(2)} MXN` : '-'}
+                            {payment.amountMXN ? formatCurrency(payment.amountMXN, false) : '-'}
                           </Typography>
                         </TableCell>
                       </>
@@ -394,13 +412,29 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
                       <Typography
                         sx={{
                           fontSize: '0.875rem',
-                          color: payment.notes ? '#475569' : '#94a3b8',
+                          color: payment.notes ? '#8B8DA8' : '#ADB0C8',
                           maxWidth: 260,
                           lineHeight: 1.5,
                         }}
                       >
                         {payment.notes || 'Sin notas'}
                       </Typography>
+                    </TableCell>
+                    <TableCell sx={{ py: 2.5, borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
+                      <Tooltip title="Ver comprobante">
+                        <IconButton
+                          size="small"
+                          onClick={() => setReceiptPayment(payment)}
+                          sx={{
+                            color: '#5BA9B3',
+                            '&:hover': { bgcolor: 'rgba(91,169,179,0.08)' },
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                            receipt_long
+                          </span>
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -415,26 +449,26 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           px: 3,
           py: 2.5,
           gap: 1.5,
-          borderTop: '1px solid #e2e8f0',
-          bgcolor: '#f8fafc',
+          borderTop: '1px solid #D8DAEA',
+          bgcolor: 'rgba(189, 191, 220, 0.12)',
           justifyContent: 'flex-end',
         }}
       >
-        <Button
-          onClick={() => window.print()}
-          variant="outlined"
-          startIcon={
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              receipt_long
-            </span>
-          }
-        >
-          Imprimir Recibo
-        </Button>
         <Button onClick={onClose} variant="contained" color="primary">
           Cerrar
         </Button>
       </DialogActions>
     </Dialog>
+
+    {/* Receipt Modal */}
+    {receiptPayment && (
+      <PaymentReceiptModal
+        open={!!receiptPayment}
+        onClose={() => setReceiptPayment(null)}
+        payment={receiptPayment}
+        sale={sale}
+      />
+    )}
+    </>
   );
 };

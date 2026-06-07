@@ -42,7 +42,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ title, subtitle, icon, iconColor,
   <Card
     sx={{
       borderRadius: '12px',
-      border: '1px solid #e2e8f0',
+      border: '1px solid #D8DAEA',
       boxShadow: 'none',
       flex: 1,
       minWidth: 0,
@@ -91,7 +91,7 @@ const buildBarOptions = (_accentColor: string) => ({
       callbacks: {
         label: (ctx: { parsed: { y: number } }) => ` ${formatCurrencyShort(ctx.parsed.y)} MXN`,
       },
-      backgroundColor: '#221610',
+      backgroundColor: '#525252',
       titleColor: '#f8f6f6',
       bodyColor: '#f8f6f6',
       padding: 10,
@@ -102,7 +102,7 @@ const buildBarOptions = (_accentColor: string) => ({
     x: {
       grid: { display: false },
       ticks: {
-        color: '#475569',
+        color: '#525252',
         font: { family: '"Public Sans", system-ui, sans-serif', size: 11, weight: '500' },
         maxRotation: 45,
         minRotation: 0,
@@ -110,9 +110,9 @@ const buildBarOptions = (_accentColor: string) => ({
       border: { display: false },
     },
     y: {
-      grid: { color: '#f1f5f9', drawBorder: false },
+      grid: { color: '#D8DAEA', drawBorder: false },
       ticks: {
-        color: '#94a3b8',
+        color: '#8B8DA8',
         font: { family: '"Public Sans", system-ui, sans-serif', size: 11 },
         callback: (value: number) => formatCurrencyShort(value),
       },
@@ -130,7 +130,7 @@ const donutOptions = {
     legend: {
       position: 'bottom' as const,
       labels: {
-        color: '#475569',
+        color: '#525252',
         font: { family: '"Public Sans", system-ui, sans-serif', size: 11 },
         padding: 16,
         usePointStyle: true,
@@ -142,7 +142,7 @@ const donutOptions = {
         label: (ctx: { label: string; parsed: number }) =>
           ` ${ctx.label}: ${formatCurrencyShort(ctx.parsed)} MXN`,
       },
-      backgroundColor: '#221610',
+      backgroundColor: '#525252',
       titleColor: '#f8f6f6',
       bodyColor: '#f8f6f6',
       padding: 10,
@@ -181,7 +181,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
         labels: monthlySales.labels,
         datasets: monthlySales.datasets.map((ds) => ({
           ...ds,
-          backgroundColor: ds.backgroundColor ?? 'rgba(99,102,241,0.75)',
+          backgroundColor: ds.backgroundColor ?? 'rgba(91,169,179,0.75)',
           borderRadius: 6,
           borderSkipped: false,
         })),
@@ -200,12 +200,15 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
       }
     : null;
 
+  const donutPalette = ['#5BA9B3', '#AD61D5', '#CB38DA', '#BDBFDC', '#7EC8D3', '#C491E0'];
+
   const salesByProviderData = salesByProvider
     ? {
         labels: salesByProvider.labels,
         datasets: salesByProvider.datasets.map((ds) => ({
           ...ds,
           hoverOffset: 8,
+          backgroundColor: ds.backgroundColor ?? donutPalette.slice(0, ds.data?.length ?? donutPalette.length),
         })),
       }
     : null;
@@ -219,7 +222,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           title="Ventas — últimos 12 meses"
           subtitle="Monto total en MXN por mes"
           icon={<BarChartIcon />}
-          iconColor="#6366f1"
+          iconColor="#5BA9B3"
         >
           {loading || !monthlySalesData ? (
             <ChartSkeleton height={320} />
@@ -241,7 +244,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
             title="Ventas por proveedor"
             subtitle="Últimos 12 meses"
             icon={<DonutLargeIcon />}
-            iconColor="#ec5b13"
+            iconColor="#AD61D5"
           >
             {loading || !salesByProviderData ? (
               <ChartSkeleton height={320} />

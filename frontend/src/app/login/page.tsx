@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { loginSchema, type LoginFormData } from '@/lib/validationSchemas';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,32 +66,36 @@ export default function LoginPage() {
                 width: 40,
                 height: 40,
                 borderRadius: '8px',
-                bgcolor: 'rgba(236, 91, 19, 0.12)',
+                bgcolor: 'rgba(91, 169, 179, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
-              <span
-                className="material-symbols-outlined"
-                style={{ color: '#ec5b13', fontSize: 22 }}
-              >
-                flight_takeoff
-              </span>
+              <Image
+                src="/IbarraTravel_logo.png"
+                alt="Ibarra Travel"
+                fill
+                priority
+                sizes="40px"
+                style={{ objectFit: 'contain' }}
+              />
             </Box>
-            <Typography sx={{ fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>
-              Agencia Viajes
+            <Typography sx={{ fontSize: '20px', fontWeight: 700, color: '#525252' }}>
+              Ibarra Travel
             </Typography>
           </Box>
 
           {/* Welcome */}
           <Box sx={{ mb: 5 }}>
             <Typography
-              sx={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', lineHeight: 1.2, mb: 1 }}
+              sx={{ fontSize: '30px', fontWeight: 900, color: '#525252', lineHeight: 1.2, mb: 1 }}
             >
               Bienvenido de nuevo
             </Typography>
-            <Typography sx={{ fontSize: '14px', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '14px', color: '#8B8DA8' }}>
               Ingresa tus datos para acceder a tus reservas.
             </Typography>
           </Box>
@@ -128,14 +133,14 @@ export default function LoginPage() {
                 }}
               >
                 <Typography
-                  sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155' }}
+                  sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}
                 >
                   Contraseña
                 </Typography>
                 <MuiLink
                   href="#"
                   underline="hover"
-                  sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#ec5b13' }}
+                  sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#5BA9B3' }}
                 >
                   ¿Olvidaste tu contraseña?
                 </MuiLink>
@@ -156,10 +161,10 @@ export default function LoginPage() {
                       onClick={() => setShowPassword((v) => !v)}
                       sx={{
                         cursor: 'pointer',
-                        color: '#94a3b8',
+                        color: '#ADB0C8',
                         display: 'flex',
                         alignItems: 'center',
-                        '&:hover': { color: '#475569' },
+                        '&:hover': { color: '#8B8DA8' },
                       }}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -179,15 +184,15 @@ export default function LoginPage() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   sx={{
-                    color: '#cbd5e1',
-                    '&.Mui-checked': { color: '#ec5b13' },
+                    color: '#D8DAEA',
+                    '&.Mui-checked': { color: '#5BA9B3' },
                     p: 0.5,
                     mr: 0.5,
                   }}
                 />
               }
               label={
-                <Typography sx={{ fontSize: '14px', color: '#334155' }}>
+                <Typography sx={{ fontSize: '14px', color: '#525252' }}>
                   Recordarme por 30 días
                 </Typography>
               }
@@ -206,12 +211,12 @@ export default function LoginPage() {
           </form>
 
           {/* Create account */}
-          <Typography sx={{ textAlign: 'center', fontSize: '14px', color: '#64748b' }}>
+          <Typography sx={{ textAlign: 'center', fontSize: '14px', color: '#8B8DA8' }}>
             ¿No eres miembro?{' '}
             <MuiLink
               href="/signup"
               underline="hover"
-              sx={{ fontWeight: 600, color: '#ec5b13' }}
+              sx={{ fontWeight: 600, color: '#5BA9B3' }}
             >
               Crear una cuenta
             </MuiLink>
@@ -233,7 +238,7 @@ export default function LoginPage() {
           sx={{
             position: 'absolute',
             inset: 0,
-            bgcolor: 'rgba(236, 91, 19, 0.18)',
+            bgcolor: 'rgba(91, 169, 179, 0.18)',
             mixBlendMode: 'multiply',
             zIndex: 1,
           }}
@@ -279,7 +284,7 @@ export default function LoginPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 borderRadius: '9999px',
-                bgcolor: 'rgba(236, 91, 19, 0.35)',
+                bgcolor: 'rgba(91, 169, 179, 0.35)',
                 backdropFilter: 'blur(8px)',
                 px: 1.5,
                 py: 0.5,
@@ -317,7 +322,7 @@ export default function LoginPage() {
 
             {/* Progress dots */}
             <Box sx={{ mt: 3.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ height: 4, width: 48, bgcolor: '#ec5b13', borderRadius: '9999px' }} />
+              <Box sx={{ height: 4, width: 48, bgcolor: '#5BA9B3', borderRadius: '9999px' }} />
               <Box
                 sx={{ height: 4, width: 16, bgcolor: 'rgba(255,255,255,0.35)', borderRadius: '9999px' }}
               />

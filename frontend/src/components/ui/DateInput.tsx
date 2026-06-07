@@ -32,10 +32,11 @@ export interface DateInputProps {
   maxDate?: Date;
 }
 
-/** Convierte string YYYY-MM-DD a Date local (sin desfase UTC) */
+/** Convierte string YYYY-MM-DD (o ISO datetime) a Date local (sin desfase UTC) */
 function toDate(val?: string | null): Date | null {
   if (!val) return null;
-  const parts = val.split('-').map(Number);
+  const datePart = val.split('T')[0]; // Manejar ISO datetime: "2025-06-15T00:00:00"
+  const parts = datePart.split('-').map(Number);
   if (parts.length !== 3 || parts.some(isNaN)) return null;
   return new Date(parts[0], parts[1] - 1, parts[2]);
 }
@@ -115,7 +116,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   const labelSx = {
     fontSize: '0.875rem',
     fontWeight: 600,
-    color: error ? '#ef4444' : '#334155',
+    color: error ? '#ef4444' : '#525252',
     mb: 0.75,
     display: 'block',
   };

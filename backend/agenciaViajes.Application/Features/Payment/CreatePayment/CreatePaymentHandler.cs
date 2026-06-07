@@ -1,3 +1,4 @@
+using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Payment.Common.Responses;
@@ -36,30 +37,46 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                 return Result<PaymentResponse>.Failure($"El monto del pago ({request.Request.Amount:C}) excede el saldo pendiente ({remainingBalance:C})");
             }
 
-            // Crear entidad - Convertir fecha a UTC
+            // Calcular FolioNumber auto-incremental global
+            var folioNumber = await _paymentRepository.GetNextFolioNumberAsync(cancellationToken);
+
+            // Calcular PaymentType automáticamente
+            var paymentType = totalPaid == 0
+                ? PaymentType.Anticipo
+                : request.Request.Amount >= remainingBalance
+                    ? PaymentType.Liquidacion
+                    : PaymentType.Abono;
+
+            // Crear entidad
             var payment = new Domain.Entities.Payment
             {
                 SaleId = request.Request.SaleId,
+                FolioNumber = folioNumber,
+                PaymentType = paymentType,
                 PaymentDate = request.Request.PaymentDate.ToUniversalTime(),
                 Amount = request.Request.Amount,
                 ExchangeRate = request.Request.ExchangeRate,
                 AmountMXN = request.Request.AmountMXN,
+                TransactionFee = request.Request.TransactionFee,
                 Notes = request.Request.Notes
             };
 
             payment = await _paymentRepository.CreateAsync(payment, cancellationToken);
 
-            // Mapear a response
             var response = new PaymentResponse
             {
                 Id = payment.Id,
                 SaleId = payment.SaleId,
+                FolioNumber = payment.FolioNumber,
+                PaymentType = (int)payment.PaymentType,
+                PaymentTypeName = payment.PaymentType.ToString(),
                 SaleReservationNumber = sale.ReservationNumber,
                 ClientName = sale.Client != null ? $"{sale.Client.Name} {sale.Client.LastName}" : null,
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,
                 ExchangeRate = payment.ExchangeRate,
                 AmountMXN = payment.AmountMXN,
+                TransactionFee = payment.TransactionFee,
                 Notes = payment.Notes,
                 CreatedAt = payment.CreatedAt,
                 ModifiedAt = payment.ModifiedAt

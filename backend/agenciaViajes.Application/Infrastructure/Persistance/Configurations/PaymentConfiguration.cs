@@ -25,6 +25,16 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             // La relación se configura desde SaleConfiguration
 
             // Propiedades
+            builder.Property(p => p.FolioNumber)
+                .HasColumnName("folio_number")
+                .IsRequired();
+
+            builder.Property(p => p.PaymentType)
+                .HasColumnName("payment_type")
+                .HasConversion<int>()
+                .IsRequired();
+
+            // Propiedades
             builder.Property(p => p.PaymentDate)
                 .HasColumnName("payment_date")
                 .IsRequired();
@@ -44,6 +54,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasPrecision(12, 2)
                 .IsRequired(false);
 
+            builder.Property(p => p.TransactionFee)
+                .HasColumnName("transaction_fee")
+                .HasPrecision(10, 2)
+                .IsRequired(false);
+
             builder.Property(p => p.Notes)
                 .HasColumnName("notes")
                 .HasMaxLength(500)
@@ -59,6 +74,10 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .IsRequired(false);
 
             // Índices
+            builder.HasIndex(p => p.FolioNumber)
+                .HasDatabaseName("idx_payments_folio_number")
+                .IsUnique();
+
             builder.HasIndex(p => p.SaleId)
                 .HasDatabaseName("idx_payments_sale_id");
 

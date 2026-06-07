@@ -50,7 +50,7 @@ export default function DashboardPage() {
                 sx={{
                   mt: 0.5,
                   color: 'text.secondary',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid #D8DAEA',
                   borderRadius: '10px',
                   '&:hover': { color: 'primary.main', borderColor: 'primary.main' },
                 }}
@@ -63,7 +63,7 @@ export default function DashboardPage() {
           {/* Cards resumen */}
           <DashboardCards data={cards} loading={loading} error={error} />
 
-          <Divider sx={{ my: 4, borderColor: '#e2e8f0' }} />
+          <Divider sx={{ my: 4, borderColor: '#D8DAEA' }} />
 
           {/* Gráficas */}
           <Box sx={{ mb: 2 }}>

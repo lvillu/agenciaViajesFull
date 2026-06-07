@@ -4,19 +4,22 @@
 # ============================================================
 
 # ---- Etapa 1: Instalar dependencias (cacheada) ----
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
 # Solo copiar manifiestos para aprovechar cache de capas
 COPY package.json package-lock.json* ./
 
+# Actualizar npm a v11 para consistencia con el lockfile generado localmente
+RUN npm install -g npm@^11
+
 # Instalar dependencias con cache mount para acelerar rebuilds
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline
 
 # ---- Etapa 2: Build ----
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -28,10 +31,22 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN npm run build
+# NEXT_PUBLIC_* vars se hornean en el bundle al compilar, deben venir como ARG
+ARG NEXT_PUBLIC_API_URL=http://localhost:5050
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+# NODE_OPTIONS permite limitar el heap de Node.js desde docker-compose (build arg)
+ARG NODE_OPTIONS=--max-old-space-size=512
+ENV NODE_OPTIONS=${NODE_OPTIONS}
+
+# Cache mount: persiste .next/cache entre builds de Docker.
+# Next.js reutiliza los módulos webpack ya compilados → solo recompila lo que cambió.
+# 1er build: igual. Builds siguientes: de ~4 min a ~30-90 s.
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # ---- Etapa 3: Production (imagen mínima) ----
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
@@ -51,6 +66,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 
 EXPOSE 3000
+
+ENV PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"

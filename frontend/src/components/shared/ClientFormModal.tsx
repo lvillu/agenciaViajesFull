@@ -94,11 +94,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          border: '1px solid',
-          borderColor: 'divider',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid',
+            borderColor: 'divider',
+          },
         },
       }}
     >
@@ -123,7 +125,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             right: 12,
             top: 12,
             color: 'text.secondary',
-            '&:hover': { bgcolor: '#f1f5f9' },
+            '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.2)' },
           }}
         >
           <CloseIcon fontSize="small" />
@@ -209,7 +211,7 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             gap: 1,
             borderTop: '1px solid',
             borderColor: 'divider',
-            bgcolor: '#f8fafc',
+            bgcolor: 'rgba(189, 191, 220, 0.12)',
           }}
         >
           <Button

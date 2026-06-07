@@ -214,9 +214,11 @@ export default function ProveedoresPage() {
             placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              disableUnderline: true,
-              sx: { fontSize: '15px', py: 1 },
+            slotProps={{
+              input: {
+                disableUnderline: true,
+                sx: { fontSize: '15px', py: 1 },
+              },
             }}
           />
         </Box>
@@ -235,7 +237,7 @@ export default function ProveedoresPage() {
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
                     {[
                       { label: 'Nombre', align: 'left' },
                       { label: 'Acrónimo', align: 'left' },
@@ -293,7 +295,7 @@ export default function ProveedoresPage() {
                       <TableRow
                         key={provider.id}
                         sx={{
-                          '&:hover': { bgcolor: '#f8fafc50' },
+                          '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.1)' },
                           transition: 'background-color 0.15s',
                         }}
                       >
@@ -303,15 +305,15 @@ export default function ProveedoresPage() {
                             <Box
                               sx={{
                                 width: 32, height: 32, borderRadius: 1.5,
-                                bgcolor: '#f1f5f9',
+                                bgcolor: 'rgba(189, 191, 220, 0.2)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: '#ec5b13', fontWeight: 700, fontSize: '11px',
+                                color: '#5BA9B3', fontWeight: 700, fontSize: '11px',
                                 flexShrink: 0,
                               }}
                             >
                               {provider.acronym}
                             </Box>
-                            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>
+                            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#525252' }}>
                               {provider.name}
                             </Typography>
                           </Box>
@@ -325,10 +327,10 @@ export default function ProveedoresPage() {
                         {/* Contacto: email + teléfono combinados */}
                         <TableCell>
                           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Typography sx={{ fontSize: '13px', color: '#0f172a' }}>
+                            <Typography sx={{ fontSize: '13px', color: '#525252' }}>
                               {provider.email}
                             </Typography>
-                            <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
+                            <Typography sx={{ fontSize: '12px', color: '#ADB0C8' }}>
                               {provider.phone}
                             </Typography>
                           </Box>
@@ -341,7 +343,7 @@ export default function ProveedoresPage() {
                         </TableCell>
                         {/* Anticipo % */}
                         <TableCell sx={{ textAlign: 'center' }}>
-                          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#0f172a' }}>
+                          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#525252' }}>
                             {provider.depositPercentage !== null && provider.depositPercentage !== undefined
                               ? `${provider.depositPercentage}%`
                               : '-'}
@@ -361,8 +363,8 @@ export default function ProveedoresPage() {
                             label={provider.active ? 'Activo' : 'Inactivo'}
                             size="small"
                             sx={{
-                              bgcolor: provider.active ? '#dcfce7' : '#f1f5f9',
-                              color: provider.active ? '#16a34a' : '#64748b',
+                              bgcolor: provider.active ? '#dcfce7' : 'rgba(189, 191, 220, 0.25)',
+                              color: provider.active ? '#16a34a' : '#8B8DA8',
                               fontWeight: 700,
                               fontSize: '11px',
                               border: 'none',
@@ -376,7 +378,7 @@ export default function ProveedoresPage() {
                               size="small"
                               onClick={() => handleOpenEdit(provider)}
                               title="Editar"
-                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: '#f1f5f9' } }}
+                              sx={{ color: 'text.secondary', borderRadius: 1.5, '&:hover': { color: 'text.primary', bgcolor: 'rgba(189, 191, 220, 0.15)' } }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -406,7 +408,7 @@ export default function ProveedoresPage() {
                 py: 2,
                 borderTop: '1px solid',
                 borderColor: 'divider',
-                bgcolor: '#f8fafc',
+                bgcolor: 'rgba(189, 191, 220, 0.15)',
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -443,7 +445,7 @@ export default function ProveedoresPage() {
                         fontWeight: page === i ? 700 : 400,
                         fontSize: '14px',
                         '&:hover': {
-                          bgcolor: page === i ? 'primary.dark' : '#f1f5f9',
+                          bgcolor: page === i ? 'primary.dark' : 'rgba(189, 191, 220, 0.15)',
                         },
                       }}
                     >

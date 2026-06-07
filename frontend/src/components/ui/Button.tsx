@@ -25,10 +25,10 @@ interface ButtonProps {
 
 const VARIANT_STYLES: Record<string, Record<string, string | number>> = {
   'contained-primary': {
-    backgroundColor: '#ec5b13',
+    backgroundColor: '#5BA9B3',
     color: '#ffffff',
     border: 'none',
-    boxShadow: '0 4px 14px rgba(236, 91, 19, 0.25)',
+    boxShadow: '0 4px 14px rgba(91, 169, 179, 0.25)',
   },
   'contained-error': {
     backgroundColor: '#dc2626',
@@ -41,14 +41,14 @@ const VARIANT_STYLES: Record<string, Record<string, string | number>> = {
     border: 'none',
   },
   'contained-default': {
-    backgroundColor: '#e2e8f0',
-    color: '#0f172a',
+    backgroundColor: '#D8DAEA',
+    color: '#525252',
     border: 'none',
   },
   'outlined-primary': {
     backgroundColor: 'transparent',
-    color: '#ec5b13',
-    border: '1px solid #ec5b13',
+    color: '#5BA9B3',
+    border: '1px solid #5BA9B3',
   },
   'outlined-error': {
     backgroundColor: 'transparent',
@@ -57,17 +57,17 @@ const VARIANT_STYLES: Record<string, Record<string, string | number>> = {
   },
   'outlined-default': {
     backgroundColor: 'transparent',
-    color: '#475569',
-    border: '1px solid #cbd5e1',
+    color: '#8B8DA8',
+    border: '1px solid #D8DAEA',
   },
   'text-primary': {
     backgroundColor: 'transparent',
-    color: '#ec5b13',
+    color: '#5BA9B3',
     border: 'none',
   },
   'text-default': {
     backgroundColor: 'transparent',
-    color: '#475569',
+    color: '#8B8DA8',
     border: 'none',
   },
 };
@@ -119,7 +119,7 @@ export const Button: React.FC<ButtonProps> = ({
           filter: 'brightness(1.08)',
           boxShadow:
             variant === 'contained' && color === 'primary'
-              ? '0 4px 14px rgba(236, 91, 19, 0.35)'
+              ? '0 4px 14px rgba(91, 169, 179, 0.35)'
               : undefined,
         },
         '&:active:not(:disabled)': { filter: 'brightness(0.96)' },

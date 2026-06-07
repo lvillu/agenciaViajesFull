@@ -51,16 +51,16 @@ const BASE_INPUT_STYLE = {
   padding: '0 12px',
   fontSize: '14px',
   fontFamily: '"Public Sans", system-ui, sans-serif',
-  color: '#0f172a',
+  color: '#525252',
   boxSizing: 'border-box' as const,
   transition: 'border-color 0.2s, box-shadow 0.2s',
 };
 
 const getBorderColor = (error: boolean) =>
-  error ? '#ef4444' : '#cbd5e1';
+  error ? '#ef4444' : '#D8DAEA';
 
 const getBgColor = (disabled: boolean) =>
-  disabled ? '#f1f5f9' : '#ffffff';
+  disabled ? 'rgba(189, 191, 220, 0.15)' : '#ffffff';
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
@@ -93,7 +93,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const labelSx = {
       fontSize: '0.875rem',
       fontWeight: 600,
-      color: error ? '#ef4444' : '#334155',
+      color: error ? '#ef4444' : '#525252',
       mb: 0.75,
       display: 'block',
     };

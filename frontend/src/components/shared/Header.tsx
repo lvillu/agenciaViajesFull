@@ -20,7 +20,7 @@ import {
   Tooltip,
   Container,
 } from '@mui/material';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import Image from 'next/image';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
@@ -81,12 +81,21 @@ export const Header: React.FC = () => {
             sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}
             onClick={() => router.push('/')}
           >
-            <FlightTakeoffIcon sx={{ color: 'primary.main', fontSize: 32 }} />
+            <Box sx={{ position: 'relative', width: 40, height: 32 }}>
+              <Image
+                src="/IbarraTravel_logo.png"
+                alt="Ibarra Travel"
+                fill
+                priority
+                sizes="40px"
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>
             <Typography
               variant="h6"
               sx={{ fontWeight: 700, color: 'text.primary', fontSize: '18px' }}
             >
-              Agencia Viajes
+              Ibarra Travel
             </Typography>
           </Box>
 

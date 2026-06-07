@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Agencia Viajes RDS PostgreSQL 16 Free Tier
+
+Parameters:
+  EC2SecurityGroupId:
+    Type: String
+    AllowedPattern: "^sg-[0-9a-f]+$"
+    ConstraintDescription: "Debe ser un Security Group ID valido (ej. sg-0abc123456789def0)"
+    Description: >
+      Security Group ID del EC2 (output SecurityGroupId de ec2.yaml).
+      Solo esa instancia tendrá acceso al puerto 5432.
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC donde se creará el Security Group de RDS
+
+  DBUsername:
+    Type: String
+    Default: postgres
+    Description: Usuario master de PostgreSQL
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: Password del usuario master (mínimo 8 caracteres)
+
+  DBName:
+    Type: String
+    Default: ibarratravel
+    Description: Nombre de la base de datos que creará RDS al arrancar
+
+  BackupRetentionPeriod:
+    Type: Number
+    Default: 7
+    MinValue: 0
+    MaxValue: 35
+    Description: Días de retención de respaldos automáticos (0 deshabilita backups)
+
+Resources:
+
+  IbarraTravelDBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Agencia Viajes - PostgreSQL accesible solo desde EC2
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          # Solo permite conexiones originadas desde el Security Group del EC2
+          SourceSecurityGroupId: !Ref EC2SecurityGroupId
+      Tags:
+        - Key: Name
+          Value: agencia-viajes-rds-sg
+
+  IbarraTravelDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: agencia-viajes-db
+      Engine: postgres
+      # Versión 16 — igual que la imagen postgres:16-alpine del docker-compose local
+      EngineVersion: "16"
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      StorageType: gp2
+      # Nombre de la base de datos que crea RDS automáticamente.
+      # La app busca exactamente esta DB en la connection string.
+      DBName: !Ref DBName
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      # false = no asigna IP pública. El EC2 accede por IP privada dentro del VPC.
+      PubliclyAccessible: false
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
+      MultiAZ: false
+      # Propiedad correcta en CloudFormation: VPCSecurityGroups (VPC en mayúsculas)
+      VPCSecurityGroups:
+        - !GetAtt IbarraTravelDBSecurityGroup.GroupId
+      DeletionProtection: false
+      Tags:
+        - Key: Name
+          Value: agencia-viajes-db
+
+Outputs:
+  DBEndpoint:
+    Description: >
+      Endpoint del RDS. Úsalo como valor de RDS_HOST en el archivo .env del EC2.
+    Value: !GetAtt IbarraTravelDB.Endpoint.Address
+
+  DBName:
+    Description: Nombre de la base de datos creada
+    Value: !Ref DBName

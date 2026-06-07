@@ -36,7 +36,7 @@ interface ProviderFormModalProps {
 }
 
 const SectionHeader = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5, color: '#ec5b13' }}>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5, color: '#5BA9B3' }}>
     <Box sx={{ display: 'flex', alignItems: 'center' }}>{icon}</Box>
     <Typography
       sx={{
@@ -44,7 +44,7 @@ const SectionHeader = ({ icon, label }: { icon: React.ReactNode; label: string }
         fontWeight: 700,
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
-        color: '#ec5b13',
+        color: '#5BA9B3',
       }}
     >
       {label}
@@ -119,16 +119,18 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          border: '1px solid',
-          borderColor: 'divider',
-          overflow: 'hidden',
-          minHeight: '620px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '12px',
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+            minHeight: '620px',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+          },
         },
       }}
     >
@@ -159,7 +161,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
             right: 12,
             top: 12,
             color: 'text.secondary',
-            '&:hover': { bgcolor: '#f1f5f9' },
+            '&:hover': { bgcolor: 'rgba(189, 191, 220, 0.2)' },
           }}
         >
           <CloseIcon fontSize="small" />
@@ -292,7 +294,7 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
             gap: 1.5,
             borderTop: '1px solid',
             borderColor: 'divider',
-            bgcolor: '#f8fafc',
+            bgcolor: 'rgba(189, 191, 220, 0.12)',
           }}
         >
           <Button
