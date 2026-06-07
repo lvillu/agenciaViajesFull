@@ -684,22 +684,24 @@ function SaleFormContent() {
                 </Box>
               </Box>
 
-              {/* Pago Inicial + Tipo de Cambio */}
+              {/* Pago Inicial (solo creación) + Tipo de Cambio */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                <Input
-                  label="Pago Inicial"
-                  type="number"
-                  placeholder="0.00"
-                  inputProps={{ step: '0.01', min: '0' }}
-                  {...register('requiredDeposit', { valueAsNumber: true })}
-                  error={!!errors.requiredDeposit}
-                  helperText={
-                    (errors.requiredDeposit as any)?.message ||
-                    (selectedProvider?.depositPercentage
-                      ? `Calculado automáticamente (${selectedProvider.depositPercentage}%)`
-                      : 'Opcional: Se puede calcular automáticamente')
-                  }
-                />
+                {!isEditing && (
+                  <Input
+                    label="Pago Inicial"
+                    type="number"
+                    placeholder="0.00"
+                    inputProps={{ step: '0.01', min: '0' }}
+                    {...register('requiredDeposit', { valueAsNumber: true })}
+                    error={!!errors.requiredDeposit}
+                    helperText={
+                      (errors.requiredDeposit as any)?.message ||
+                      (selectedProvider?.depositPercentage
+                        ? `Calculado automáticamente (${selectedProvider.depositPercentage}%)`
+                        : 'Opcional: Se puede calcular automáticamente')
+                    }
+                  />
+                )}
                 {isDollar && (
                   <Input
                     label="Tipo de Cambio (USD a MXN)"
