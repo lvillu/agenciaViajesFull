@@ -285,9 +285,9 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           <TableContainer
             component={Paper}
             elevation={0}
-            sx={{ border: '1px solid #D8DAEA', borderRadius: '12px', overflow: 'hidden' }}
+            sx={{ border: '1px solid #D8DAEA', borderRadius: '12px', overflowX: 'auto' }}
           >
-            <Table>
+            <Table sx={{ minWidth: 600 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
                   <TableCell
