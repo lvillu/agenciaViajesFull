@@ -2,6 +2,7 @@
 using agenciaViajes.Application.Features.User.DeleteSubAccount;
 using agenciaViajes.Application.Features.User.GetMe;
 using agenciaViajes.Application.Features.User.GetSubAccounts;
+using agenciaViajes.Application.Features.User.UpdateSubAccount;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,7 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             // Sub-account management
             userGroup.MapGet("/subaccounts", GetSubAccounts);
             userGroup.MapPost("/subaccounts", CreateSubAccount);
+            userGroup.MapPut("/subaccounts/{id:int}", UpdateSubAccount);
             userGroup.MapDelete("/subaccounts/{id:int}", DeleteSubAccount);
         }
 
@@ -53,6 +55,16 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             CancellationToken cancellationToken)
         {
             var response = await sender.Send(new CreateSubAccountCommand(request), cancellationToken);
+            return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
+        }
+
+        private static async Task<IResult> UpdateSubAccount(
+            int id,
+            agenciaViajes.Application.Features.User.Common.Requests.UpdateSubAccountRequest request,
+            ISender sender,
+            CancellationToken cancellationToken)
+        {
+            var response = await sender.Send(new UpdateSubAccountCommand(id, request), cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
         }
 
