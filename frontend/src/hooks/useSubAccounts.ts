@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { userService } from '@/services/userService';
-import { SubAccount, CreateSubAccountRequest } from '@/types/subAccount';
+import { SubAccount, CreateSubAccountRequest, UpdateSubAccountRequest } from '@/types/subAccount';
 
 export const useSubAccounts = () => {
   const [subAccounts, setSubAccounts] = useState<SubAccount[]>([]);
@@ -49,6 +49,24 @@ export const useSubAccounts = () => {
   }, []);
 
   /**
+   * Actualiza una subcuenta
+   */
+  const updateSubAccount = useCallback(async (id: number, data: UpdateSubAccountRequest): Promise<SubAccount | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await userService.updateSubAccount(id, data);
+      setSubAccounts((prev) => prev.map((s) => (s.id === id ? updated : s)));
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Error al actualizar subcuenta');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * Elimina una subcuenta
    */
   const deleteSubAccount = useCallback(async (id: number): Promise<boolean> => {
@@ -76,6 +94,7 @@ export const useSubAccounts = () => {
     error,
     fetchSubAccounts,
     createSubAccount,
+    updateSubAccount,
     deleteSubAccount,
   };
 };

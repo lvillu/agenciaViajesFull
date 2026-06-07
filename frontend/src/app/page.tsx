@@ -12,6 +12,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { useAuthStore } from '@/store/authStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
@@ -20,7 +21,7 @@ import { MenuCard } from '@/components/shared/MenuCard';
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { fetchUserInfo } = useAuth();
   const [loading, setLoading] = useState(true);
   const hasFetchedUser = useRef(false);
@@ -116,8 +117,19 @@ export default function HomePage() {
                   href="/dashboard"
                   actionLabel="Ver Dashboard"
                 />
-              </Grid>
             </Grid>
+              {user?.role === 'owner' && (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <MenuCard
+                    title="Cuentas"
+                    description="Gestiona los usuarios y subcuentas de tu agencia."
+                    icon={<ManageAccountsIcon sx={{ fontSize: 28 }} />}
+                    href="/cuentas"
+                    actionLabel="Ver Cuentas"
+                  />
+                </Grid>
+              )}
+          </Grid>
           </>
         )}
       </Container>
