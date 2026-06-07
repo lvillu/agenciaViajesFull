@@ -1,4 +1,5 @@
 ﻿using agenciaViajes.Application.Domain.Entities;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.User.CreateSubAccount;
 using agenciaViajes.Application.Features.User.DeleteSubAccount;
 using agenciaViajes.Application.Features.User.GetMe;
