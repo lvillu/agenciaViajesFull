@@ -22,15 +22,21 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
 
         public static void AddUserRoutes(this IEndpointRouteBuilder app)
         {
+            // Grupo público — no requiere auth (GET avatar lo necesita para <img>)
+            var publicGroup = app.MapGroup(BASE_URL)
+                .WithTags(ROUTE_TAGS);
+
+            publicGroup.MapGet("/avatar/{userId:int}", GetAvatarFile);
+
+            // Grupo autenticado
             var userGroup = app.MapGroup(BASE_URL)
                 .WithTags(ROUTE_TAGS)
-                .RequireAuthorization();  // Requiere autenticación
+                .RequireAuthorization();
 
             userGroup.MapGet("/me", GetUserMe);
 
             // Avatar management
             userGroup.MapPost("/avatar", UploadAvatar);
-            userGroup.MapGet("/avatar/{userId:int}", GetAvatarFile);
 
             // Sub-account management
             userGroup.MapGet("/subaccounts", GetSubAccounts);

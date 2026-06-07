@@ -11,6 +11,7 @@ import { SubAccount, CreateSubAccountRequest, UpdateSubAccountRequest } from '@/
 const USER_ENDPOINTS = {
   ME: '/User/me',
   UPDATE: '/users',
+  AVATAR: '/User/avatar',
   SUBACCOUNTS: '/User/subaccounts',
 };
 
@@ -23,6 +24,31 @@ export const userService = {
 
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al obtener información del usuario');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Sube/actualiza el avatar del usuario autenticado.
+   * Envía el archivo como multipart/form-data.
+   */
+  async uploadAvatar(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post<ApiResponse<string>>(
+      USER_ENDPOINTS.AVATAR,
+      formData,
+      {
+        headers: {
+          // No definir Content-Type — axios lo autodetecta como multipart/form-data con boundary
+        },
+      }
+    );
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al subir avatar');
     }
 
     return response.data.data;

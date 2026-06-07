@@ -30,9 +30,14 @@ import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { useAuth } from '@/hooks/useAuth';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
+
 export const Header: React.FC = () => {
   const router = useRouter();
   const { userName, user } = useAuthStore();
+  const avatarUrl = user?.userIconUrl
+    ? `${API_BASE_URL}${user.userIconUrl}`
+    : undefined;
   const { logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // Deteccion de montaje sin estado ni efecto: evita mismatch de hidratacion
@@ -153,10 +158,10 @@ export const Header: React.FC = () => {
                   border: '1px solid',
                   borderColor: 'primary.light',
                 }}
-                src={user?.userIconUrl || undefined}
+                src={avatarUrl}
                 alt={userName || 'Usuario'}
               >
-                {!user?.userIconUrl && (userName?.charAt(0).toUpperCase() || 'U')}
+                {!avatarUrl && (userName?.charAt(0).toUpperCase() || 'U')}
               </Avatar>
               <Typography
                 variant="body2"

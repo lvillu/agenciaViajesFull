@@ -12,7 +12,6 @@ import {
   Paper,
   Typography,
   Grid,
-  Avatar,
   CircularProgress,
   Alert,
   Divider,
@@ -26,6 +25,7 @@ import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import AvatarUpload from '@/components/features/settings/AvatarUpload';
 import { UpdateAgencyInfoRequest } from '@/types/agencyInfo';
 
 const AgencyInfoSchema = z.object({
@@ -180,21 +180,15 @@ export default function SettingsPage() {
 
           {user && (
             <Grid container spacing={3}>
-              {/* Avatar y Información Principal */}
-              <Grid size={{ xs: 12, sm: "auto" }}>
-                <Avatar
-                  src={user.userIconUrl || undefined}
-                  alt={user.fullName}
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    bgcolor: user.userIconUrl ? 'transparent' : 'primary.light',
-                    color: 'primary.main',
-                    fontSize: '3rem',
+              {/* Avatar y subida de foto */}
+              <Grid size={{ xs: 12, sm: 'auto' }}>
+                <AvatarUpload
+                  currentUrl={user.userIconUrl}
+                  userName={user.fullName}
+                  onUploadSuccess={() => {
+                    fetchUserInfo();
                   }}
-                >
-                  {!user.userIconUrl && user.fullName.charAt(0).toUpperCase()}
-                </Avatar>
+                />
               </Grid>
 
               {/* Detalles del Usuario */}
@@ -203,10 +197,10 @@ export default function SettingsPage() {
                   <Typography variant="h3" sx={{ mb: 1 }}>
                     {user.fullName}
                   </Typography>
-                  <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
                     @{user.userName}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="text.secondary">
                     {user.email}
                   </Typography>
                 </Box>
@@ -222,7 +216,7 @@ export default function SettingsPage() {
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
-                      <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                         NOMBRE COMPLETO
                       </Typography>
                       <Typography variant="body1" sx={{ mt: 0.5 }}>
@@ -233,7 +227,7 @@ export default function SettingsPage() {
 
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
-                      <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                         USUARIO
                       </Typography>
                       <Typography variant="body1" sx={{ mt: 0.5 }}>
@@ -244,7 +238,7 @@ export default function SettingsPage() {
 
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
-                      <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                         EMAIL
                       </Typography>
                       <Typography variant="body1" sx={{ mt: 0.5 }}>
@@ -255,7 +249,7 @@ export default function SettingsPage() {
 
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box>
-                      <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                         FOTO DE PERFIL
                       </Typography>
                       <Typography variant="body1" sx={{ mt: 0.5 }}>
@@ -285,16 +279,16 @@ export default function SettingsPage() {
               <Box
                 sx={{
                   p: 1,
-                  bgcolor: 'rgba(91, 169, 179, 0.1)',
+                  bgcolor: 'primary.light',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: '#5BA9B3',
+                  color: 'primary.main',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '22px', lineHeight: 1 }}>
+                <Box component="span" className="material-symbols-outlined" sx={{ fontSize: '22px', lineHeight: 1 }}>
                   travel_explore
-                </span>
+                </Box>
               </Box>
               <Typography variant="h2" sx={{ fontWeight: 800 }}>
                 Información de la Agencia
@@ -467,7 +461,7 @@ export default function SettingsPage() {
                             )
                           }
                         >
-                          {savingAgency ? <CircularProgress size={22} sx={{ color: '#fff' }} /> : 'Guardar Cambios'}
+                          {savingAgency ? <CircularProgress size={22} sx={{ color: 'common.white' }} /> : 'Guardar Cambios'}
                         </Button>
                       </Box>
                     </Grid>
