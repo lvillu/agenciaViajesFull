@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using agenciaViajes.Application.Infrastructure.Context;
@@ -11,13 +12,15 @@ using agenciaViajes.Application.Infrastructure.Context;
 namespace agenciaViajes.Application.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607162216_AddAccountIsolation")]
+    partial class AddAccountIsolation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "8.0.27")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -122,6 +125,7 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnName("birth_date");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
@@ -320,51 +324,6 @@ namespace agenciaViajes.Application.Migrations
                     b.ToTable("providers", (string)null);
                 });
 
-            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<bool>("IsRevoked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_revoked");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("token_hash");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique()
-                        .HasDatabaseName("idx_refresh_tokens_token_hash");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("idx_refresh_tokens_user_id");
-
-                    b.ToTable("refresh_tokens", (string)null);
-                });
-
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
                 {
                     b.Property<int>("Id")
@@ -387,11 +346,6 @@ namespace agenciaViajes.Application.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("integer")
                         .HasColumnName("client_id");
-
-                    b.Property<decimal?>("CommissionableAmount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)")
-                        .HasColumnName("commissionable_amount");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -423,7 +377,7 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnType("numeric(5,2)")
                         .HasColumnName("profit_percentage");
 
-                    b.Property<int?>("ProviderId")
+                    b.Property<int>("ProviderId")
                         .HasColumnType("integer")
                         .HasColumnName("provider_id");
 
@@ -468,7 +422,8 @@ namespace agenciaViajes.Application.Migrations
                     b.HasIndex("ClientId")
                         .HasDatabaseName("idx_sales_client_id");
 
-                    b.HasIndex("ProviderId");
+                    b.HasIndex("ProviderId")
+                        .HasDatabaseName("idx_sales_provider_id");
 
                     b.HasIndex("ReservationNumber")
                         .HasDatabaseName("idx_sales_reservation_number");
@@ -480,45 +435,6 @@ namespace agenciaViajes.Application.Migrations
                         .HasDatabaseName("idx_sales_travel_date");
 
                     b.ToTable("sales", (string)null);
-                });
-
-            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.SaleProvider", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("provider_id");
-
-                    b.Property<string>("ReservationNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("reservation_number");
-
-                    b.Property<int>("SaleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sale_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProviderId")
-                        .HasDatabaseName("idx_sale_providers_provider_id");
-
-                    b.HasIndex("SaleId")
-                        .HasDatabaseName("idx_sale_providers_sale_id");
-
-                    b.ToTable("sale_providers", (string)null);
                 });
 
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.User", b =>
@@ -631,17 +547,6 @@ namespace agenciaViajes.Application.Migrations
                     b.Navigation("Sale");
                 });
 
-            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("agenciaViajes.Application.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
                 {
                     b.HasOne("agenciaViajes.Application.Domain.Entities.Client", "Client")
@@ -653,30 +558,12 @@ namespace agenciaViajes.Application.Migrations
                     b.HasOne("agenciaViajes.Application.Domain.Entities.Provider", "Provider")
                         .WithMany()
                         .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Client");
 
                     b.Navigation("Provider");
-                });
-
-            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.SaleProvider", b =>
-                {
-                    b.HasOne("agenciaViajes.Application.Domain.Entities.Provider", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("agenciaViajes.Application.Domain.Entities.Sale", "Sale")
-                        .WithMany("SaleProviders")
-                        .HasForeignKey("SaleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Provider");
-
-                    b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.User", b =>
@@ -692,8 +579,6 @@ namespace agenciaViajes.Application.Migrations
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>
                 {
                     b.Navigation("Payments");
-
-                    b.Navigation("SaleProviders");
                 });
 #pragma warning restore 612, 618
         }

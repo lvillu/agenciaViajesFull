@@ -61,12 +61,20 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            // Account isolation
+            builder.Property(p => p.AccountId)
+                .HasColumnName("account_id")
+                .IsRequired();
+
             // Índices
             builder.HasIndex(p => p.Name)
                 .HasDatabaseName("idx_providers_name");
 
             builder.HasIndex(p => p.Email)
                 .HasDatabaseName("idx_providers_email");
+
+            builder.HasIndex(p => p.AccountId)
+                .HasDatabaseName("idx_providers_account_id");
         }
     }
 }

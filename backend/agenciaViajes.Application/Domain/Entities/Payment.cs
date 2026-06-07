@@ -26,6 +26,9 @@
 
         public DateTime? ModifiedAt { get; set; }
 
+        // Account isolation
+        public Guid AccountId { get; set; }
+
         // Navigation property
         public Sale? Sale { get; set; }
     }

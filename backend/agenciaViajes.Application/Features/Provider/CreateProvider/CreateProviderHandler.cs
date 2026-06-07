@@ -8,10 +8,14 @@ namespace agenciaViajes.Application.Features.Provider.CreateProvider
     public class CreateProviderHandler : IRequestHandler<CreateProviderCommand, Result<ProviderResponse>>
     {
         private readonly IProviderRepository _providerRepository;
+        private readonly IAccountService _accountService;
 
-        public CreateProviderHandler(IProviderRepository providerRepository)
+        public CreateProviderHandler(
+            IProviderRepository providerRepository,
+            IAccountService accountService)
         {
             _providerRepository = providerRepository;
+            _accountService = accountService;
         }
 
         public async Task<Result<ProviderResponse>> Handle(CreateProviderCommand request, CancellationToken cancellationToken)
@@ -23,7 +27,7 @@ namespace agenciaViajes.Application.Features.Provider.CreateProvider
                 return Result<ProviderResponse>.Failure("Ya existe un proveedor con ese nombre");
             }
 
-            // Crear entidad
+            // Crear entidad con account isolation
             var provider = new Domain.Entities.Provider
             {
                 Name = request.Request.Name,
@@ -34,7 +38,8 @@ namespace agenciaViajes.Application.Features.Provider.CreateProvider
                 DepositPercentage = request.Request.DepositPercentage,
                 FinalPaymentDaysBefore = request.Request.FinalPaymentDaysBefore,
                 ProfitPercentage = request.Request.ProfitPercentage,
-                Active = true
+                Active = true,
+                AccountId = _accountService.AccountId
             };
 
             provider = await _providerRepository.CreateAsync(provider, cancellationToken);

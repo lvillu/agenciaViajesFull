@@ -1,7 +1,9 @@
 ﻿using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Helpers;
 using agenciaViajes.Application.Infrastructure.Persistance;
+using agenciaViajes.Application.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace agenciaViajes.Application.Infrastructure.Configurations
@@ -10,6 +12,12 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
     {
         public static IServiceCollection RepositoryManagerInjection(this IServiceCollection services)
         {
+            // HttpContext accessor (required by AccountService)
+            services.AddHttpContextAccessor();
+
+            // Account isolation service
+            services.AddScoped<IAccountService, AccountService>();
+
             //Repositorios de Rutas
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IProviderRepository, ProviderRepository>();
@@ -18,6 +26,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<IAgencyInfoRepository, AgencyInfoRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
 
             services.AddScoped<TransactionHelper>();
