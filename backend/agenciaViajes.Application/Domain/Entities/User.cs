@@ -16,5 +16,16 @@
 
         public string? UserIconUrl { get; set; }
         public bool Active { get; set; } = true;
+
+        // Account isolation
+        public Guid AccountId { get; set; }
+        public string Role { get; set; } = "owner";
+
+        // Self-referencing FK for sub-accounts
+        public int? ParentUserId { get; set; }
+        public User? ParentUser { get; set; }
+
+        // Audit
+        public DateTime CreatedAt { get; set; }
     }
 }

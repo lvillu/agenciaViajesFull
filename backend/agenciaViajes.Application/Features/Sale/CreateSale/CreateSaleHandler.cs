@@ -11,17 +11,20 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
         private readonly IClientRepository _clientRepository;
         private readonly IProviderRepository _providerRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IAccountService _accountService;
 
         public CreateSaleHandler(
             ISaleRepository saleRepository,
             IClientRepository clientRepository,
             IProviderRepository providerRepository,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            IAccountService accountService)
         {
             _saleRepository = saleRepository;
             _clientRepository = clientRepository;
             _providerRepository = providerRepository;
             _paymentRepository = paymentRepository;
+            _accountService = accountService;
         }
 
         public async Task<Result<SaleResponse>> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
@@ -54,7 +57,7 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                 }
             }
 
-            // Crear entidad - Convertir fechas a UTC
+            // Crear entidad con account isolation - Convertir fechas a UTC
             var sale = new Domain.Entities.Sale
             {
                 ClientId = request.Request.ClientId,
@@ -69,7 +72,8 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                 TravelDate = request.Request.TravelDate.ToUniversalTime(),
                 ReturnDate = request.Request.ReturnDate?.ToUniversalTime(),
                 Status = request.Request.Status ?? "Pendiente",
-                Active = true
+                Active = true,
+                AccountId = _accountService.AccountId
             };
 
             sale = await _saleRepository.CreateAsync(sale, cancellationToken);
@@ -83,7 +87,8 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                     SaleId = sale.Id,
                     PaymentDate = DateTime.UtcNow,
                     Amount = request.Request.RequiredDeposit.Value,
-                    Notes = "Anticipo inicial registrado automáticamente al crear la venta"
+                    Notes = "Anticipo inicial registrado automáticamente al crear la venta",
+                    AccountId = _accountService.AccountId
                 };
 
                 await _paymentRepository.CreateAsync(initialPayment, cancellationToken);

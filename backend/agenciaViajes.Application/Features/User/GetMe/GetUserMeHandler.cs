@@ -30,7 +30,8 @@ namespace agenciaViajes.Application.Features.User.GetMe
                 FullName = $"{user.Name} {user.LastName}",
                 Email = user.Email,
                 UserName = user.UserName,
-                UserIconUrl = user.UserIconUrl
+                UserIconUrl = user.UserIconUrl,
+                Role = user.Role
             };
 
             return Result<UserMeResponse>.Success(response);

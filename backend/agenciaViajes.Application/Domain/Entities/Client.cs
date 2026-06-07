@@ -10,5 +10,8 @@
         public string Email { get; set; } = default!;
         public DateOnly? BirthDate { get; set; }
         public bool Active { get; set; } = true;
+
+        // Account isolation
+        public Guid AccountId { get; set; }
     }
 }

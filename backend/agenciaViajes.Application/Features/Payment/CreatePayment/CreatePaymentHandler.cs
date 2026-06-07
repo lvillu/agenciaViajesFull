@@ -10,13 +10,16 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly ISaleRepository _saleRepository;
+        private readonly IAccountService _accountService;
 
         public CreatePaymentHandler(
             IPaymentRepository paymentRepository,
-            ISaleRepository saleRepository)
+            ISaleRepository saleRepository,
+            IAccountService accountService)
         {
             _paymentRepository = paymentRepository;
             _saleRepository = saleRepository;
+            _accountService = accountService;
         }
 
         public async Task<Result<PaymentResponse>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -47,7 +50,7 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                     ? PaymentType.Liquidacion
                     : PaymentType.Abono;
 
-            // Crear entidad
+            // Crear entidad con account isolation
             var payment = new Domain.Entities.Payment
             {
                 SaleId = request.Request.SaleId,
@@ -58,7 +61,8 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                 ExchangeRate = request.Request.ExchangeRate,
                 AmountMXN = request.Request.AmountMXN,
                 TransactionFee = request.Request.TransactionFee,
-                Notes = request.Request.Notes
+                Notes = request.Request.Notes,
+                AccountId = _accountService.AccountId
             };
 
             payment = await _paymentRepository.CreateAsync(payment, cancellationToken);
