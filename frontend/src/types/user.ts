@@ -37,6 +37,7 @@ export interface UserMeResponse {
   email: string;
   userName: string;
   userIconUrl: string | null;
+  role: string;
 }
 
 export interface LoginRequest {
