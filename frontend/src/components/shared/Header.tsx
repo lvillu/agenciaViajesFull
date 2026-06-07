@@ -22,6 +22,9 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
@@ -44,6 +47,11 @@ export const Header: React.FC = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleCuentas = () => {
+    handleMenuClose();
+    router.push('/cuentas');
   };
 
   const handleSettings = () => {
@@ -170,12 +178,22 @@ export const Header: React.FC = () => {
         onClose={handleMenuClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { sx: { mt: 1, minWidth: 180, borderRadius: 2 } } }}
+        slotProps={{ paper: { sx: { mt: 1, minWidth: 200, borderRadius: 2 } } }}
       >
-        <MenuItem onClick={handleSettings}>⚙️ Configuración</MenuItem>
+        {user?.role === 'owner' && (
+          <MenuItem onClick={handleCuentas}>
+            <ManageAccountsOutlinedIcon sx={{ mr: 1.5, fontSize: 20, color: 'text.secondary' }} />
+            Cuentas
+          </MenuItem>
+        )}
+        <MenuItem onClick={handleSettings}>
+          <SettingsOutlinedIcon sx={{ mr: 1.5, fontSize: 20, color: 'text.secondary' }} />
+          Configuración
+        </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-          🚪 Cerrar sesión
+          <LogoutOutlinedIcon sx={{ mr: 1.5, fontSize: 20 }} />
+          Cerrar sesión
         </MenuItem>
       </Menu>
     </AppBar>
