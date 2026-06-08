@@ -59,11 +59,12 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    const day = date.getDate();
+    const month = date.toLocaleDateString('es-MX', { month: 'long' });
+    const year = date.getFullYear();
+    // Capitalizar primera letra del mes (ej: "noviembre" → "Noviembre")
+    const monthCapitalized = month.charAt(0).toUpperCase() + month.slice(1);
+    return `${day} de ${monthCapitalized} de ${year}`;
   };
 
   return (
@@ -125,6 +126,74 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
       </Box>
 
       <DialogContent sx={{ px: 3, py: 3 }}>
+        {/* Información de la reserva */}
+        {(sale.reservationNumber || sale.description) && (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              mb: 3,
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid #D8DAEA',
+              bgcolor: '#ffffff',
+              flexWrap: 'wrap',
+            }}
+          >
+            {sale.reservationNumber && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5BA9B3', lineHeight: 1 }}>
+                  key
+                </span>
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: '0.65rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: '#8B8DA8',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Clave de Reserva
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#525252' }}>
+                    {sale.reservationNumber}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+            {sale.reservationNumber && sale.description && (
+              <Box sx={{ width: '1px', bgcolor: '#D8DAEA', alignSelf: 'stretch' }} />
+            )}
+            {sale.description && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8B8DA8', lineHeight: 1 }}>
+                  description
+                </span>
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: '0.65rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: '#8B8DA8',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Descripción
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#525252', whiteSpace: 'pre-line' }}>
+                    {sale.description}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
+
         {/* Tarjetas de resumen */}
         <Box sx={{ display: 'flex', gap: 1.5, mb: 4, flexWrap: 'wrap' }}>
           {/* Total Reserva */}
