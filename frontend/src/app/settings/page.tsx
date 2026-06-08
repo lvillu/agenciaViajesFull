@@ -64,6 +64,7 @@ export default function SettingsPage() {
   const [savingAgency, setSavingAgency] = useState(false);
 
   const setUser = useAuthStore((state) => state.setUser);
+  const bumpAvatarVersion = useAuthStore((state) => state.bumpAvatarVersion);
 
   const {
     register: registerAgency,
@@ -192,6 +193,7 @@ export default function SettingsPage() {
                     userName={user.fullName}
                     onUploadSuccess={(url) => {
                       setUser({ ...user, userIconUrl: url });
+                      bumpAvatarVersion();
                       setAvatarSuccess(true);
                       setTimeout(() => setAvatarSuccess(false), 3000);
                     }}

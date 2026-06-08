@@ -15,12 +15,14 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   rememberMe: boolean;
+  avatarVersion: number;
 
   // Acciones
   setAuth: (token: string, userName: string, rememberMe?: boolean) => void;
   setUser: (user: UserMeResponse) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
+  bumpAvatarVersion: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -32,6 +34,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       rememberMe: false,
+      avatarVersion: 0,
 
       setAuth: (token, userName, rememberMe = false) =>
         set({
@@ -58,7 +61,11 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
           rememberMe: false,
+          avatarVersion: 0,
         }),
+
+      bumpAvatarVersion: () =>
+        set((state) => ({ avatarVersion: state.avatarVersion + 1 })),
     }),
     {
       name: 'auth-storage',
@@ -70,6 +77,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         rememberMe: state.rememberMe,
+        avatarVersion: state.avatarVersion,
       }),
       migrate: (persistedState) => {
         const persisted = (persistedState ?? {}) as Partial<AuthState>;
@@ -77,6 +85,7 @@ export const useAuthStore = create<AuthState>()(
           ...persisted,
           isAuthenticated: persisted.isAuthenticated ?? false,
           rememberMe: persisted.rememberMe ?? false,
+          avatarVersion: persisted.avatarVersion ?? 0,
           isLoading: false,
         } as AuthState;
       },
