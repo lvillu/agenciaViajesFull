@@ -39,6 +39,7 @@ namespace agenciaViajes.Application.Features.Auth.SignUp
                 UserIconUrl = null,
                 AccountId = Guid.NewGuid(),
                 Role = "owner",
+                FolioStart = 0, // 0 = not configured, welcome modal will ask
                 CreatedAt = DateTime.UtcNow
             };
 

@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { MenuCard } from '@/components/shared/MenuCard';
+import { WelcomeModal } from '@/components/shared/WelcomeModal';
 
 export default function HomePage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function HomePage() {
   const { fetchUserInfo } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const hasFetchedUser = useRef(false);
 
   useEffect(() => {
@@ -52,6 +54,13 @@ export default function HomePage() {
         });
     }
   }, [mounted, isAuthenticated, router, fetchUserInfo]);
+
+  // Mostrar WelcomeModal cuando el owner inicia sesión por primera vez
+  useEffect(() => {
+    if (!loading && user?.role === 'owner' && user?.folioStart === 0) {
+      setWelcomeOpen(true);
+    }
+  }, [loading, user]);
 
   if (!mounted || !isAuthenticated) {
     return (
@@ -132,6 +141,7 @@ export default function HomePage() {
         )}
       </Container>
       <Footer />
+      <WelcomeModal open={welcomeOpen} onClose={() => setWelcomeOpen(false)} />
     </Box>
   );
 }

@@ -28,6 +28,12 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         }
 
+        public async Task<User?> GetOwnerByAccountIdAsync(Guid accountId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.AccountId == accountId && u.Role == "owner", cancellationToken);
+        }
+
         public async Task<User> CreateAsync(User user, CancellationToken cancellationToken = default)
         {
             _context.Users.Add(user);

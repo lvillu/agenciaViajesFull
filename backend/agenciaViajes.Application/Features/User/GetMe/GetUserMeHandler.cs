@@ -31,7 +31,8 @@ namespace agenciaViajes.Application.Features.User.GetMe
                 Email = user.Email,
                 UserName = user.UserName,
                 UserIconUrl = user.UserIconUrl,
-                Role = user.Role
+                Role = user.Role,
+                FolioStart = user.FolioStart
             };
 
             return Result<UserMeResponse>.Success(response);

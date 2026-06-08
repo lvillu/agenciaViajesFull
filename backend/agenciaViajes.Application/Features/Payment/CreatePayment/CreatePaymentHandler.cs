@@ -40,9 +40,6 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                 return Result<PaymentResponse>.Failure($"El monto del pago ({request.Request.Amount:C}) excede el saldo pendiente ({remainingBalance:C})");
             }
 
-            // Calcular FolioNumber auto-incremental global
-            var folioNumber = await _paymentRepository.GetNextFolioNumberAsync(cancellationToken);
-
             // Calcular PaymentType automáticamente
             var paymentType = totalPaid == 0
                 ? PaymentType.Anticipo
@@ -51,10 +48,11 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                     : PaymentType.Abono;
 
             // Crear entidad con account isolation
+            // FolioNumber se asigna automáticamente en CreateAsync (per-account sequence)
             var payment = new Domain.Entities.Payment
             {
                 SaleId = request.Request.SaleId,
-                FolioNumber = folioNumber,
+                FolioNumber = 0, // será asignado por CreateAsync
                 PaymentType = paymentType,
                 PaymentDate = request.Request.PaymentDate.ToUniversalTime(),
                 Amount = request.Request.Amount,

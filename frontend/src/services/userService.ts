@@ -5,13 +5,14 @@
 
 import { apiClient } from './apiClient';
 import { ApiResponse } from '@/types/api';
-import { UserMeResponse, UpdateUserRequest } from '@/types/user';
+import { UserMeResponse, UpdateUserRequest, SetFolioStartRequest } from '@/types/user';
 import { SubAccount, CreateSubAccountRequest, UpdateSubAccountRequest } from '@/types/subAccount';
 
 const USER_ENDPOINTS = {
   ME: '/User/me',
   UPDATE: '/users',
   SUBACCOUNTS: '/User/subaccounts',
+  FOLIO_START: '/User/folio-start',
 };
 
 export const userService = {
@@ -92,5 +93,21 @@ export const userService = {
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al eliminar subcuenta');
     }
+  },
+
+  /**
+   * Configura el folio inicial para el usuario autenticado
+   */
+  async setFolioStart(data: SetFolioStartRequest): Promise<UserMeResponse> {
+    const response = await apiClient.patch<ApiResponse<UserMeResponse>>(
+      USER_ENDPOINTS.FOLIO_START,
+      data
+    );
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al configurar folio inicial');
+    }
+
+    return response.data.data;
   },
 };

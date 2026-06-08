@@ -62,6 +62,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            builder.Property(u => u.FolioStart)
+                .HasColumnName("folio_start")
+                .HasDefaultValue(0)
+                .IsRequired();
+
             builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("NOW()")

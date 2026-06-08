@@ -79,8 +79,9 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .IsRequired();
 
             // Índices
-            builder.HasIndex(p => p.FolioNumber)
-                .HasDatabaseName("idx_payments_folio_number")
+            // Composite unique index: each account has its own folio sequence
+            builder.HasIndex(p => new { p.AccountId, p.FolioNumber })
+                .HasDatabaseName("idx_payments_account_folio")
                 .IsUnique();
 
             builder.HasIndex(p => p.SaleId)

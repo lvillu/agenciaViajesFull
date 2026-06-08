@@ -2,6 +2,7 @@
 using agenciaViajes.Application.Features.User.DeleteSubAccount;
 using agenciaViajes.Application.Features.User.GetMe;
 using agenciaViajes.Application.Features.User.GetSubAccounts;
+using agenciaViajes.Application.Features.User.SetFolioStart;
 using agenciaViajes.Application.Features.User.UpdateSubAccount;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +30,9 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             userGroup.MapPost("/subaccounts", CreateSubAccount);
             userGroup.MapPut("/subaccounts/{id:int}", UpdateSubAccount);
             userGroup.MapDelete("/subaccounts/{id:int}", DeleteSubAccount);
+
+            // Folio start configuration (owner only)
+            userGroup.MapPatch("/folio-start", SetFolioStart);
         }
 
         private static async Task<IResult> GetUserMe(HttpContext context, ISender sender, CancellationToken cancellationToken)
@@ -71,6 +75,15 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
         private static async Task<IResult> DeleteSubAccount(int id, ISender sender, CancellationToken cancellationToken)
         {
             var response = await sender.Send(new DeleteSubAccountCommand(id), cancellationToken);
+            return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
+        }
+
+        private static async Task<IResult> SetFolioStart(
+            SetFolioStartCommand command,
+            ISender sender,
+            CancellationToken cancellationToken)
+        {
+            var response = await sender.Send(command, cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
         }
     }

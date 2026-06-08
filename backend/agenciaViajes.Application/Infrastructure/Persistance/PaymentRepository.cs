@@ -45,10 +45,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             payment.CreatedAt = DateTime.UtcNow;
 
-            // Ensure FolioNumber is assigned using the sequence if not provided
+            // Ensure FolioNumber is assigned using per-account sequence
             if (payment.FolioNumber == 0)
             {
-                payment.FolioNumber = await GetNextFolioNumberAsync(cancellationToken);
+                var folioStart = await GetAccountFolioStartAsync(payment.AccountId, cancellationToken);
+                payment.FolioNumber = await GetNextFolioNumberAsync(payment.AccountId, folioStart, cancellationToken);
             }
 
             _context.Payments.Add(payment);
@@ -84,25 +85,42 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .SumAsync(p => p.Amount, cancellationToken);
         }
 
-        public async Task<int> GetNextFolioNumberAsync(CancellationToken cancellationToken = default)
+        public async Task<int> GetNextFolioNumberAsync(Guid accountId, int folioStart, CancellationToken cancellationToken = default)
         {
-            // Use the DB sequence but guard against cases where the sequence
-            // value is already present in the payments table (e.g. sequence
-            // was behind after manual inserts). Retry until we obtain a
-            // folio number that does not exist yet.
+            // Per-account folio: MAX(folio_number) + 1 for the given account.
+            // The composite unique index (account_id, folio_number) prevents duplicates.
+            // In the rare case of a concurrent collision, the caller retries.
             while (true)
             {
-                var nextFolio = await _context.Database
-                    .SqlQueryRaw<long>("SELECT nextval('payments_folio_number_seq') AS \"Value\"")
-                    .SingleAsync(cancellationToken);
+                var maxFolio = await _context.Payments
+                    .Where(p => p.AccountId == accountId)
+                    .MaxAsync(p => (int?)p.FolioNumber, cancellationToken) ?? (folioStart - 1);
+
+                var nextFolio = maxFolio + 1;
+
+                // Guard: ensure we never go below folioStart
+                if (nextFolio < folioStart)
+                    nextFolio = folioStart;
 
                 var exists = await _context.Payments
-                    .AnyAsync(p => p.FolioNumber == (int)nextFolio, cancellationToken);
+                    .AnyAsync(p => p.AccountId == accountId && p.FolioNumber == nextFolio, cancellationToken);
 
                 if (!exists)
-                    return (int)nextFolio;
-                // Otherwise loop and get another sequence value
+                    return nextFolio;
+
+                // Collision — another transaction just inserted this folio; loop and retry
             }
+        }
+
+        public async Task<int> GetAccountFolioStartAsync(Guid accountId, CancellationToken cancellationToken = default)
+        {
+            // Get the folio start from the owner user of this account
+            var owner = await _context.Users
+                .Where(u => u.AccountId == accountId && u.Role == "owner")
+                .Select(u => (int?)u.FolioStart)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return owner ?? 1; // default to 1 if not found
         }
     }
 }
