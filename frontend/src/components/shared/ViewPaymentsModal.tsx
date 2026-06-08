@@ -58,7 +58,12 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
   const pendingPercent = 100 - paidPercent;
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    if (!dateString) return '—';
+    const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? `${dateString}T12:00:00`
+      : dateString;
+    const date = new Date(normalized);
+    if (isNaN(date.getTime())) return dateString;
     const day = date.getDate();
     const month = date.toLocaleDateString('es-MX', { month: 'long' });
     const year = date.getFullYear();
@@ -142,7 +147,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
           >
             {sale.reservationNumber && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5BA9B3', lineHeight: 1 }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px', color: '#5BA9B3', lineHeight: 1 }}>
                   key
                 </span>
                 <Box>
@@ -169,7 +174,7 @@ export const ViewPaymentsModal: React.FC<ViewPaymentsModalProps> = ({
             )}
             {sale.description && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8B8DA8', lineHeight: 1 }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px', color: '#8B8DA8', lineHeight: 1 }}>
                   description
                 </span>
                 <Box>

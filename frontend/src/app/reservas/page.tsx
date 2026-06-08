@@ -149,7 +149,11 @@ export default function ReservasPage() {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    const date = new Date(dateString);
+    const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? `${dateString}T12:00:00`
+      : dateString;
+    const date = new Date(normalized);
+    if (isNaN(date.getTime())) return dateString;
     const day = date.getDate();
     const month = date.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
     const year = date.getFullYear();
@@ -471,4 +475,3 @@ export default function ReservasPage() {
     </Box>
   );
 }
-
