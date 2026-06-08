@@ -52,11 +52,11 @@ namespace agenciaViajes.Application.Infrastructure.Services
             {
                 try
                 {
-                    return _httpContextAccessor.HttpContext?.User?.FindFirst("role")?.Value ?? "owner";
+                    return _httpContextAccessor.HttpContext?.User?.FindFirst("role")?.Value ?? string.Empty;
                 }
                 catch
                 {
-                    return "owner";
+                    return string.Empty;
                 }
             }
         }

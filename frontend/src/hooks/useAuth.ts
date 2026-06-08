@@ -89,7 +89,8 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const userInfo = await userService.setFolioStart(data);
+      await userService.setFolioStart(data);
+      const userInfo = await userService.getMe();
       setUser(userInfo);
       return userInfo;
     } catch (err: unknown) {

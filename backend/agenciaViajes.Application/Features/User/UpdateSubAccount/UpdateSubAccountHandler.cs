@@ -38,6 +38,11 @@ namespace agenciaViajes.Application.Features.User.UpdateSubAccount
                 return Result<SubAccountResponse>.Failure("No tienes permiso para modificar esta subcuenta");
             }
 
+            if (user.Role != "subaccount")
+            {
+                return Result<SubAccountResponse>.Failure("Solo se pueden modificar subcuentas");
+            }
+
             // Update fields
             user.Name = command.Request.name;
             user.LastName = command.Request.lastName;

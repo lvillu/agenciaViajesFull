@@ -20,6 +20,11 @@ namespace agenciaViajes.Application.Features.User.GetSubAccounts
 
         public async Task<Result<List<SubAccountResponse>>> Handle(GetSubAccountsQuery request, CancellationToken cancellationToken)
         {
+            if (_accountService.Role != "owner")
+            {
+                return Result<List<SubAccountResponse>>.Failure("Solo el titular de la cuenta puede consultar subcuentas");
+            }
+
             var subAccounts = await _userRepository.GetSubAccountsByAccountIdAsync(
                 _accountService.AccountId, cancellationToken);
 

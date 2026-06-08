@@ -98,8 +98,8 @@ export const userService = {
   /**
    * Configura el folio inicial para el usuario autenticado
    */
-  async setFolioStart(data: SetFolioStartRequest): Promise<UserMeResponse> {
-    const response = await apiClient.patch<ApiResponse<UserMeResponse>>(
+  async setFolioStart(data: SetFolioStartRequest): Promise<boolean> {
+    const response = await apiClient.patch<ApiResponse<boolean>>(
       USER_ENDPOINTS.FOLIO_START,
       data
     );

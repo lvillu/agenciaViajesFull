@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -89,13 +89,10 @@ export default function CuentasPage() {
     subAccounts,
     loading,
     error,
-    fetchSubAccounts,
     createSubAccount,
     updateSubAccount,
     deleteSubAccount,
   } = useSubAccounts();
-
-  const hasFetched = useRef(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
@@ -117,13 +114,6 @@ export default function CuentasPage() {
     resolver: zodResolver(editSchema),
     defaultValues: { name: '', lastName: '', email: '', active: true },
   });
-
-  useEffect(() => {
-    if (!hasFetched.current) {
-      hasFetched.current = true;
-      fetchSubAccounts();
-    }
-  }, [fetchSubAccounts]);
 
   // Filtering
   const filtered = useMemo(() => {

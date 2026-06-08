@@ -24,8 +24,8 @@ export interface CreateSubAccountRequest {
 }
 
 export interface UpdateSubAccountRequest {
-  name?: string;
-  lastName?: string;
-  email?: string;
-  active?: boolean;
+  name: string;
+  lastName: string;
+  email: string;
+  active: boolean;
 }

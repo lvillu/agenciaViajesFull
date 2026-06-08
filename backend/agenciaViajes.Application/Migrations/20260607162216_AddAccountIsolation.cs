@@ -70,6 +70,26 @@ namespace agenciaViajes.Application.Migrations
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
+            migrationBuilder.Sql(
+                """
+                DO $$
+                DECLARE
+                    shared_account_id uuid := md5(random()::text || clock_timestamp()::text)::uuid;
+                BEGIN
+                    UPDATE users SET account_id = shared_account_id WHERE account_id = '00000000-0000-0000-0000-000000000000';
+                    UPDATE sales SET account_id = shared_account_id WHERE account_id = '00000000-0000-0000-0000-000000000000';
+                    UPDATE providers SET account_id = shared_account_id WHERE account_id = '00000000-0000-0000-0000-000000000000';
+                    UPDATE payments SET account_id = shared_account_id WHERE account_id = '00000000-0000-0000-0000-000000000000';
+                    UPDATE clients SET account_id = shared_account_id WHERE account_id = '00000000-0000-0000-0000-000000000000';
+                END $$;
+
+                ALTER TABLE users ALTER COLUMN account_id DROP DEFAULT;
+                ALTER TABLE sales ALTER COLUMN account_id DROP DEFAULT;
+                ALTER TABLE providers ALTER COLUMN account_id DROP DEFAULT;
+                ALTER TABLE payments ALTER COLUMN account_id DROP DEFAULT;
+                ALTER TABLE clients ALTER COLUMN account_id DROP DEFAULT;
+                """);
+
             migrationBuilder.CreateIndex(
                 name: "idx_users_account_id",
                 table: "users",
