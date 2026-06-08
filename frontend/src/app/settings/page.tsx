@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import { useAgencyInfo } from '@/hooks/useAgencyInfo';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
@@ -57,9 +58,12 @@ export default function SettingsPage() {
   } = useAgencyInfo();
   const hasFetchedAgency = useRef(false);
 
+  const [avatarSuccess, setAvatarSuccess] = useState(false);
   const [agencySaveSuccess, setAgencySaveSuccess] = useState(false);
   const [agencySaveError, setAgencySaveError] = useState<string | null>(null);
   const [savingAgency, setSavingAgency] = useState(false);
+
+  const setUser = useAuthStore((state) => state.setUser);
 
   const {
     register: registerAgency,
@@ -182,13 +186,22 @@ export default function SettingsPage() {
             <Grid container spacing={3}>
               {/* Avatar y subida de foto */}
               <Grid size={{ xs: 12, sm: 'auto' }}>
-                <AvatarUpload
-                  currentUrl={user.userIconUrl}
-                  userName={user.fullName}
-                  onUploadSuccess={() => {
-                    fetchUserInfo();
-                  }}
-                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <AvatarUpload
+                    currentUrl={user.userIconUrl}
+                    userName={user.fullName}
+                    onUploadSuccess={(url) => {
+                      setUser({ ...user, userIconUrl: url });
+                      setAvatarSuccess(true);
+                      setTimeout(() => setAvatarSuccess(false), 3000);
+                    }}
+                  />
+                  {avatarSuccess && (
+                    <Alert severity="success" sx={{ py: 0.5, px: 1.5 }}>
+                      Foto de perfil actualizada correctamente.
+                    </Alert>
+                  )}
+                </Box>
               </Grid>
 
               {/* Detalles del Usuario */}
