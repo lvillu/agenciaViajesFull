@@ -149,12 +149,17 @@ export default function ReservasPage() {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? `${dateString}T12:00:00`
+      : dateString;
+    const date = new Date(normalized);
+    if (isNaN(date.getTime())) return dateString;
+    const day = date.getDate();
+    const month = date.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
+    const year = date.getFullYear();
+    // Capitalizar primera letra del mes y quitar punto (ej: "nov" → "Nov")
+    const monthCapitalized = month.charAt(0).toUpperCase() + month.slice(1);
+    return `${day} ${monthCapitalized} ${year}`;
   };
 
   const getStatusChip = (sale: SaleWithTotals) => {
@@ -222,7 +227,7 @@ export default function ReservasPage() {
               <TextField
                 fullWidth
                 variant="standard"
-                placeholder="Buscar por cliente, proveedor, número de reserva o descripción..."
+                placeholder="Buscar por cliente, proveedor, clave de reserva o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 slotProps={{
@@ -263,7 +268,7 @@ export default function ReservasPage() {
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'rgba(189, 191, 220, 0.15)' }}>
-                    {['Cliente', 'Proveedor', 'Descripción', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Ganancia', 'Estado', 'Acciones'].map((h, i) => (
+                    {['Cliente', 'Proveedor', 'Clave de Reserva', 'Fecha Viaje', 'Total', 'Pagado', 'Saldo', 'Ganancia', 'Estado', 'Acciones'].map((h, i) => (
                       <TableCell
                         key={h}
                         sx={{
@@ -322,7 +327,7 @@ export default function ReservasPage() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
-                            {sale.description || sale.reservationNumber || '-'}
+                            {sale.reservationNumber || '-'}
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -470,4 +475,3 @@ export default function ReservasPage() {
     </Box>
   );
 }
-
