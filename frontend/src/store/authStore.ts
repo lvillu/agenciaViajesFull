@@ -14,12 +14,14 @@ interface AuthState {
   user: UserMeResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  avatarVersion: number;
 
   // Acciones
   setAuth: (token: string, userName: string) => void;
   setUser: (user: UserMeResponse) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
+  bumpAvatarVersion: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -30,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      avatarVersion: 0,
 
       setAuth: (token, userName) =>
         set({
@@ -54,10 +57,20 @@ export const useAuthStore = create<AuthState>()(
           userName: null,
           user: null,
           isAuthenticated: false,
+          avatarVersion: 0,
         }),
+
+      bumpAvatarVersion: () =>
+        set((state) => ({ avatarVersion: state.avatarVersion + 1 })),
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => ({
+        token: state.token,
+        userName: state.userName,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

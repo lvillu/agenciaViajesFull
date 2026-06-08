@@ -34,9 +34,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
 
 export const Header: React.FC = () => {
   const router = useRouter();
-  const { userName, user } = useAuthStore();
+  const { userName, user, avatarVersion } = useAuthStore();
   const avatarUrl = user?.userIconUrl
-    ? `${API_BASE_URL}${user.userIconUrl}`
+    ? `${API_BASE_URL}${user.userIconUrl}${avatarVersion > 0 ? `?v=${avatarVersion}` : ''}`
     : undefined;
   const { logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

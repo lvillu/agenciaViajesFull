@@ -42,13 +42,14 @@ export default function AvatarUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avatarVersion, setAvatarVersion] = useState(0);
 
   /** Iniciales para fallback cuando no hay avatar */
   const initials = userName.charAt(0).toUpperCase();
 
   /** URL completa del avatar actual, apuntando al API Gateway */
   const avatarFullUrl = currentUrl
-    ? `${API_BASE_URL}${currentUrl}`
+    ? `${API_BASE_URL}${currentUrl}${avatarVersion > 0 ? `?v=${avatarVersion}` : ''}`
     : null;
 
   /** Resetea el estado de preview */
@@ -93,6 +94,7 @@ export default function AvatarUpload({
     try {
       const url = await userService.uploadAvatar(selectedFile);
       onUploadSuccess(url);
+      setAvatarVersion(v => v + 1);
       resetPreview();
     } catch (err: unknown) {
       setError(
