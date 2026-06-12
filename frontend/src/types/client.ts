@@ -9,7 +9,7 @@ export interface Client {
   lastName: string;
   address?: string;
   phone: string;
-  email: string;
+  email?: string;
   birthDate?: string; // ISO date string (YYYY-MM-DD)
   active: boolean;
 }
@@ -19,7 +19,7 @@ export interface CreateClientRequest {
   lastName: string;
   address?: string;
   phone: string;
-  email: string;
+  email?: string;
   birthDate?: string; // ISO date string (YYYY-MM-DD)
 }
 
@@ -28,7 +28,7 @@ export interface UpdateClientRequest {
   lastName: string;
   address?: string;
   phone: string;
-  email: string;
+  email?: string;
   birthDate?: string; // ISO date string (YYYY-MM-DD)
   active: boolean;
 }
