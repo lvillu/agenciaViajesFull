@@ -34,10 +34,10 @@ export const signupSchema = z
       .string()
       .min(1, 'El usuario es requerido')
       .min(3, 'El usuario debe tener al menos 3 caracteres'),
-    email: z
-      .string()
-      .min(1, 'El email es requerido')
-      .email('Email inválido'),
+  email: z
+    .string()
+    .min(1, 'El email es requerido')
+    .email('Email inválido'),
     password: z
       .string()
       .min(1, 'La contraseña es requerida')
@@ -129,8 +129,9 @@ export const clientSchema = z.object({
     .max(20, 'El teléfono no puede exceder 20 caracteres'),
   email: z
     .string()
-    .min(1, 'El email es requerido')
-    .email('Email inválido'),
+    .email('Email inválido')
+    .optional()
+    .or(z.literal('')),
   birthDate: z
     .string()
     .optional()

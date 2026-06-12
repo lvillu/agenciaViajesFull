@@ -19,7 +19,6 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -48,7 +47,6 @@ export default function ClientesPage() {
   const {
     clients,
     loading,
-    error,
     createClient,
     updateClient,
     deleteClient,
@@ -74,7 +72,7 @@ export default function ClientesPage() {
       (client) =>
         client.name.toLowerCase().includes(term) ||
         client.lastName.toLowerCase().includes(term) ||
-        client.email.toLowerCase().includes(term) ||
+        (client.email && client.email.toLowerCase().includes(term)) ||
         client.phone.toLowerCase().includes(term) ||
         (client.address && client.address.toLowerCase().includes(term))
     );
@@ -106,22 +104,16 @@ export default function ClientesPage() {
   const handleSubmit = async (data: ClientFormData) => {
     try {
       if (selectedClient) {
-        // Actualizar
-        const result = await updateClient(selectedClient.id, {
+        await updateClient(selectedClient.id, {
           ...data,
           active: selectedClient.active,
         });
-        if (result) {
-          handleCloseModal();
-          await showSuccess('El cliente ha sido actualizado exitosamente');
-        }
+        handleCloseModal();
+        await showSuccess('El cliente ha sido actualizado exitosamente');
       } else {
-        // Crear
-        const result = await createClient(data);
-        if (result) {
-          handleCloseModal();
-          await showSuccess('El cliente ha sido creado exitosamente');
-        }
+        await createClient(data);
+        handleCloseModal();
+        await showSuccess('El cliente ha sido creado exitosamente');
       }
     } catch (err: any) {
       await showError(err.message || 'Error al guardar el cliente');
@@ -197,13 +189,6 @@ export default function ClientesPage() {
             Agregar Cliente
           </Button>
         </Box>
-
-        {/* Mensaje de error general */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
 
         {/* Barra de búsqueda separada */}
         <Box

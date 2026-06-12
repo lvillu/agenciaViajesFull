@@ -39,6 +39,10 @@ apiClient.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    // Extraer mensaje del backend en errores 400+ (formato ApiResponse)
+    if (error.response?.data?.message && error.response?.status >= 400) {
+      error.message = error.response.data.message;
+    }
     return Promise.reject(error);
   }
 );
