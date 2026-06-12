@@ -23,11 +23,14 @@ namespace agenciaViajes.Application.Features.Client.UpdateClient
                 return Result<ClientResponse>.Failure("Cliente no encontrado");
             }
 
-            // Validar que no exista otro cliente con el mismo email
-            var exists = await _clientRepository.ExistsByEmailAsync(request.Request.Email, request.Id, cancellationToken);
-            if (exists)
+            // Validar que no exista otro cliente con el mismo email (solo si se proporcionó)
+            if (!string.IsNullOrEmpty(request.Request.Email))
             {
-                return Result<ClientResponse>.Failure("Ya existe otro cliente con ese email");
+                var exists = await _clientRepository.ExistsByEmailAsync(request.Request.Email, request.Id, cancellationToken);
+                if (exists)
+                {
+                    return Result<ClientResponse>.Failure("Ya existe otro cliente con ese email");
+                }
             }
 
             // Actualizar propiedades

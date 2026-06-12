@@ -31,7 +31,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.Property(c => c.Email)
                 .HasColumnName("email")
                 .HasMaxLength(255)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(c => c.Phone)
                 .HasColumnName("phone")

@@ -16,9 +16,9 @@ namespace agenciaViajes.Application.Features.Client.UpdateClient
                 .MaximumLength(200).WithMessage("El apellido no puede superar los 200 caracteres");
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("El email es obligatorio")
                 .EmailAddress().WithMessage("El email no es válido")
-                .MaximumLength(255).WithMessage("El email no puede superar los 255 caracteres");
+                .MaximumLength(255).WithMessage("El email no puede superar los 255 caracteres")
+                .When(x => !string.IsNullOrEmpty(x.Email));
 
             RuleFor(x => x.Phone)
                 .NotEmpty().WithMessage("El teléfono es obligatorio")
