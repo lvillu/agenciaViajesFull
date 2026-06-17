@@ -11,6 +11,7 @@ namespace agenciaViajes.Application.Domain.Repositories
         Task<Payment> UpdateAsync(Payment payment, CancellationToken cancellationToken = default);
         Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
         Task<decimal> GetTotalBySaleIdAsync(int saleId, CancellationToken cancellationToken = default);
-        Task<int> GetNextFolioNumberAsync(CancellationToken cancellationToken = default);
+        Task<int> GetNextFolioNumberAsync(Guid accountId, int folioStart, CancellationToken cancellationToken = default);
+        Task<int> GetAccountFolioStartAsync(Guid accountId, CancellationToken cancellationToken = default);
     }
 }

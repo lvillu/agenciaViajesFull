@@ -6,5 +6,7 @@
         public string Email { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string? UserIconUrl { get; set; }
+        public string Role { get; set; } = "owner";
+        public int FolioStart { get; set; }
     }
 }

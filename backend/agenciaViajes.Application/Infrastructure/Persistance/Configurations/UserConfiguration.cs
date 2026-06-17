@@ -62,6 +62,37 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            builder.Property(u => u.FolioStart)
+                .HasColumnName("folio_start")
+                .HasDefaultValue(0)
+                .IsRequired();
+
+            builder.Property(u => u.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("NOW()")
+                .IsRequired();
+
+            // Account isolation
+            builder.Property(u => u.AccountId)
+                .HasColumnName("account_id")
+                .IsRequired();
+
+            builder.Property(u => u.Role)
+                .HasColumnName("role")
+                .HasMaxLength(50)
+                .HasDefaultValue("owner")
+                .IsRequired();
+
+            builder.Property(u => u.ParentUserId)
+                .HasColumnName("parent_user_id")
+                .IsRequired(false);
+
+            // Self-referencing FK for sub-accounts
+            builder.HasOne(u => u.ParentUser)
+                .WithMany()
+                .HasForeignKey(u => u.ParentUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Índices
             builder.HasIndex(u => u.Email)
                 .IsUnique()
@@ -70,6 +101,9 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.HasIndex(u => u.UserName)
                 .IsUnique()
                 .HasDatabaseName("idx_users_username");
+
+            builder.HasIndex(u => u.AccountId)
+                .HasDatabaseName("idx_users_account_id");
         }
     }
 }

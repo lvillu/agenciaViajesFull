@@ -61,7 +61,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 new Claim("email", user.Email),
                 new Claim("userIcon", user.UserIconUrl ?? ""),
                 new Claim(ClaimTypes.Name, user.UserName),  // Mantener para compatibilidad
-                new Claim("RefreshToken", refreshToken)
+                new Claim("RefreshToken", refreshToken),
+                // Account isolation claims
+                new Claim("accountId", user.AccountId.ToString()),
+                new Claim("userId", user.Id.ToString()),
+                new Claim("role", user.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));

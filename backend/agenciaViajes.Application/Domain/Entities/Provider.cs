@@ -13,5 +13,7 @@
         public decimal? ProfitPercentage { get; set; }
         public bool Active { get; set; } = true;
 
+        // Account isolation
+        public Guid AccountId { get; set; }
     }
 }

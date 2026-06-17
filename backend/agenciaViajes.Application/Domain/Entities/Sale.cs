@@ -34,6 +34,9 @@
 
         public DateTime? ModifiedAt { get; set; }
 
+        // Account isolation
+        public Guid AccountId { get; set; }
+
         // Navigation properties
         public Client? Client { get; set; }
         public Provider? Provider { get; set; }

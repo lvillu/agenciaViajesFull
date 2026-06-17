@@ -73,9 +73,15 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasColumnName("modified_at")
                 .IsRequired(false);
 
+            // Account isolation
+            builder.Property(p => p.AccountId)
+                .HasColumnName("account_id")
+                .IsRequired();
+
             // Índices
-            builder.HasIndex(p => p.FolioNumber)
-                .HasDatabaseName("idx_payments_folio_number")
+            // Composite unique index: each account has its own folio sequence
+            builder.HasIndex(p => new { p.AccountId, p.FolioNumber })
+                .HasDatabaseName("idx_payments_account_folio")
                 .IsUnique();
 
             builder.HasIndex(p => p.SaleId)
@@ -83,6 +89,9 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
 
             builder.HasIndex(p => p.PaymentDate)
                 .HasDatabaseName("idx_payments_payment_date");
+
+            builder.HasIndex(p => p.AccountId)
+                .HasDatabaseName("idx_payments_account_id");
         }
     }
 }

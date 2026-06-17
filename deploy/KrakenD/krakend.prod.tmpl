@@ -101,6 +101,74 @@
       ]
     },
     {
+      "endpoint": "/User/subaccounts",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/subaccounts",
+          "host": ["http://api:8080"],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/User/subaccounts",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/subaccounts",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/User/subaccounts/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/subaccounts/{id}",
+          "host": ["http://api:8080"],
+          "encoding": "no-op",
+          "method": "PUT"
+        }
+      ]
+    },
+    {
+      "endpoint": "/User/subaccounts/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/subaccounts/{id}",
+          "host": ["http://api:8080"],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/User/folio-start",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "input_headers": [ "Authorization", "Content-Type" ],
+      "backend": [
+        {
+          "url_pattern": "/api/User/folio-start",
+          "host": ["http://api:8080"],
+          "method": "PATCH",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
       "endpoint": "/Provider",
       "method": "GET",
       "output_encoding": "no-op",

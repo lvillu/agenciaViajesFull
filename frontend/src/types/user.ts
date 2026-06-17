@@ -37,6 +37,12 @@ export interface UserMeResponse {
   email: string;
   userName: string;
   userIconUrl: string | null;
+  role: string;
+  folioStart: number;
+}
+
+export interface SetFolioStartRequest {
+  folioStart: number;
 }
 
 export interface LoginRequest {

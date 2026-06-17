@@ -5,11 +5,14 @@
 
 import { apiClient } from './apiClient';
 import { ApiResponse } from '@/types/api';
-import { UserMeResponse, UpdateUserRequest } from '@/types/user';
+import { UserMeResponse, UpdateUserRequest, SetFolioStartRequest } from '@/types/user';
+import { SubAccount, CreateSubAccountRequest, UpdateSubAccountRequest } from '@/types/subAccount';
 
 const USER_ENDPOINTS = {
   ME: '/User/me',
   UPDATE: '/users',
+  SUBACCOUNTS: '/User/subaccounts',
+  FOLIO_START: '/User/folio-start',
 };
 
 export const userService = {
@@ -37,6 +40,72 @@ export const userService = {
 
     if (!response.data.isSuccess) {
       throw new Error(response.data.message || 'Error al actualizar perfil');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Obtiene la lista de subcuentas
+   */
+  async getSubAccounts(): Promise<SubAccount[]> {
+    const response = await apiClient.get<ApiResponse<SubAccount[]>>(USER_ENDPOINTS.SUBACCOUNTS);
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al obtener subcuentas');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Crea una nueva subcuenta
+   */
+  async createSubAccount(data: CreateSubAccountRequest): Promise<SubAccount> {
+    const response = await apiClient.post<ApiResponse<SubAccount>>(USER_ENDPOINTS.SUBACCOUNTS, data);
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al crear subcuenta');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Actualiza una subcuenta
+   */
+  async updateSubAccount(id: number, data: UpdateSubAccountRequest): Promise<SubAccount> {
+    const response = await apiClient.put<ApiResponse<SubAccount>>(`${USER_ENDPOINTS.SUBACCOUNTS}/${id}`, data);
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al actualizar subcuenta');
+    }
+
+    return response.data.data;
+  },
+
+  /**
+   * Elimina una subcuenta
+   */
+  async deleteSubAccount(id: number): Promise<void> {
+    const response = await apiClient.delete<ApiResponse<void>>(`${USER_ENDPOINTS.SUBACCOUNTS}/${id}`);
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al eliminar subcuenta');
+    }
+  },
+
+  /**
+   * Configura el folio inicial para el usuario autenticado
+   */
+  async setFolioStart(data: SetFolioStartRequest): Promise<boolean> {
+    const response = await apiClient.patch<ApiResponse<boolean>>(
+      USER_ENDPOINTS.FOLIO_START,
+      data
+    );
+
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Error al configurar folio inicial');
     }
 
     return response.data.data;

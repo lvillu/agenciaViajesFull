@@ -105,6 +105,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasColumnName("modified_at")
                 .IsRequired(false);
 
+            // Account isolation
+            builder.Property(s => s.AccountId)
+                .HasColumnName("account_id")
+                .IsRequired();
+
             // Índices
             builder.HasIndex(s => s.ClientId)
                 .HasDatabaseName("idx_sales_client_id");
@@ -123,6 +128,9 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
 
             builder.HasIndex(s => s.Status)
                 .HasDatabaseName("idx_sales_status");
+
+            builder.HasIndex(s => s.AccountId)
+                .HasDatabaseName("idx_sales_account_id");
         }
     }
 }

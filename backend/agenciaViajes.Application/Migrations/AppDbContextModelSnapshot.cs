@@ -22,9 +22,6 @@ namespace agenciaViajes.Application.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            // Sequence for payments folio numbers
-            modelBuilder.HasSequence<int>("payments_folio_number_seq");
-
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.AgencyInfo", b =>
                 {
                     b.Property<int>("Id")
@@ -105,6 +102,10 @@ namespace agenciaViajes.Application.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
                     b.Property<bool>("Active")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -146,6 +147,9 @@ namespace agenciaViajes.Application.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("idx_clients_account_id");
+
                     b.HasIndex("Active")
                         .HasDatabaseName("idx_clients_active");
 
@@ -166,6 +170,10 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(12, 2)
@@ -220,15 +228,18 @@ namespace agenciaViajes.Application.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FolioNumber")
-                        .IsUnique()
-                        .HasDatabaseName("idx_payments_folio_number");
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("idx_payments_account_id");
 
                     b.HasIndex("PaymentDate")
                         .HasDatabaseName("idx_payments_payment_date");
 
                     b.HasIndex("SaleId")
                         .HasDatabaseName("idx_payments_sale_id");
+
+                    b.HasIndex("AccountId", "FolioNumber")
+                        .IsUnique()
+                        .HasDatabaseName("idx_payments_account_folio");
 
                     b.ToTable("payments", (string)null);
                 });
@@ -241,6 +252,10 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
 
                     b.Property<string>("Acronym")
                         .IsRequired()
@@ -294,6 +309,9 @@ namespace agenciaViajes.Application.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("idx_providers_account_id");
+
                     b.HasIndex("Email")
                         .HasDatabaseName("idx_providers_email");
 
@@ -311,6 +329,10 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
 
                     b.Property<bool>("Active")
                         .ValueGeneratedOnAdd()
@@ -388,6 +410,9 @@ namespace agenciaViajes.Application.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("idx_sales_account_id");
+
                     b.HasIndex("Active")
                         .HasDatabaseName("idx_sales_active");
 
@@ -418,17 +443,33 @@ namespace agenciaViajes.Application.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
                     b.Property<bool>("Active")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
                         .HasColumnName("active");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<int>("FolioStart")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("folio_start");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -441,6 +482,10 @@ namespace agenciaViajes.Application.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<int?>("ParentUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_user_id");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -457,6 +502,14 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("refresh_token_expiry_time");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("owner")
+                        .HasColumnName("role");
+
                     b.Property<string>("UserIconUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -470,9 +523,14 @@ namespace agenciaViajes.Application.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("idx_users_account_id");
+
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasDatabaseName("idx_users_email");
+
+                    b.HasIndex("ParentUserId");
 
                     b.HasIndex("UserName")
                         .IsUnique()
@@ -509,6 +567,16 @@ namespace agenciaViajes.Application.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Provider");
+                });
+
+            modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.User", b =>
+                {
+                    b.HasOne("agenciaViajes.Application.Domain.Entities.User", "ParentUser")
+                        .WithMany()
+                        .HasForeignKey("ParentUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentUser");
                 });
 
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.Sale", b =>

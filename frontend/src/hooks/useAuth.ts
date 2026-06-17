@@ -9,7 +9,7 @@ import { useState, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
-import { LoginRequest, SignUpRequest } from '@/types/user';
+import { LoginRequest, SignUpRequest, SetFolioStartRequest } from '@/types/user';
 
 export const useAuth = () => {
   const { setAuth, setUser, logout, ...authState } = useAuthStore();
@@ -85,12 +85,30 @@ export const useAuth = () => {
     }
   }, [logout]);
 
+  const setFolioStart = useCallback(async (data: SetFolioStartRequest) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await userService.setFolioStart(data);
+      const userInfo = await userService.getMe();
+      setUser(userInfo);
+      return userInfo;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al configurar folio inicial';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setUser]);
+
   return {
     ...authState,
     login,
     signup,
     logout: handleLogout,
     fetchUserInfo,
+    setFolioStart,
     error,
     loading,
     setError,

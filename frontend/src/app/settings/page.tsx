@@ -46,6 +46,7 @@ type AgencyInfoFormData = z.infer<typeof AgencyInfoSchema>;
 
 export default function SettingsPage() {
   const { user, loading, error, fetchUserInfo, isAuthenticated } = useAuth();
+  const isOwner = user?.role === 'owner';
   const hasFetchedUser = useRef(false);
   const {
     agencyInfo,
@@ -300,6 +301,17 @@ export default function SettingsPage() {
               </Typography>
             </Box>
 
+            {!isOwner && (
+              <Alert severity="info" sx={{ mb: 3 }} icon={false}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>lock</span>
+                  <Typography variant="body2">
+                    Solo el usuario propietario de la cuenta puede editar la información de la agencia.
+                  </Typography>
+                </Box>
+              </Alert>
+            )}
+
             {errorAgency && (
               <Alert severity="warning" sx={{ mb: 3 }}>
                 {errorAgency === 'Error al obtener información de la agencia' ||
@@ -334,6 +346,7 @@ export default function SettingsPage() {
                       {...registerAgency('name')}
                       error={!!agencyErrors.name}
                       helperText={agencyErrors.name?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -343,6 +356,7 @@ export default function SettingsPage() {
                       {...registerAgency('address')}
                       error={!!agencyErrors.address}
                       helperText={agencyErrors.address?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -352,6 +366,7 @@ export default function SettingsPage() {
                       {...registerAgency('city')}
                       error={!!agencyErrors.city}
                       helperText={agencyErrors.city?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -361,6 +376,7 @@ export default function SettingsPage() {
                       {...registerAgency('state')}
                       error={!!agencyErrors.state}
                       helperText={agencyErrors.state?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -370,6 +386,7 @@ export default function SettingsPage() {
                       {...registerAgency('zipCode')}
                       error={!!agencyErrors.zipCode}
                       helperText={agencyErrors.zipCode?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -379,6 +396,7 @@ export default function SettingsPage() {
                       {...registerAgency('phone')}
                       error={!!agencyErrors.phone}
                       helperText={agencyErrors.phone?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -389,6 +407,7 @@ export default function SettingsPage() {
                       {...registerAgency('email')}
                       error={!!agencyErrors.email}
                       helperText={agencyErrors.email?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -398,6 +417,7 @@ export default function SettingsPage() {
                       {...registerAgency('secturReg')}
                       error={!!agencyErrors.secturReg}
                       helperText={agencyErrors.secturReg?.message || 'Ej. 04190060827'}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -407,6 +427,7 @@ export default function SettingsPage() {
                       {...registerAgency('logoUrl')}
                       error={!!agencyErrors.logoUrl}
                       helperText={agencyErrors.logoUrl?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -416,6 +437,7 @@ export default function SettingsPage() {
                       {...registerAgency('facebook')}
                       error={!!agencyErrors.facebook}
                       helperText={agencyErrors.facebook?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
@@ -425,28 +447,31 @@ export default function SettingsPage() {
                       {...registerAgency('instagram')}
                       error={!!agencyErrors.instagram}
                       helperText={agencyErrors.instagram?.message}
+                      disabled={!isOwner}
                     />
                   </Grid>
 
-                  <Grid size={12}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={savingAgency}
-                        startIcon={
-                          savingAgency ? undefined : (
-                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-                              save
-                            </span>
-                          )
-                        }
-                      >
-                        {savingAgency ? <CircularProgress size={22} sx={{ color: '#fff' }} /> : 'Guardar Cambios'}
-                      </Button>
-                    </Box>
-                  </Grid>
+                  {isOwner && (
+                    <Grid size={12}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                          disabled={savingAgency}
+                          startIcon={
+                            savingAgency ? undefined : (
+                              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                                save
+                              </span>
+                            )
+                          }
+                        >
+                          {savingAgency ? <CircularProgress size={22} sx={{ color: '#fff' }} /> : 'Guardar Cambios'}
+                        </Button>
+                      </Box>
+                    </Grid>
+                  )}
                 </Grid>
               </form>
             )}

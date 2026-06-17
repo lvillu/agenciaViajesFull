@@ -25,7 +25,7 @@ namespace agenciaViajes.Application.Features.Auth.SignUp
                 return Result<UserResponse>.Failure($"El nombre de usuario '{request.Request.userName}' ya está registrado");
             }
 
-            // Crear nuevo usuario
+            // Crear nuevo usuario con su propia cuenta (account isolation)
             var user = new UserEntity
             {
                 Name = request.Request.name,
@@ -36,7 +36,11 @@ namespace agenciaViajes.Application.Features.Auth.SignUp
                 Active = true,
                 RefreshToken = null,
                 RefreshTokenExpiryTime = null,
-                UserIconUrl = null
+                UserIconUrl = null,
+                AccountId = Guid.NewGuid(),
+                Role = "owner",
+                FolioStart = 0, // 0 = not configured, welcome modal will ask
+                CreatedAt = DateTime.UtcNow
             };
 
             // Registrar usuario en la BD
