@@ -87,14 +87,10 @@ export default function ReservasPage() {
     );
   }, [salesWithTotals, searchTerm]);
 
-  // Navegar a crear (usar URL absoluta para evitar que se arrastren query params)
+  // Navegar a crear (forzar URL limpia sin query params)
   const handleCreate = () => {
-    if (typeof window !== 'undefined') {
-      const url = new URL('/reservas/nueva', window.location.origin);
-      router.push(url.toString());
-    } else {
-      router.push('/reservas/nueva');
-    }
+    // Usar replace + href para evitar que Next.js preserve query params previos
+    window.location.href = '/reservas/nueva';
   };
 
   // Navegar a editar
