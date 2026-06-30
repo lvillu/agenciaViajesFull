@@ -46,10 +46,9 @@ import {
 import { Provider } from '@/types/provider';
 import { ClientFormData } from '@/lib/validationSchemas';
 
-function SaleFormContent() {
+function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const saleId = searchParams.get('id');
+  const saleId = saleIdProp;
   const isEditing = !!saleId;
 
   const [loading, setLoading] = useState(false);
@@ -668,7 +667,6 @@ function SaleFormContent() {
                             : 'Opcional: Ajustable manualmente')
                         }
                         maxDate={travelDate ? new Date(travelDate + 'T00:00:00') : undefined}
-                        disabled={isLiquidationOverdue}
                       />
                     )}
                   />
@@ -786,6 +784,16 @@ function SaleFormContent() {
   );
 }
 
+/**
+ * Controlador que lee searchParams y fuerza remonte del formulario
+ * mediante key cuando cambia el saleId (navegación crear ↔ editar)
+ */
+function SaleFormController() {
+  const searchParams = useSearchParams();
+  const saleId = searchParams.get('id');
+  return <SaleFormContent key={saleId || 'create'} saleId={saleId} />;
+}
+
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
@@ -797,7 +805,7 @@ export default function SaleFormPage() {
         <Footer />
       </Box>
     }>
-      <SaleFormContent />
+      <SaleFormController />
     </Suspense>
   );
 }
