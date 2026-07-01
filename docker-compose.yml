@@ -28,7 +28,7 @@ services:
         reservations:
           memory: 256M
 
-  # .NET 8 API Backend
+  # .NET 10 API Backend
   api:
     build:
       context: ./backend
