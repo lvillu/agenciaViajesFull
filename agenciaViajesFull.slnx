@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/agenciaViajes.Application.Tests/agenciaViajes.Application.Tests.csproj" />
+  </Folder>
   <Project Path="backend/agenciaViajes.Api/agenciaViajes.Api.csproj" />
   <Project Path="backend/agenciaViajes.Application/agenciaViajes.Application.csproj" />
 </Solution>
