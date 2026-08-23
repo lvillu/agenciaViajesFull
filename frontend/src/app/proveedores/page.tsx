@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Container,
   Box,
@@ -78,11 +78,6 @@ export default function ProveedoresPage() {
         provider.providerContactName.toLowerCase().includes(term)
     );
   }, [providers, searchTerm]);
-
-  // Resetear la página al cambiar el término de búsqueda o los proveedores
-  useEffect(() => {
-    setPage(0);
-  }, [searchTerm, providers]);
 
   const totalPages = Math.ceil(filteredProviders.length / rowsPerPage);
   const paginatedProviders = filteredProviders.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
@@ -213,7 +208,10 @@ export default function ProveedoresPage() {
             variant="standard"
             placeholder="Buscar por nombre, acrónimo, email, teléfono o contacto..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
             slotProps={{
               input: {
                 disableUnderline: true,

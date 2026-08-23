@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, CircularProgress, Container, Grid, Typography } from '@mui/material';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -22,13 +22,15 @@ export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const { fetchUserInfo } = useAuth();
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const hasFetchedUser = useRef(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Deteccion de montaje sin estado ni efecto: evita mismatch de hidratacion
+  // y el setState sincrono en efecto (react-hooks/set-state-in-effect).
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     if (!mounted) return;

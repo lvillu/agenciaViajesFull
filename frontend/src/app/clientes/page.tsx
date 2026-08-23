@@ -64,7 +64,6 @@ export default function ClientesPage() {
 
   // Filtrar clientes según el término de búsqueda
   const filteredClients = useMemo(() => {
-    setPage(0);
     if (!searchTerm.trim()) return clients;
 
     const term = searchTerm.toLowerCase();
@@ -76,7 +75,6 @@ export default function ClientesPage() {
         client.phone.toLowerCase().includes(term) ||
         (client.address && client.address.toLowerCase().includes(term))
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, searchTerm]);
 
   const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
@@ -210,7 +208,10 @@ export default function ClientesPage() {
             variant="standard"
             placeholder="Buscar clientes por nombre, email o teléfono..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
             slotProps={{
               input: {
                 disableUnderline: true,

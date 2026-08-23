@@ -1,31 +1,59 @@
 # Ibarra Travel - Frontend
 
-Frontend del sistema de gestión de viajes construido con **Next.js 15** y **React 19**.
+Frontend del sistema de gestión de viajes construido con **Next.js 16** y **React 19**.
 
 ## 🚀 Stack Tecnológico
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI Library**: React 19
-- **Lenguaje**: TypeScript 5
-- **Styling**: Material UI 6 + Emotion
-- **Estado Global**: Zustand
+- **Lenguaje**: TypeScript 6
+- **Styling**: Material UI 9 + Emotion / PrimeReact (unstyled)
+- **Estado Global**: Zustand 5
 - **HTTP Client**: Axios
-- **Formularios**: React Hook Form + Zod
+- **Formularios**: React Hook Form + Zod 4 (@hookform/resolvers)
 - **Confirmaciones**: SweetAlert2
+- **Testing**: Vitest + React Testing Library + jsdom
+- **Linting**: ESLint 9 (flat config con `eslint-config-next`)
 
-## 📦 Instalación
+## 📦 Instalación y Ejecución
 
-### Prerequisites
-- Node.js 18+ 
-- npm o yarn
+> **⚠️ Regla del proyecto:** el frontend y sus pruebas siempre se ejecutan desde **Docker**.
+> La validación válida es la que corre en contenedores; una ejecución local fuera de Docker
+> solo sirve como diagnóstico auxiliar.
 
-### Setup
+### Comandos Docker (recomendado)
+
+```bash
+docker compose build frontend          # build de la imagen (incluye typecheck de Next)
+docker compose up -d frontend          # levantar el servicio
+docker compose logs --tail=100 frontend
+```
+
+La aplicación queda disponible en **http://localhost:3100** (el host usa 3100 para evitar
+conflictos con otros proyectos que usan el puerto 3000).
+
+### Pruebas y validaciones dentro de Docker
+
+```bash
+# Typecheck aislado (contenedor Node 22 con npm ci + tsc)
+docker run --rm -v "${PWD}/frontend:/proj:ro" node:22-alpine sh -c \
+  'mkdir -p /app && cp -r /proj/. /app/ && cd /app && rm -rf .next node_modules && \
+   npm ci --no-audit --no-fund && npx tsc --noEmit'
+
+# Suite unitaria
+docker run --rm -v "${PWD}/frontend:/proj:ro" node:22-alpine sh -c \
+  'mkdir -p /app && cp -r /proj/. /app/ && cd /app && rm -rf .next node_modules && \
+   npm ci --no-audit --no-fund && CI=true npx vitest run'
+
+# Linter
+docker compose run --rm --workdir /app frontend npm run lint   # requiere node_modules completo
+```
+
+### Setup local (solo diagnóstico auxiliar)
 
 1. **Instalar dependencias**
 ```bash
-npm install
-# o
-yarn install
+npm ci
 ```
 
 2. **Configurar variables de entorno**
@@ -41,11 +69,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5050
 3. **Ejecutar en desarrollo**
 ```bash
 npm run dev
-# o
-yarn dev
 ```
-
-La aplicación estará disponible en `http://localhost:3000`
 
 ## 🏗️ Estructura del Proyecto
 
@@ -185,9 +209,12 @@ Si no estás autenticado, serás redirigido a `/login`.
 ### Scripts disponibles
 ```bash
 npm run dev      # Ejecutar en desarrollo
-npm run build    # Compilar para producción
+npm run build    # Compilar para producción (standalone)
 npm start        # Ejecutar build de producción
-npm run lint     # Ejecutar linter
+npm run lint     # ESLint directo (flat config en eslint.config.mjs)
+npm test         # Suite unitaria con Vitest
+npm run test:watch    # Vitest en modo watch
+npm run test:coverage # Cobertura de pruebas
 ```
 
 ### Hot Reload
@@ -276,4 +303,4 @@ Si contribuyes al proyecto:
 
 ---
 
-**Última actualización**: Febrero 2026
+**Última actualización**: Agosto 2026 — Stack actualizado según `.doc/Plan-Actualizacion-Dependencias-Frontend.md`
