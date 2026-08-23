@@ -118,7 +118,7 @@ src/
 El frontend comunica **SIEMPRE** a través del **KrakenD Gateway** en el puerto 5050.
 
 ```
-Frontend (3000) → Gateway (5050) → Backend (8080)
+Frontend (3100 en Docker) → Gateway (5050) → Backend (8080)
 ```
 
 **URLs de API:**

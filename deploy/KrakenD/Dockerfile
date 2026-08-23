@@ -1,6 +1,6 @@
-# Imagen oficial de KrakenD (~50MB, ya basada en Alpine)
+# Imagen oficial de KrakenD (~55MB, basada en Alpine)
 # Pinear versión para builds reproducibles
-FROM devopsfaith/krakend:2.7
+FROM krakend:2.13.10
 
 # Copiar configuración
 COPY krakend.json /etc/krakend/krakend.json
