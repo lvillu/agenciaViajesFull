@@ -79,14 +79,14 @@ docker-compose exec database psql -U postgres -d ibarratravel
 
 | Servicio | URL | Credenciales |
 |----------|-----|-------------|
-| **Frontend** | http://localhost:3000 | - |
+| **Frontend** | http://localhost:3100 | - |
 | **API** | http://localhost:8080 | - |
 | **KrakenD Gateway** | http://localhost:5050 | - |
 | **PostgreSQL** | localhost:5432 | user: `postgres` / pass: `postgres` |
 
 ## 📱 Flujo de Login
 
-1. Abre http://localhost:3000
+1. Abre http://localhost:3100
 2. Accede a la pantalla de login
 3. Ingresa credenciales
 4. El frontend se comunica con http://localhost:5050 (KrakenD)
@@ -97,7 +97,7 @@ docker-compose exec database psql -U postgres -d ibarratravel
 
 - ✅ Docker Desktop instalado
 - ✅ Archivo `.env.development.local` en la raíz del proyecto
-- ✅ Puertos 3000, 5050, 8080, 5432 disponibles
+- ✅ Puertos 3100, 5050, 8080, 5432 disponibles
 
 ## 🔧 Configurar Variables de Entorno
 
@@ -175,7 +175,7 @@ agenciaViajesFull/
 El frontend **SIEMPRE** se comunica a través de KrakenD Gateway:
 
 ```
-Frontend (localhost:3000) 
+Frontend (localhost:3100) 
   ↓
   → KrakenD (localhost:5050)
     ↓
