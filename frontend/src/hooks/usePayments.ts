@@ -48,6 +48,9 @@ export const usePayments = (saleId: number | null) => {
   }, [payments]);
 
   useEffect(() => {
+    // Carga inicial al montar con la funcion de refresh compartida (convencion del
+    // proyecto); el setLoading sincrono es intencional y no se ejecuta durante el render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPayments();
   }, [fetchPayments]);
 
