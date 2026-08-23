@@ -303,4 +303,4 @@ Si contribuyes al proyecto:
 
 ---
 
-**Última actualización**: Agosto 2026 — Stack actualizado según `.doc/Plan-Actualizacion-Dependencias-Frontend.md`
+**Última actualización**: Agosto 2026
