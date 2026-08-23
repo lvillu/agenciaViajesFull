@@ -8,8 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-ibarratravel}
     ports:
-      # Host 5433 para evitar conflicto con otros proyectos que usan 5432 en el host
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -87,15 +86,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        # NEXT_PUBLIC_* se hornea en el bundle en BUILD time.
-        # Debe apuntar al gateway visible desde el navegador, nunca a un hostname interno de Docker.
-        NEXT_PUBLIC_API_URL: http://localhost:5050
     image: agencia_viajes_frontend:latest
     container_name: agencia_viajes_frontend
     ports:
       # Host 3100 para evitar conflictos con el puerto 3000, usado frecuentemente por otros proyectos
       - "3100:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://krakend:8080"
     depends_on:
       - krakend
     networks:
