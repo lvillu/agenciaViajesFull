@@ -66,7 +66,7 @@ describe('useProviders', () => {
 
     let actualizado: unknown;
     await act(async () => {
-      actualizado = await result.current.updateProvider(1, { name: 'Actualizado' });
+      actualizado = await result.current.updateProvider(1, { ...buildProvider(1), name: 'Actualizado' });
     });
 
     expect((actualizado as { name: string }).name).toBe('Actualizado');

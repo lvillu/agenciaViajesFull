@@ -3,7 +3,6 @@ import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { PrimeReactProvider } from 'primereact/api';
-import type { ReactElement } from 'react';
 import { ClientFormModal } from './ClientFormModal';
 import type { Client } from '@/types/client';
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -36,7 +36,7 @@ function ControlledHarness() {
       label="Nombre"
       placeholder="Ej. Juan"
       value={value}
-      onChange={(event) => setValue(event.target.value)}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => setValue(event.target.value)}
     />
   );
 }

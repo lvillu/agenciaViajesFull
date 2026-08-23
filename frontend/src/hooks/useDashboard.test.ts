@@ -24,9 +24,9 @@ describe('useDashboard', () => {
       nearCancellationCount: 1,
       salesLast12Months: [],
     });
-    mocked.getMonthlySalesChart.mockResolvedValue({ labels: ['Ene'], values: [100] });
-    mocked.getSalesByProviderChart.mockResolvedValue({ labels: ['Prov A'], values: [200] });
-    mocked.getMonthlyProfitsChart.mockResolvedValue({ labels: ['Ene'], values: [50] });
+    mocked.getMonthlySalesChart.mockResolvedValue({ labels: ['Ene'], datasets: [{ data: [100] }] });
+    mocked.getSalesByProviderChart.mockResolvedValue({ labels: ['Prov A'], datasets: [{ data: [200] }] });
+    mocked.getMonthlyProfitsChart.mockResolvedValue({ labels: ['Ene'], datasets: [{ data: [50] }] });
   });
 
   it('carga cards y los tres gráficos al montar', async () => {
@@ -36,7 +36,7 @@ describe('useDashboard', () => {
 
     expect(result.current.cards?.estimatedProfitCurrentMonth).toBe(50000);
     expect(result.current.monthlySalesChart?.labels).toEqual(['Ene']);
-    expect(result.current.salesByProviderChart?.values).toEqual([200]);
+    expect(result.current.salesByProviderChart?.datasets[0]?.data).toEqual([200]);
     expect(result.current.monthlyProfitsChart?.labels).toEqual(['Ene']);
     expect(result.current.error).toBeNull();
   });

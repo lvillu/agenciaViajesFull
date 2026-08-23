@@ -91,7 +91,7 @@ describe('useClients', () => {
     mocked.update.mockResolvedValue(actualizado);
 
     await act(async () => {
-      await result.current.updateClient(1, { name: 'Modificado' });
+      await result.current.updateClient(1, { ...buildClient(1), name: 'Modificado' });
     });
 
     expect(result.current.clients.find((c) => c.id === 1)?.name).toBe('Modificado');
