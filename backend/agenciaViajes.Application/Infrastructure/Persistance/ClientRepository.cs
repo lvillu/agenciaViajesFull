@@ -63,9 +63,12 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return true;
         }
 
-        public async Task<bool> ExistsByEmailAsync(string email, int? excludeId = null, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByEmailAsync(string? email, int? excludeId = null, CancellationToken cancellationToken = default)
         {
-            var query = _context.Clients.Where(c => c.Email.ToLower() == email.ToLower());
+            if (string.IsNullOrEmpty(email))
+                return false;
+
+            var query = _context.Clients.Where(c => c.Email != null && c.Email.ToLower() == email.ToLower());
 
             if (excludeId.HasValue)
             {

@@ -46,10 +46,9 @@ import {
 import { Provider } from '@/types/provider';
 import { ClientFormData } from '@/lib/validationSchemas';
 
-function SaleFormContent() {
+function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const saleId = searchParams.get('id');
+  const saleId = saleIdProp;
   const isEditing = !!saleId;
 
   const [loading, setLoading] = useState(false);
@@ -91,6 +90,9 @@ function SaleFormContent() {
   });
 
   // Observar cambios en campos para cálculos automáticos
+  // React Hook Form esta documentado como incompatible con React Compiler;
+  // el uso de watch() suscripto a re-renders es el patrón intencional del formulario.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const providerId = watch('providerId');
   const travelDate = watch('travelDate');
   const totalAmount = watch('totalAmount');
@@ -141,7 +143,7 @@ function SaleFormContent() {
     } else {
       setSelectedProvider(null);
     }
-  }, [providerId, providers]);
+  }, [providerId, providers, isEditing, setValue]);
 
   // Verificar si la fecha de liquidación es pasada
   useEffect(() => {
@@ -668,7 +670,6 @@ function SaleFormContent() {
                             : 'Opcional: Ajustable manualmente')
                         }
                         maxDate={travelDate ? new Date(travelDate + 'T00:00:00') : undefined}
-                        disabled={isLiquidationOverdue}
                       />
                     )}
                   />
@@ -786,6 +787,16 @@ function SaleFormContent() {
   );
 }
 
+/**
+ * Controlador que lee searchParams y fuerza remonte del formulario
+ * mediante key cuando cambia el saleId (navegación crear ↔ editar)
+ */
+function SaleFormController() {
+  const searchParams = useSearchParams();
+  const saleId = searchParams.get('id');
+  return <SaleFormContent key={saleId || 'create'} saleId={saleId} />;
+}
+
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
@@ -797,7 +808,7 @@ export default function SaleFormPage() {
         <Footer />
       </Box>
     }>
-      <SaleFormContent />
+      <SaleFormController />
     </Suspense>
   );
 }

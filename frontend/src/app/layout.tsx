@@ -175,10 +175,16 @@ export default function RootLayout({
         <link rel="icon" href="/IbarraTravel_logo.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Fuentes requeridas por el design system (.doc/travel_agency_styles.md):
+            Public Sans (texto) y Material Symbols Outlined (iconografia ligadura).
+            Se cargan via <link> y no via next/font porque los iconos dependen de
+            la font-family global 'Material Symbols Outlined'. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap"
           rel="stylesheet"
         />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
           rel="stylesheet"

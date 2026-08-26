@@ -22,9 +22,6 @@ namespace agenciaViajes.Application.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            // Sequence for payments folio numbers
-            modelBuilder.HasSequence<int>("payments_folio_number_seq");
-
             modelBuilder.Entity("agenciaViajes.Application.Domain.Entities.AgencyInfo", b =>
                 {
                     b.Property<int>("Id")
@@ -121,7 +118,6 @@ namespace agenciaViajes.Application.Migrations
                         .HasColumnName("birth_date");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");

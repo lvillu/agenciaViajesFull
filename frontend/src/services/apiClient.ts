@@ -36,8 +36,14 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       if (typeof window !== 'undefined') {
+        // Interceptor de Axios fuera del arbol de React: no hay acceso a useRouter.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = '/login';
       }
+    }
+    // Extraer mensaje del backend en errores 400+ (formato ApiResponse)
+    if (error.response?.data?.message && error.response?.status >= 400) {
+      error.message = error.response.data.message;
     }
     return Promise.reject(error);
   }

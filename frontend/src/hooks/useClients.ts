@@ -46,16 +46,12 @@ export const useClients = () => {
   /**
    * Crea un nuevo cliente
    */
-  const createClient = useCallback(async (client: CreateClientRequest): Promise<Client | null> => {
+  const createClient = useCallback(async (client: CreateClientRequest): Promise<Client> => {
     setLoading(true);
-    setError(null);
     try {
       const newClient = await clientService.create(client);
       setClients((prev) => [...prev, newClient]);
       return newClient;
-    } catch (err: any) {
-      setError(err.message || 'Error al crear cliente');
-      return null;
     } finally {
       setLoading(false);
     }
@@ -64,18 +60,14 @@ export const useClients = () => {
   /**
    * Actualiza un cliente existente
    */
-  const updateClient = useCallback(async (id: number, client: UpdateClientRequest): Promise<Client | null> => {
+  const updateClient = useCallback(async (id: number, client: UpdateClientRequest): Promise<Client> => {
     setLoading(true);
-    setError(null);
     try {
       const updatedClient = await clientService.update(id, client);
       setClients((prev) =>
         prev.map((c) => (c.id === id ? updatedClient : c))
       );
       return updatedClient;
-    } catch (err: any) {
-      setError(err.message || 'Error al actualizar cliente');
-      return null;
     } finally {
       setLoading(false);
     }
@@ -100,6 +92,9 @@ export const useClients = () => {
   }, []);
 
   useEffect(() => {
+    // Carga inicial al montar con la funcion de refresh compartida (convencion del
+    // proyecto); el setLoading sincrono es intencional y no se ejecuta durante el render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchClients();
   }, [fetchClients]);
 

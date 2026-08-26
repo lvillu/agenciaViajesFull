@@ -39,6 +39,8 @@ export const useSales = (includeInactive: boolean = false) => {
   };
 
   useEffect(() => {
+    // Convencion del proyecto: carga inicial con funcion de refresh compartida.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSales();
   }, [fetchSales]);
 
@@ -79,6 +81,8 @@ export const useSale = (id: number | null) => {
   }, [id]);
 
   useEffect(() => {
+    // Carga de la venta al montar; refetch expuesto para recarga manual.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSale();
   }, [fetchSale]);
 

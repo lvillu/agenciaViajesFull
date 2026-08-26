@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -32,11 +32,13 @@ export const Header: React.FC = () => {
   const { userName, user } = useAuthStore();
   const { logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Deteccion de montaje sin estado ni efecto: evita mismatch de hidratacion
+  // y el setState sincrono en efecto (react-hooks/set-state-in-effect).
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

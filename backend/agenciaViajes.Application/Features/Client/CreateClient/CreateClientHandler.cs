@@ -16,11 +16,14 @@ namespace agenciaViajes.Application.Features.Client.CreateClient
 
         public async Task<Result<ClientResponse>> Handle(CreateClientCommand request, CancellationToken cancellationToken)
         {
-            // Validar que no exista un cliente con el mismo email
-            var exists = await _clientRepository.ExistsByEmailAsync(request.Request.Email, null, cancellationToken);
-            if (exists)
+            // Validar que no exista un cliente con el mismo email (solo si se proporcionó)
+            if (!string.IsNullOrEmpty(request.Request.Email))
             {
-                return Result<ClientResponse>.Failure("Ya existe un cliente con ese email");
+                var exists = await _clientRepository.ExistsByEmailAsync(request.Request.Email, null, cancellationToken);
+                if (exists)
+                {
+                    return Result<ClientResponse>.Failure("Ya existe un cliente con ese email");
+                }
             }
 
             // Crear entidad
