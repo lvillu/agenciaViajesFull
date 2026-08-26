@@ -67,6 +67,8 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
   useEffect(() => {
     if (!open) return;
+    // Spinner inmediato al abrir el modal; la carga en si es asincrona.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingAgency(true);
     agencyInfoService
       .getAgencyInfo()

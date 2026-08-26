@@ -40,6 +40,8 @@ export const useDashboard = () => {
   }, []);
 
   useEffect(() => {
+    // Convencion del proyecto: carga inicial con funcion de refresh compartida.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAll();
   }, [fetchAll]);
 

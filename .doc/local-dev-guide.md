@@ -121,7 +121,7 @@ El comando anterior ejecuta `up -d` por defecto (modo desacoplado). Verás en co
 
 | Contenedor                 | URL local                  | Descripción               |
 |----------------------------|----------------------------|---------------------------|
-| `agencia_viajes_frontend`  | http://localhost:3000      | Next.js (React 19)        |
+| `agencia_viajes_frontend`  | http://localhost:3100      | Next.js (React 19)        |
 | `agencia_viajes_api`       | http://localhost:8080      | .NET 8 API                |
 | `agencia_viajes_krakend`   | http://localhost:5050      | API Gateway               |
 | `agencia_viajes_db`        | localhost:5432             | PostgreSQL 16             |
@@ -146,7 +146,7 @@ Todos los servicios deben aparecer con estado `Up` o `running`.
 
 ### 6.1 Frontend
 
-Abre http://localhost:3000 en el navegador. Debe cargar la pantalla de inicio de la aplicación.
+Abre http://localhost:3100 en el navegador. Debe cargar la pantalla de inicio de la aplicación.
 
 ### 6.2 API — Health Check
 
@@ -189,7 +189,7 @@ docker exec -it agencia_viajes_db psql -U postgres -d ibarratravel
 
 ### 6.5 Flujo de Login completo
 
-1. Abre http://localhost:3000 y navega al login.
+1. Abre http://localhost:3100 y navega al login.
 2. Usa las credenciales de un usuario semilla (si existen) o regístra uno nuevo.
 3. El frontend llama a KrakenD → API → PostgreSQL. Si el login es exitoso, el stack está funcionando correctamente.
 
@@ -288,7 +288,7 @@ docker restart agencia_viajes_krakend
 
 | Síntoma | Causa probable | Solución |
 |---------|----------------|----------|
-| Puerto ya en uso | Otro proceso usa 3000/5050/8080/5432 | Cambia el puerto en `docker-compose.yml` o detén el proceso conflictivo |
+| Puerto ya en uso | Otro proceso usa 3100/5050/8080/5432 | Cambia el puerto en `docker-compose.yml` o detén el proceso conflictivo |
 | API no arranca | Fallo en migraciones / DB no lista | Revisa `.\docker-compose.ps1 logs -f api` |
 | Frontend muestra error de red | `NEXT_PUBLIC_API_URL` incorrecto | Verifica la variable en `.env.development.local` y reconstruye |
 | `Error: No se encontró .env.development.local` | Falta el archivo de entorno | Ejecuta el paso 3 de esta guía |

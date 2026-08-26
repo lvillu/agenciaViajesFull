@@ -317,7 +317,7 @@ export default function LoginPage() {
                 textShadow: '0 1px 4px rgba(0,0,0,0.25)',
               }}
             >
-              "El mundo es un libro y los que no viajan solo leen una página."
+              &quot;El mundo es un libro y los que no viajan solo leen una página.&quot;
             </Typography>
 
             {/* Progress dots */}

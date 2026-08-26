@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-ibarratravel}
     ports:
-      - "5432:5432"
+      # Host 5433 para evitar conflicto con valavi-postgres, que usa 5432 en el host
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -28,7 +29,7 @@ services:
         reservations:
           memory: 256M
 
-  # .NET 8 API Backend
+  # .NET 10 API Backend
   api:
     build:
       context: ./backend
@@ -89,7 +90,8 @@ services:
     image: agencia_viajes_frontend:latest
     container_name: agencia_viajes_frontend
     ports:
-      - "3000:3000"
+      # Host 3100 para evitar conflictos con el puerto 3000, usado frecuentemente por otros proyectos
+      - "3100:3000"
     environment:
       NEXT_PUBLIC_API_URL: "http://krakend:8080"
     depends_on:

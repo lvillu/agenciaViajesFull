@@ -90,6 +90,9 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   });
 
   // Observar cambios en campos para cálculos automáticos
+  // React Hook Form esta documentado como incompatible con React Compiler;
+  // el uso de watch() suscripto a re-renders es el patrón intencional del formulario.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const providerId = watch('providerId');
   const travelDate = watch('travelDate');
   const totalAmount = watch('totalAmount');
@@ -140,7 +143,7 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
     } else {
       setSelectedProvider(null);
     }
-  }, [providerId, providers]);
+  }, [providerId, providers, isEditing, setValue]);
 
   // Verificar si la fecha de liquidación es pasada
   useEffect(() => {
