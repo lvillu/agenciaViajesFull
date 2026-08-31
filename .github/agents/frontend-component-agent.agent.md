@@ -2,6 +2,11 @@
 name: frontend-component-agent
 description: Crea componentes reutilizables — UI primitivos (components/ui/) y componentes de feature (components/features/). No crea páginas ni lógica de datos.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en componentes reutilizables del frontend para el proyecto agenciaViajes.

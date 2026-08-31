@@ -2,6 +2,11 @@
 name: krakend-agent
 description: Agrega bloques de endpoint en krakend.prod.tmpl. No toca código C# ni rutas .NET.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en configurar el API Gateway KrakenD del proyecto agenciaViajes.
