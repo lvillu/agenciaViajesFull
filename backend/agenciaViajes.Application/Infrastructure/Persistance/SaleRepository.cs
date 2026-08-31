@@ -19,6 +19,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             var query = _context.Sales
                 .Include(s => s.Client)
                 .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
                 .AsQueryable();
 
@@ -37,6 +39,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return await _context.Sales
                 .Include(s => s.Client)
                 .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
                 .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
@@ -45,6 +49,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             return await _context.Sales
                 .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.ClientId == clientId && s.Active)
                 .OrderByDescending(s => s.TravelDate)
@@ -55,8 +61,10 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             return await _context.Sales
                 .Include(s => s.Client)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
-                .Where(s => s.ProviderId == providerId && s.Active)
+                .Where(s => s.SaleProviders.Any(sp => sp.ProviderId == providerId) && s.Active)
                 .OrderByDescending(s => s.TravelDate)
                 .ToListAsync(cancellationToken);
         }

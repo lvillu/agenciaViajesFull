@@ -1,3 +1,4 @@
+using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Sale.Common.Responses;
@@ -9,16 +10,13 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IClientRepository _clientRepository;
-        private readonly IProviderRepository _providerRepository;
 
         public UpdateSaleHandler(
             ISaleRepository saleRepository,
-            IClientRepository clientRepository,
-            IProviderRepository providerRepository)
+            IClientRepository clientRepository)
         {
             _saleRepository = saleRepository;
             _clientRepository = clientRepository;
-            _providerRepository = providerRepository;
         }
 
         public async Task<Result<SaleResponse>> Handle(UpdateSaleCommand request, CancellationToken cancellationToken)
@@ -37,32 +35,8 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
                 return Result<SaleResponse>.Failure("El cliente especificado no existe");
             }
 
-            // Validar que exista el proveedor
-            var provider = await _providerRepository.GetByIdAsync(request.Request.ProviderId, cancellationToken);
-            if (provider == null)
-            {
-                return Result<SaleResponse>.Failure("El proveedor especificado no existe");
-            }
-
-            // Validar número de reserva único (si se proporciona y cambió)
-            if (!string.IsNullOrWhiteSpace(request.Request.ReservationNumber) && 
-                request.Request.ReservationNumber != sale.ReservationNumber)
-            {
-                var exists = await _saleRepository.ExistsByReservationNumberAsync(
-                    request.Request.ReservationNumber, 
-                    request.Id, 
-                    cancellationToken);
-                
-                if (exists)
-                {
-                    return Result<SaleResponse>.Failure("Ya existe una venta con ese número de reserva");
-                }
-            }
-
             // Actualizar entidad - Convertir fechas a UTC
             sale.ClientId = request.Request.ClientId;
-            sale.ProviderId = request.Request.ProviderId;
-            sale.ReservationNumber = request.Request.ReservationNumber;
             sale.Description = request.Request.Description;
             sale.TotalAmount = request.Request.TotalAmount;
             sale.IsDollar = request.Request.IsDollar;
@@ -72,6 +46,17 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             sale.TravelDate = request.Request.TravelDate.ToUniversalTime();
             sale.ReturnDate = request.Request.ReturnDate?.ToUniversalTime();
             sale.Status = request.Request.Status;
+
+            // Reemplazar completamente los SaleProviders
+            sale.SaleProviders.Clear();
+            foreach (var providerReq in request.Request.Providers)
+            {
+                sale.SaleProviders.Add(new SaleProvider
+                {
+                    ProviderId = providerReq.ProviderId,
+                    ReservationNumber = providerReq.ReservationNumber
+                });
+            }
 
             sale = await _saleRepository.UpdateAsync(sale, cancellationToken);
 
@@ -84,9 +69,9 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
                 Id = sale.Id,
                 ClientId = sale.ClientId,
                 ClientName = $"{client.Name} {client.LastName}",
-                ProviderId = sale.ProviderId,
-                ProviderName = provider.Name,
-                ReservationNumber = sale.ReservationNumber,
+                ProviderId = sale.SaleProviders.FirstOrDefault()?.ProviderId,
+                ProviderName = sale.SaleProviders.FirstOrDefault()?.Provider?.Name,
+                ReservationNumber = sale.SaleProviders.FirstOrDefault()?.ReservationNumber,
                 Description = sale.Description,
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,
@@ -101,7 +86,15 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
                 TotalPaid = totalPaid,
                 RemainingBalance = remainingBalance,
                 CreatedAt = sale.CreatedAt,
-                ModifiedAt = sale.ModifiedAt
+                ModifiedAt = sale.ModifiedAt,
+                Providers = sale.SaleProviders.Select(sp => new SaleProviderDto
+                {
+                    Id = sp.Id,
+                    ProviderId = sp.ProviderId,
+                    ProviderName = sp.Provider?.Name,
+                    ProviderAcronym = sp.Provider?.Acronym,
+                    ReservationNumber = sp.ReservationNumber
+                }).ToList()
             };
 
             return Result<SaleResponse>.Success(response, "Venta actualizada exitosamente");

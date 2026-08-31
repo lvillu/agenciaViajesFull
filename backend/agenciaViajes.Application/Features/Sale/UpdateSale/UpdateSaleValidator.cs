@@ -10,8 +10,15 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             RuleFor(x => x.ClientId)
                 .GreaterThan(0).WithMessage("Debe seleccionar un cliente");
 
-            RuleFor(x => x.ProviderId)
-                .GreaterThan(0).WithMessage("Debe seleccionar un proveedor");
+            RuleFor(x => x.Providers)
+                .NotEmpty().WithMessage("Debe seleccionar al menos un proveedor");
+
+            RuleForEach(x => x.Providers)
+                .ChildRules(provider =>
+                {
+                    provider.RuleFor(p => p.ProviderId)
+                        .GreaterThan(0).WithMessage("El proveedor es inválido");
+                });
 
             RuleFor(x => x.TotalAmount)
                 .GreaterThan(0).WithMessage("El monto total debe ser mayor a 0");
