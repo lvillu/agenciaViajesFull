@@ -5,10 +5,18 @@ import { z } from 'zod';
  * Basado en Sale.cs del backend
  */
 
+export interface SaleProviderItem {
+  id?: number;
+  providerId: number;
+  providerName?: string;
+  providerAcronym?: string;
+  reservationNumber?: string;
+}
+
 export interface Sale {
   id: number;
   clientId: number;
-  providerId: number;
+  providerId?: number;
   reservationNumber?: string;
   description?: string;
   totalAmount: number;
@@ -29,6 +37,7 @@ export interface Sale {
   // Nombres enviados por el backend (strings simples)
   clientName?: string; // Nombre completo del cliente
   providerName?: string; // Nombre del proveedor
+  providers?: SaleProviderItem[];
   
   // Navigation properties (cuando se incluyen en la respuesta)
   client?: {
@@ -58,8 +67,7 @@ export interface Payment {
 
 export interface CreateSaleRequest {
   clientId: number;
-  providerId: number;
-  reservationNumber?: string;
+  providers: SaleProviderItem[];
   description?: string;
   totalAmount: number;
   isDollar: boolean;
@@ -74,8 +82,7 @@ export interface CreateSaleRequest {
 
 export interface UpdateSaleRequest {
   clientId: number;
-  providerId: number;
-  reservationNumber?: string;
+  providers: SaleProviderItem[];
   description?: string;
   totalAmount: number;
   isDollar: boolean;
@@ -92,8 +99,12 @@ export interface UpdateSaleRequest {
 // Esquema de validación para crear venta
 export const CreateSaleSchema = z.object({
   clientId: z.coerce.number().min(1, 'Debe seleccionar un cliente'),
-  providerId: z.coerce.number().min(1, 'Debe seleccionar un proveedor'),
-  reservationNumber: z.string().optional(),
+  providers: z.array(
+    z.object({
+      providerId: z.coerce.number().min(1, 'El proveedor es inválido'),
+      reservationNumber: z.string().optional(),
+    })
+  ).min(1, 'Debe agregar al menos un proveedor'),
   description: z.string().optional(),
   totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
@@ -136,8 +147,12 @@ export const CreateSaleSchema = z.object({
 // Esquema de validación para actualizar venta
 export const UpdateSaleSchema = z.object({
   clientId: z.coerce.number().min(1, 'Debe seleccionar un cliente'),
-  providerId: z.coerce.number().min(1, 'Debe seleccionar un proveedor'),
-  reservationNumber: z.string().optional(),
+  providers: z.array(
+    z.object({
+      providerId: z.coerce.number().min(1, 'El proveedor es inválido'),
+      reservationNumber: z.string().optional(),
+    })
+  ).min(1, 'Debe agregar al menos un proveedor'),
   description: z.string().optional(),
   totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),

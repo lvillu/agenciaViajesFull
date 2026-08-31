@@ -28,6 +28,7 @@ import {
   Chip,
   TextField,
   InputAdornment,
+  Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -83,7 +84,8 @@ export default function ReservasPage() {
         sale.reservationNumber?.toLowerCase().includes(term) ||
         sale.description?.toLowerCase().includes(term) ||
         sale.clientName?.toLowerCase().includes(term) ||
-        sale.providerName?.toLowerCase().includes(term)
+        (sale.providerName?.toLowerCase().includes(term) ||
+          sale.providers?.some(p => p.providerName?.toLowerCase().includes(term)))
     );
   }, [salesWithTotals, searchTerm]);
 
@@ -317,9 +319,23 @@ export default function ReservasPage() {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {sale.providerName || '-'}
-                          </Typography>
+                          {(() => {
+                            const providers = sale.providers?.length
+                              ? sale.providers
+                              : sale.providerName
+                                ? [{ providerName: sale.providerName }]
+                                : [];
+                            const fullText = providers.map(p => p.providerName || '').filter(Boolean).join(', ');
+                            const truncated = fullText.length > 15 ? fullText.slice(0, 15) + '...' : fullText;
+                            if (!fullText) return <Typography variant="body2" color="text.secondary">-</Typography>;
+                            return (
+                              <Tooltip title={fullText.length > 15 ? fullText : ''} arrow>
+                                <Typography variant="body2" color="text.secondary" sx={{ cursor: fullText.length > 15 ? 'default' : 'inherit' }}>
+                                  {truncated}
+                                </Typography>
+                              </Tooltip>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>

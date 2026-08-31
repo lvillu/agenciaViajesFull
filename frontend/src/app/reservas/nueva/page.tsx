@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
 import { ClientFormModal } from '@/components/shared/ClientFormModal';
+import { SaleProvidersField } from '@/components/features/sale/SaleProvidersField';
 import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
 import { useProviders } from '@/hooks/useProviders';
@@ -73,8 +74,7 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
     resolver: zodResolver(isEditing ? UpdateSaleSchema : CreateSaleSchema) as any,
     defaultValues: {
       clientId: 0,
-      providerId: 0,
-      reservationNumber: '',
+      providers: [{ providerId: 0, reservationNumber: '' }],
       description: '',
       totalAmount: 0,
       isDollar: false,
@@ -92,8 +92,6 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   // Observar cambios en campos para cálculos automáticos
   // React Hook Form esta documentado como incompatible con React Compiler;
   // el uso de watch() suscripto a re-renders es el patrón intencional del formulario.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const providerId = watch('providerId');
   const travelDate = watch('travelDate');
   const totalAmount = watch('totalAmount');
   const isDollar = watch('isDollar');
@@ -108,8 +106,10 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
         .getById(Number(saleId))
         .then((sale) => {
           setValue('clientId', sale.clientId);
-          setValue('providerId', sale.providerId);
-          setValue('reservationNumber', sale.reservationNumber || '');
+          setValue('providers', sale.providers?.length
+            ? sale.providers.map(p => ({ providerId: p.providerId, reservationNumber: p.reservationNumber || '' }))
+            : [{ providerId: sale.providerId || 0, reservationNumber: sale.reservationNumber || '' }]
+          );
           setValue('description', sale.description || '');
           setValue('totalAmount', sale.totalAmount);
           setValue('isDollar', sale.isDollar);
@@ -130,20 +130,6 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
         });
     }
   }, [isEditing, saleId, setValue]);
-
-  // Actualizar proveedor seleccionado cuando cambie providerId
-  useEffect(() => {
-    if (providerId > 0) {
-      const provider = providers.find((p) => p.id === providerId);
-      setSelectedProvider(provider || null);
-      // Pre-cargar % de ganancia del proveedor (solo si no estamos editando)
-      if (!isEditing && provider?.profitPercentage !== undefined) {
-        setValue('profitPercentage', provider.profitPercentage);
-      }
-    } else {
-      setSelectedProvider(null);
-    }
-  }, [providerId, providers, isEditing, setValue]);
 
   // Verificar si la fecha de liquidación es pasada
   useEffect(() => {
@@ -338,27 +324,26 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                   </Box>
                 </Box>
 
-                {/* Proveedor */}
+                {/* Proveedores */}
                 <Box>
                   <Controller
-                    name="providerId"
+                    name="providers"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        select
-                        label="Seleccionar Proveedor"
-                        error={!!errors.providerId}
-                        helperText={errors.providerId?.message}
-                        onChange={(e: any) => field.onChange(Number(e.target.value))}
-                      >
-                        <MenuItem value={0}>Buscar un proveedor...</MenuItem>
-                        {providers.map((provider) => (
-                          <MenuItem key={provider.id} value={provider.id}>
-                            {provider.name} ({provider.acronym})
-                          </MenuItem>
-                        ))}
-                      </Input>
+                      <SaleProvidersField
+                        value={field.value as any}
+                        onChange={field.onChange}
+                        providers={providers}
+                        error={(errors as any).providers?.message || (errors as any).providers?.root?.message}
+                        onProviderSelect={(provider, index) => {
+                          if (index === 0 && provider) {
+                            setSelectedProvider(provider);
+                            if (!isEditing && provider.profitPercentage !== undefined) {
+                              setValue('profitPercentage', provider.profitPercentage);
+                            }
+                          }
+                        }}
+                      />
                     )}
                   />
                 </Box>
