@@ -13,5 +13,6 @@ namespace agenciaViajes.Application.Features.Sale.Common.Requests
         public DateTime TravelDate { get; set; }
         public DateTime? ReturnDate { get; set; }
         public string? Status { get; set; }
+        public bool Active { get; set; } = true;
     }
 }

@@ -46,17 +46,10 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             sale.TravelDate = request.Request.TravelDate.ToUniversalTime();
             sale.ReturnDate = request.Request.ReturnDate?.ToUniversalTime();
             sale.Status = request.Request.Status;
+            sale.Active = request.Request.Active;
 
-            // Reemplazar completamente los SaleProviders
-            sale.SaleProviders.Clear();
-            foreach (var providerReq in request.Request.Providers)
-            {
-                sale.SaleProviders.Add(new SaleProvider
-                {
-                    ProviderId = providerReq.ProviderId,
-                    ReservationNumber = providerReq.ReservationNumber
-                });
-            }
+            // Los proveedores de una venta NO se modifican en la actualización:
+            // ni se agregan, ni se eliminan, ni se editan. Se conservan los existentes.
 
             sale = await _saleRepository.UpdateAsync(sale, cancellationToken);
 
