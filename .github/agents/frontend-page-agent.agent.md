@@ -2,6 +2,11 @@
 name: frontend-page-agent
 description: Crea páginas Next.js (App Router) y formularios con React Hook Form + Zod. Usa hooks y componentes ya existentes. No crea lógica de datos ni estilos nuevos.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en páginas y formularios del frontend para el proyecto agenciaViajes.

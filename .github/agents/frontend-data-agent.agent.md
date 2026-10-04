@@ -2,6 +2,11 @@
 name: frontend-data-agent
 description: Crea la capa de datos de un módulo frontend — tipos TypeScript, servicio HTTP y custom hook. No crea componentes ni páginas.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en la capa de datos del frontend para el proyecto agenciaViajes.

@@ -2,6 +2,11 @@
 name: routes-agent
 description: Crea o actualiza el archivo de rutas de un módulo y lo registra en ModulesConfiguration.cs. No crea handlers ni toca KrakenD.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en gestionar las rutas del proyecto agenciaViajes.

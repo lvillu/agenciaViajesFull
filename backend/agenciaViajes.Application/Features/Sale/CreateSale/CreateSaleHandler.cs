@@ -1,3 +1,4 @@
+using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Sale.Common.Responses;
@@ -9,18 +10,15 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IClientRepository _clientRepository;
-        private readonly IProviderRepository _providerRepository;
         private readonly IPaymentRepository _paymentRepository;
 
         public CreateSaleHandler(
             ISaleRepository saleRepository,
             IClientRepository clientRepository,
-            IProviderRepository providerRepository,
             IPaymentRepository paymentRepository)
         {
             _saleRepository = saleRepository;
             _clientRepository = clientRepository;
-            _providerRepository = providerRepository;
             _paymentRepository = paymentRepository;
         }
 
@@ -33,33 +31,10 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                 return Result<SaleResponse>.Failure("El cliente especificado no existe");
             }
 
-            // Validar que exista el proveedor
-            var provider = await _providerRepository.GetByIdAsync(request.Request.ProviderId, cancellationToken);
-            if (provider == null)
-            {
-                return Result<SaleResponse>.Failure("El proveedor especificado no existe");
-            }
-
-            // Validar número de reserva único (si se proporciona)
-            if (!string.IsNullOrWhiteSpace(request.Request.ReservationNumber))
-            {
-                var exists = await _saleRepository.ExistsByReservationNumberAsync(
-                    request.Request.ReservationNumber, 
-                    null, 
-                    cancellationToken);
-                
-                if (exists)
-                {
-                    return Result<SaleResponse>.Failure("Ya existe una venta con ese número de reserva");
-                }
-            }
-
             // Crear entidad - Convertir fechas a UTC
             var sale = new Domain.Entities.Sale
             {
                 ClientId = request.Request.ClientId,
-                ProviderId = request.Request.ProviderId,
-                ReservationNumber = request.Request.ReservationNumber,
                 Description = request.Request.Description,
                 TotalAmount = request.Request.TotalAmount,
                 IsDollar = request.Request.IsDollar,
@@ -73,6 +48,17 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
             };
 
             sale = await _saleRepository.CreateAsync(sale, cancellationToken);
+
+            foreach (var providerReq in request.Request.Providers)
+            {
+                sale.SaleProviders.Add(new SaleProvider
+                {
+                    ProviderId = providerReq.ProviderId,
+                    ReservationNumber = providerReq.ReservationNumber
+                });
+            }
+
+            await _saleRepository.UpdateAsync(sale, cancellationToken);
 
             // Si se proporcionó un anticipo, registrar el pago inicial automáticamente
             decimal totalPaid = 0;
@@ -96,9 +82,9 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                 Id = sale.Id,
                 ClientId = sale.ClientId,
                 ClientName = $"{client.Name} {client.LastName}",
-                ProviderId = sale.ProviderId,
-                ProviderName = provider.Name,
-                ReservationNumber = sale.ReservationNumber,
+                ProviderId = sale.SaleProviders.FirstOrDefault()?.ProviderId,
+                ProviderName = sale.SaleProviders.FirstOrDefault()?.Provider?.Name,
+                ReservationNumber = sale.SaleProviders.FirstOrDefault()?.ReservationNumber,
                 Description = sale.Description,
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,
@@ -113,7 +99,15 @@ namespace agenciaViajes.Application.Features.Sale.CreateSale
                 TotalPaid = totalPaid,
                 RemainingBalance = sale.TotalAmount - totalPaid,
                 CreatedAt = sale.CreatedAt,
-                ModifiedAt = sale.ModifiedAt
+                ModifiedAt = sale.ModifiedAt,
+                Providers = sale.SaleProviders.Select(sp => new SaleProviderDto
+                {
+                    Id = sp.Id,
+                    ProviderId = sp.ProviderId,
+                    ProviderName = sp.Provider?.Name,
+                    ProviderAcronym = sp.Provider?.Acronym,
+                    ReservationNumber = sp.ReservationNumber
+                }).ToList()
             };
 
             return Result<SaleResponse>.Success(response, "Venta creada exitosamente");

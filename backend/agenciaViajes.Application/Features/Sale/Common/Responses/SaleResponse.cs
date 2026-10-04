@@ -5,7 +5,7 @@ namespace agenciaViajes.Application.Features.Sale.Common.Responses
         public int Id { get; set; }
         public int ClientId { get; set; }
         public string? ClientName { get; set; }
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
         public string? ProviderName { get; set; }
         public string? ReservationNumber { get; set; }
         public string? Description { get; set; }
@@ -23,5 +23,6 @@ namespace agenciaViajes.Application.Features.Sale.Common.Responses
         public decimal RemainingBalance { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
+        public List<SaleProviderDto> Providers { get; set; } = new();
     }
 }

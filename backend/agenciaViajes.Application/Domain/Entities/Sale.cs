@@ -6,7 +6,7 @@
 
         public int ClientId { get; set; }
 
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
 
         public string? ReservationNumber { get; set; }
 
@@ -38,5 +38,6 @@
         public Client? Client { get; set; }
         public Provider? Provider { get; set; }
         public ICollection<Payment>? Payments { get; set; }
+        public ICollection<SaleProvider> SaleProviders { get; set; } = new List<SaleProvider>();
     }
 }

@@ -31,9 +31,9 @@ namespace agenciaViajes.Application.Features.Sale.GetSaleById
                 Id = sale.Id,
                 ClientId = sale.ClientId,
                 ClientName = sale.Client != null ? $"{sale.Client.Name} {sale.Client.LastName}" : null,
-                ProviderId = sale.ProviderId,
-                ProviderName = sale.Provider?.Name,
-                ReservationNumber = sale.ReservationNumber,
+                ProviderId = sale.SaleProviders.FirstOrDefault()?.ProviderId,
+                ProviderName = sale.SaleProviders.FirstOrDefault()?.Provider?.Name,
+                ReservationNumber = sale.SaleProviders.FirstOrDefault()?.ReservationNumber,
                 Description = sale.Description,
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,
@@ -48,7 +48,15 @@ namespace agenciaViajes.Application.Features.Sale.GetSaleById
                 TotalPaid = totalPaid,
                 RemainingBalance = remainingBalance,
                 CreatedAt = sale.CreatedAt,
-                ModifiedAt = sale.ModifiedAt
+                ModifiedAt = sale.ModifiedAt,
+                Providers = sale.SaleProviders.Select(sp => new SaleProviderDto
+                {
+                    Id = sp.Id,
+                    ProviderId = sp.ProviderId,
+                    ProviderName = sp.Provider?.Name,
+                    ProviderAcronym = sp.Provider?.Acronym,
+                    ReservationNumber = sp.ReservationNumber
+                }).ToList()
             };
 
             return Result<SaleResponse>.Success(response);
