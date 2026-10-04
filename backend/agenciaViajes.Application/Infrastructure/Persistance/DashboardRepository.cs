@@ -34,6 +34,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             foreach (var sale in sales)
             {
                 var amountMXN = GetAmountInMXN(sale);
+                if (sale.TotalAmount > 0) amountMXN *= sale.CommissionBase / sale.TotalAmount;
                 totalProfit += amountMXN * sale.ProfitPercentage!.Value / 100;
             }
 

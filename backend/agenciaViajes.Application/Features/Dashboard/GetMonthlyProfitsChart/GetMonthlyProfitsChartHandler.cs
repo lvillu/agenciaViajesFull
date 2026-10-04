@@ -43,6 +43,7 @@ namespace agenciaViajes.Application.Features.Dashboard.GetMonthlyProfitsChart
                 if (!profitByMonth.ContainsKey(key)) continue;
 
                 var amountMXN = GetAmountInMXN(sale);
+                if (sale.TotalAmount > 0) amountMXN *= sale.CommissionBase / sale.TotalAmount;
                 profitByMonth[key] += amountMXN * sale.ProfitPercentage.Value / 100;
             }
 

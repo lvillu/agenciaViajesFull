@@ -53,6 +53,17 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSalesList
                 Phone = "+56987654321",
                 ProviderContactName = "Ana Gómez",
                 Active = true
+            },
+            SaleProviders =
+            {
+                new agenciaViajes.Application.Domain.Entities.SaleProvider
+                {
+                    Id = id,
+                    SaleId = id,
+                    ProviderId = 2,
+                    ReservationNumber = reservationNumber,
+                    Provider = new ProviderEntity { Id = 2, Name = "AeroTravel", Acronym = "ATR" }
+                }
             }
         };
 

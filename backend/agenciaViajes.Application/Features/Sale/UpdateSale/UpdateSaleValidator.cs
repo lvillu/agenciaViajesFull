@@ -23,6 +23,11 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             RuleFor(x => x.TotalAmount)
                 .GreaterThan(0).WithMessage("El monto total debe ser mayor a 0");
 
+            RuleFor(x => x.CommissionableAmount)
+                .GreaterThanOrEqualTo(0).WithMessage("El monto comisionable no puede ser negativo")
+                .LessThanOrEqualTo(x => x.TotalAmount).WithMessage("El monto comisionable no puede superar el monto total")
+                .When(x => x.CommissionableAmount.HasValue);
+
             RuleFor(x => x.TravelDate)
                 .GreaterThanOrEqualTo(DateTime.Today).WithMessage("La fecha de viaje debe ser mayor o igual a hoy");
 

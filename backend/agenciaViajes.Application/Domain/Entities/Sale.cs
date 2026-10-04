@@ -18,6 +18,13 @@
 
         public decimal? ProfitPercentage { get; set; }
 
+        // Null = todo el total es comisionable
+        public decimal? CommissionableAmount { get; set; }
+
+        public decimal CommissionBase => CommissionableAmount ?? TotalAmount;
+
+        public decimal? NonCommissionableAmount => CommissionableAmount.HasValue ? TotalAmount - CommissionableAmount.Value : null;
+
         public decimal? RequiredDeposit { get; set; }
 
         public DateTime? FinalPaymentDueDate { get; set; }

@@ -11,8 +11,7 @@ namespace agenciaViajes.Application.Tests.Features.Sale.UpdateSale
         private static UpdateSaleRequest BuildValidRequest() => new()
         {
             ClientId = 1,
-            ProviderId = 2,
-            ReservationNumber = "RES-2026-001",
+            Providers = new List<SaleProviderRequest> { new() { ProviderId = 2, ReservationNumber = "RES-2026-001" } },
             Description = "Paquete Cancún todo incluido",
             TotalAmount = 10000m,
             IsDollar = false,
@@ -43,16 +42,58 @@ namespace agenciaViajes.Application.Tests.Features.Sale.UpdateSale
             result.Errors.Should().Contain(e => e.PropertyName == "ClientId" && e.ErrorMessage == "Debe seleccionar un cliente");
         }
 
+        [Fact]
+        public void Validate_WithoutProviders_ShouldFail()
+        {
+            var request = BuildValidRequest();
+            request.Providers = new();
+            var result = _validator.Validate(request);
+            result.IsValid.Should().BeFalse();
+            result.Errors.Should().Contain(e => e.PropertyName == "Providers" && e.ErrorMessage == "Debe seleccionar al menos un proveedor");
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
         public void Validate_WithProviderIdNotPositive_ShouldFail(int providerId)
         {
             var request = BuildValidRequest();
-            request.ProviderId = providerId;
+            request.Providers[0].ProviderId = providerId;
             var result = _validator.Validate(request);
             result.IsValid.Should().BeFalse();
-            result.Errors.Should().Contain(e => e.PropertyName == "ProviderId" && e.ErrorMessage == "Debe seleccionar un proveedor");
+            result.Errors.Should().Contain(e => e.ErrorMessage == "El proveedor es inválido");
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(4000)]
+        [InlineData(10000)]
+        public void Validate_WithCommissionableAmountWithinTotal_ShouldPass(decimal amount)
+        {
+            var request = BuildValidRequest();
+            request.CommissionableAmount = amount;
+            var result = _validator.Validate(request);
+            result.IsValid.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Validate_WithNegativeCommissionableAmount_ShouldFail()
+        {
+            var request = BuildValidRequest();
+            request.CommissionableAmount = -1;
+            var result = _validator.Validate(request);
+            result.IsValid.Should().BeFalse();
+            result.Errors.Should().Contain(e => e.PropertyName == "CommissionableAmount" && e.ErrorMessage == "El monto comisionable no puede ser negativo");
+        }
+
+        [Fact]
+        public void Validate_WithCommissionableAmountGreaterThanTotal_ShouldFail()
+        {
+            var request = BuildValidRequest();
+            request.CommissionableAmount = request.TotalAmount + 0.01m;
+            var result = _validator.Validate(request);
+            result.IsValid.Should().BeFalse();
+            result.Errors.Should().Contain(e => e.PropertyName == "CommissionableAmount" && e.ErrorMessage == "El monto comisionable no puede superar el monto total");
         }
 
         [Theory]

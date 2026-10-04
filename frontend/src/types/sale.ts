@@ -22,6 +22,8 @@ export interface Sale {
   totalAmount: number;
   isDollar: boolean;
   profitPercentage?: number;
+  commissionableAmount?: number; // Solo si hay desglose; el resto es no comisionable
+  nonCommissionableAmount?: number; // Calculado por el backend
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -72,6 +74,7 @@ export interface CreateSaleRequest {
   totalAmount: number;
   isDollar: boolean;
   profitPercentage?: number;
+  commissionableAmount?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -87,6 +90,7 @@ export interface UpdateSaleRequest {
   totalAmount: number;
   isDollar: boolean;
   profitPercentage?: number;
+  commissionableAmount?: number;
   exchangeRate?: number; // Tipo de cambio (solo si isDollar es true)
   requiredDeposit?: number;
   finalPaymentDueDate?: string; // ISO date string (YYYY-MM-DD)
@@ -115,6 +119,13 @@ export const CreateSaleSchema = z.object({
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
   status: z.string().optional(),
+  splitCommission: z.boolean().optional(),
+  commissionableAmount: z.coerce.number().min(0, 'El monto comisionable no puede ser negativo').optional(),
+}).refine((data) => {
+  return !data.splitCommission || (data.commissionableAmount !== undefined && data.commissionableAmount <= data.totalAmount);
+}, {
+  message: 'El monto comisionable es requerido y no puede superar el total',
+  path: ['commissionableAmount'],
 }).refine((data) => {
   // Validar que la fecha de retorno no sea menor a la fecha de viaje
   if (data.returnDate && data.travelDate) {
@@ -164,6 +175,13 @@ export const UpdateSaleSchema = z.object({
   returnDate: z.string().optional(),
   status: z.string().optional(),
   active: z.boolean(),
+  splitCommission: z.boolean().optional(),
+  commissionableAmount: z.coerce.number().min(0, 'El monto comisionable no puede ser negativo').optional(),
+}).refine((data) => {
+  return !data.splitCommission || (data.commissionableAmount !== undefined && data.commissionableAmount <= data.totalAmount);
+}, {
+  message: 'El monto comisionable es requerido y no puede superar el total',
+  path: ['commissionableAmount'],
 }).refine((data) => {
   // Validar que la fecha de retorno no sea menor a la fecha de viaje
   if (data.returnDate && data.travelDate) {
