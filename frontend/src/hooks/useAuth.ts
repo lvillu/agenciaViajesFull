@@ -9,6 +9,7 @@ import { useState, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
+import { setSessionHint, clearSessionHint } from '@/lib/sessionHint';
 import { LoginRequest, SignUpRequest } from '@/types/user';
 
 export const useAuth = () => {
@@ -21,7 +22,9 @@ export const useAuth = () => {
     setError(null);
     try {
       const response = await authService.login(credentials);
-      setAuth(response.token, response.userName);
+      const rememberMe = credentials.rememberMe ?? false;
+      setAuth(response.token, response.userName, rememberMe);
+      setSessionHint(rememberMe);
       return response;
     } catch (err: any) {
       const message = err.message || 'Error al iniciar sesión';
@@ -45,7 +48,8 @@ export const useAuth = () => {
         password: data.password,
       });
       
-      setAuth(loginResponse.token, loginResponse.userName);
+      setAuth(loginResponse.token, loginResponse.userName, false);
+      setSessionHint(false);
       return userResponse;
     } catch (err: any) {
       const message = err.message || 'Error al crear usuario';
@@ -81,6 +85,7 @@ export const useAuth = () => {
       console.error('Error al logout:', err);
     } finally {
       logout();
+      clearSessionHint();
       setLoading(false);
     }
   }, [logout]);

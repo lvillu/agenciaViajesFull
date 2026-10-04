@@ -5,5 +5,7 @@
         public string SecretKey { get; set; }
         public int ExperiesInMinutes { get; set; }
         public int RefreshTokenExpiresInMinutes { get; set; }
+        public int RememberMeRefreshTokenExpiresInMinutes { get; set; }
+        public bool CookieSecure { get; set; }
     }
 }

@@ -8,6 +8,7 @@ const initialState = {
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  rememberMe: false,
 };
 
 const buildUser = (): UserMeResponse => ({
@@ -71,5 +72,32 @@ describe('authStore', () => {
     const persisted = JSON.parse(raw!);
     expect(persisted.state.token).toBe('token-persistido');
     expect(persisted.state.isAuthenticated).toBe(true);
+  });
+
+  it('setAuth guarda rememberMe (por defecto false)', () => {
+    useAuthStore.getState().setAuth('token', 'jperez');
+    expect(useAuthStore.getState().rememberMe).toBe(false);
+
+    useAuthStore.getState().setAuth('token', 'jperez', true);
+    expect(useAuthStore.getState().rememberMe).toBe(true);
+  });
+
+  it('logout limpia rememberMe', () => {
+    useAuthStore.getState().setAuth('token', 'jperez', true);
+    useAuthStore.getState().logout();
+    expect(useAuthStore.getState().rememberMe).toBe(false);
+  });
+
+  it('persiste rememberMe en localStorage', () => {
+    useAuthStore.getState().setAuth('token', 'jperez', true);
+    const persisted = JSON.parse(localStorage.getItem('auth-storage')!);
+    expect(persisted.state.rememberMe).toBe(true);
+  });
+
+  it('no persiste isLoading en localStorage', () => {
+    useAuthStore.getState().setAuth('token', 'jperez');
+    useAuthStore.getState().setLoading(true);
+    const persisted = JSON.parse(localStorage.getItem('auth-storage')!);
+    expect(persisted.state.isLoading).toBeUndefined();
   });
 });

@@ -29,8 +29,9 @@ namespace agenciaViajes.Application.Tests.Features.Auth.Login
         {
             var user = new UserEntity { Id = 7, UserName = "jperez", Email = "jperez@test.com" };
             _authRepository
-                .AuthLoginAsync("jperez", "Secreta123!", Arg.Any<CancellationToken>())
-                .Returns((user, "jwt-token-abc"));
+                .AuthLoginAsync("jperez", "Secreta123!", false, Arg.Any<CancellationToken>())
+                .Returns((user, "jwt-token-abc", "refresh-token-abc"));
+            _authRepository.GetRefreshTokenLifetime(false).Returns(TimeSpan.FromDays(7));
 
             var result = await _handler.Handle(BuildCommand(), CancellationToken.None);
 
@@ -40,7 +41,32 @@ namespace agenciaViajes.Application.Tests.Features.Auth.Login
             result.Data.Should().NotBeNull();
             result.Data!.userName.Should().Be("jperez");
             result.Data.token.Should().Be("jwt-token-abc");
-            await _authRepository.Received(1).AuthLoginAsync("jperez", "Secreta123!", Arg.Any<CancellationToken>());
+            result.Data.refreshToken.Should().Be("refresh-token-abc");
+            result.Data.refreshTokenExpiresInSeconds.Should().Be(7 * 24 * 60 * 60);
+            await _authRepository.Received(1).AuthLoginAsync("jperez", "Secreta123!", false, Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task Handle_WithRememberMe_UsesRememberMeLifetime()
+        {
+            var user = new UserEntity { Id = 7, UserName = "jperez", Email = "jperez@test.com" };
+            var command = new LoginCommand(new AuthRequest
+            {
+                username = "jperez",
+                password = "Secreta123!",
+                rememberMe = true
+            });
+
+            _authRepository
+                .AuthLoginAsync("jperez", "Secreta123!", true, Arg.Any<CancellationToken>())
+                .Returns((user, "jwt-token-abc", "refresh-token-abc"));
+            _authRepository.GetRefreshTokenLifetime(true).Returns(TimeSpan.FromDays(30));
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            result.IsSuccess.Should().BeTrue();
+            result.Data!.refreshTokenExpiresInSeconds.Should().Be(30 * 24 * 60 * 60);
+            await _authRepository.Received(1).AuthLoginAsync("jperez", "Secreta123!", true, Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -48,9 +74,10 @@ namespace agenciaViajes.Application.Tests.Features.Auth.Login
         {
             UserEntity? user = null;
             string token = string.Empty;
+            string refreshToken = string.Empty;
             _authRepository
-                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-                .Returns((user, token));
+                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
+                .Returns((user, token, refreshToken));
 
             var result = await _handler.Handle(BuildCommand(), CancellationToken.None);
 
@@ -65,8 +92,8 @@ namespace agenciaViajes.Application.Tests.Features.Auth.Login
         {
             var user = new UserEntity { Id = 7, UserName = "jperez" };
             _authRepository
-                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-                .Returns((user, string.Empty));
+                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
+                .Returns((user, string.Empty, string.Empty));
 
             var result = await _handler.Handle(BuildCommand(), CancellationToken.None);
 
@@ -82,15 +109,15 @@ namespace agenciaViajes.Application.Tests.Features.Auth.Login
             UserEntity? user = null;
             string token = "jwt-token-xyz";
             _authRepository
-                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-                .Returns((user, token));
+                .AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
+                .Returns((user, token, "refresh-token-xyz"));
 
             var result = await _handler.Handle(BuildCommand(), CancellationToken.None);
 
             result.IsSuccess.Should().BeFalse();
             result.Message.Should().Be("Usuario o contraseña incorrectos");
             result.Data.Should().BeNull();
-            await _authRepository.Received(1).AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+            await _authRepository.Received(1).AuthLoginAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>());
         }
     }
 }

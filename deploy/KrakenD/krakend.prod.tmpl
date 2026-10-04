@@ -79,10 +79,25 @@
       "endpoint": "/logout",
       "method": "POST",
       "output_encoding": "no-op",
-      "input_headers": ["Authorization"],
+      "input_headers": ["Authorization", "Content-Type", "Cookie"],
       "backend": [
         {
           "url_pattern": "/api/Auth/logout",
+          "host": ["http://api:8080"],
+          "disable_host_sanitize": false,
+          "encoding": "no-op",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/refresh",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Content-Type", "Cookie"],
+      "backend": [
+        {
+          "url_pattern": "/api/Auth/refresh",
           "host": ["http://api:8080"],
           "disable_host_sanitize": false,
           "encoding": "no-op",

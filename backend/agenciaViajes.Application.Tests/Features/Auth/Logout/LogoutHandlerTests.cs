@@ -16,25 +16,39 @@ public class LogoutHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenTokenInvalidated_ReturnsTrue()
+    public async Task Handle_WhenRefreshTokenRevoked_ReturnsTrue()
     {
-        _authRepository.AuthLogOut("token-abc").Returns(true);
+        _authRepository
+            .RevokeRefreshTokenAsync("refresh-abc", Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var result = await _handler.Handle(new LogoutCommand("token-abc"), CancellationToken.None);
+        var result = await _handler.Handle(new LogoutCommand("token-abc", "refresh-abc"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().BeTrue();
-        _authRepository.Received(1).AuthLogOut("token-abc");
+        await _authRepository.Received(1).RevokeRefreshTokenAsync("refresh-abc", Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_WhenTokenNotFound_ReturnsSuccessWithFalse()
+    public async Task Handle_WhenRefreshTokenNotFound_ReturnsSuccessWithFalse()
     {
-        _authRepository.AuthLogOut("token-missing").Returns(false);
+        _authRepository
+            .RevokeRefreshTokenAsync("refresh-missing", Arg.Any<CancellationToken>())
+            .Returns(false);
 
-        var result = await _handler.Handle(new LogoutCommand("token-missing"), CancellationToken.None);
+        var result = await _handler.Handle(new LogoutCommand("token-abc", "refresh-missing"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Handle_WhenNoRefreshToken_ReturnsSuccessWithFalseWithoutCallingRepository()
+    {
+        var result = await _handler.Handle(new LogoutCommand("token-abc", null), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Should().BeFalse();
+        await _authRepository.DidNotReceive().RevokeRefreshTokenAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 }
