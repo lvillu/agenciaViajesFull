@@ -41,6 +41,7 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             sale.TotalAmount = request.Request.TotalAmount;
             sale.IsDollar = request.Request.IsDollar;
             sale.ProfitPercentage = request.Request.ProfitPercentage;
+            sale.CommissionableAmount = request.Request.CommissionableAmount;
             sale.RequiredDeposit = request.Request.RequiredDeposit;
             sale.FinalPaymentDueDate = request.Request.FinalPaymentDueDate?.ToUniversalTime();
             sale.TravelDate = request.Request.TravelDate.ToUniversalTime();
@@ -69,7 +70,9 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,
                 ProfitPercentage = sale.ProfitPercentage,
-                ProfitAmount = sale.ProfitPercentage.HasValue ? Math.Round(sale.TotalAmount * sale.ProfitPercentage.Value / 100, 2) : null,
+                ProfitAmount = sale.ProfitPercentage.HasValue ? Math.Round(sale.CommissionBase * sale.ProfitPercentage.Value / 100, 2) : null,
+                CommissionableAmount = sale.CommissionableAmount,
+                NonCommissionableAmount = sale.NonCommissionableAmount,
                 RequiredDeposit = sale.RequiredDeposit,
                 FinalPaymentDueDate = sale.FinalPaymentDueDate,
                 TravelDate = sale.TravelDate,

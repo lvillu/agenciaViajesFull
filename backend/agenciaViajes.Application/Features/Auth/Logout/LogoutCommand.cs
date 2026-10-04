@@ -3,7 +3,7 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Auth.Logout
 {
-    public sealed record class LogoutCommand(string Token) : IRequest<Result<bool>>
+    public sealed record class LogoutCommand(string Token, string? RefreshToken) : IRequest<Result<bool>>
     {
     }
 }

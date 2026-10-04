@@ -15,9 +15,10 @@ namespace agenciaViajes.Application.Features.Auth.Login
         }
         public async Task<Result<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var (user, token) = await _authRepository.AuthLoginAsync(
+            var (user, token, refreshToken) = await _authRepository.AuthLoginAsync(
                 request.request.username, 
                 request.request.password, 
+                request.request.rememberMe,
                 cancellationToken);
 
             if (user == null || string.IsNullOrEmpty(token))
@@ -25,10 +26,14 @@ namespace agenciaViajes.Application.Features.Auth.Login
                 return Result<AuthResponse>.Failure("Usuario o contraseña incorrectos");
             }
 
+            var lifetime = _authRepository.GetRefreshTokenLifetime(request.request.rememberMe);
+
             return Result<AuthResponse>.Success(new AuthResponse
             {
                 userName = user.UserName,
-                token = token
+                token = token,
+                refreshToken = refreshToken,
+                refreshTokenExpiresInSeconds = (int)lifetime.TotalSeconds
             });
         }
     }

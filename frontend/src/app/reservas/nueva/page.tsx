@@ -77,6 +77,8 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
       totalAmount: 0,
       isDollar: false,
       profitPercentage: undefined,
+      splitCommission: false,
+      commissionableAmount: undefined,
       exchangeRate: undefined,
       requiredDeposit: undefined,
       finalPaymentDueDate: undefined,
@@ -95,6 +97,14 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const isDollar = watch('isDollar');
   const finalPaymentDueDate = watch('finalPaymentDueDate');
   const profitPercentage = watch('profitPercentage');
+  const splitCommission = watch('splitCommission');
+  const commissionableAmount = watch('commissionableAmount');
+  const commissionBase = splitCommission ? (commissionableAmount ?? 0) : totalAmount;
+  const nonCommissionableAmount = Math.max(0, (totalAmount || 0) - (commissionableAmount ?? 0));
+  const commissionExceedsTotal = !!splitCommission && (commissionableAmount ?? 0) > (totalAmount || 0);
+  const commissionError = commissionExceedsTotal
+    ? 'El monto comisionable no puede ser mayor al monto total'
+    : errors.commissionableAmount?.message;
   const providersValue = watch('providers');
   const returnDateValue = watch('returnDate');
   const requiredDepositValue = watch('requiredDeposit');
@@ -136,6 +146,8 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
           setValue('totalAmount', sale.totalAmount);
           setValue('isDollar', sale.isDollar);
           setValue('profitPercentage', sale.profitPercentage);
+          setValue('splitCommission', sale.commissionableAmount != null);
+          setValue('commissionableAmount', sale.commissionableAmount ?? undefined);
           setValue('exchangeRate', sale.exchangeRate);
           setValue('requiredDeposit', sale.requiredDeposit);
           setValue('finalPaymentDueDate', sale.finalPaymentDueDate || undefined);
@@ -227,14 +239,17 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   };
 
   const onSubmit = async (data: CreateSaleFormData | UpdateSaleFormData) => {
+    if (commissionExceedsTotal) return;
     setSubmitError(null);
     setLoading(true);
 
     try {
+      const { splitCommission: split, ...rest } = data;
+      const payload = { ...rest, commissionableAmount: split ? rest.commissionableAmount : undefined };
       if (isEditing && saleId) {
-        await saleService.update(Number(saleId), data as UpdateSaleFormData);
+        await saleService.update(Number(saleId), payload as UpdateSaleFormData);
       } else {
-        await saleService.create(data as CreateSaleFormData);
+        await saleService.create(payload as CreateSaleFormData);
       }
 
       router.push('/reservas');
@@ -527,6 +542,109 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                 </Box>
               </Box>
 
+              {/* Desglose comisionable / no comisionable */}
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="splitCommission"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={!!field.value}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                            if (!e.target.checked) setValue('commissionableAmount', undefined);
+                          }}
+                          sx={{ color: '#D8DAEA', '&.Mui-checked': { color: '#5BA9B3' } }}
+                        />
+                      }
+                      label={
+                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}>
+                          Desglosar monto comisionable
+                        </Typography>
+                      }
+                    />
+                  )}
+                />
+                {splitCommission && (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3, mt: 1 }}>
+                    <Controller
+                      name="commissionableAmount"
+                      control={control}
+                      render={({ field }) => (
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography
+                            component="label"
+                            sx={{
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              color: commissionError ? '#ef4444' : '#525252',
+                              mb: 0.75,
+                              display: 'block',
+                            }}
+                          >
+                            Monto comisionable
+                          </Typography>
+                          <InputNumber
+                            value={field.value ?? null}
+                            onValueChange={(e) => field.onChange(e.value ?? undefined)}
+                            onBlur={field.onBlur}
+                            mode="decimal"
+                            prefix="$ "
+                            useGrouping
+                            minFractionDigits={2}
+                            maxFractionDigits={2}
+                            min={0}
+                            unstyled
+                            placeholder="$ 0.00"
+                            inputStyle={{
+                              width: '100%',
+                              height: '44px',
+                              borderRadius: '8px',
+                              padding: '0 12px',
+                              fontSize: '14px',
+                              fontFamily: '"Public Sans", system-ui, sans-serif',
+                              color: '#525252',
+                              boxSizing: 'border-box',
+                              border: `1px solid ${commissionError ? '#ef4444' : '#D8DAEA'}`,
+                              background: '#ffffff',
+                              outline: 'none',
+                              transition: 'border-color 0.2s, box-shadow 0.2s',
+                            }}
+                          />
+                          <FormHelperText error={!!commissionError} sx={{ mx: 0, mt: 0.5 }}>
+                            {commissionError || 'Parte del total sobre la que se calcula la comisión'}
+                          </FormHelperText>
+                        </Box>
+                      )}
+                    />
+                    <Box>
+                      <Typography
+                        sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252', mb: 0.75, display: 'block' }}
+                      >
+                        Monto no comisionable
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '44px',
+                          px: 1.5,
+                          bgcolor: 'rgba(189, 191, 220, 0.12)',
+                          borderRadius: '8px',
+                          border: '1px solid #D8DAEA',
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#525252' }}>
+                          {formatCurrency(nonCommissionableAmount, isDollar)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+
               {/* Descripción */}
               <Controller
                 name="description"
@@ -594,13 +712,13 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                     }}
                   >
                     <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
-                      {profitPercentage && totalAmount > 0
-                        ? formatCurrency(totalAmount * profitPercentage / 100, isDollar)
+                      {profitPercentage && commissionBase > 0
+                        ? formatCurrency(commissionBase * profitPercentage / 100, isDollar)
                         : '—'}
                     </Typography>
-                    {profitPercentage && totalAmount > 0 && (
+                    {profitPercentage && commissionBase > 0 && (
                       <Typography sx={{ fontSize: '0.75rem', color: '#8B8DA8', ml: 1 }}>
-                        ({profitPercentage}% de {formatCurrency(totalAmount, isDollar)})
+                        ({profitPercentage}% de {formatCurrency(commissionBase, isDollar)})
                       </Typography>
                     )}
                   </Box>

@@ -15,13 +15,12 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
     {
         private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
         private readonly IClientRepository _clientRepository = Substitute.For<IClientRepository>();
-        private readonly IProviderRepository _providerRepository = Substitute.For<IProviderRepository>();
         private readonly IPaymentRepository _paymentRepository = Substitute.For<IPaymentRepository>();
         private readonly CreateSaleHandler _handler;
 
         public CreateSaleHandlerTests()
         {
-            _handler = new CreateSaleHandler(_saleRepository, _clientRepository, _providerRepository, _paymentRepository);
+            _handler = new CreateSaleHandler(_saleRepository, _clientRepository, _paymentRepository);
         }
 
         private static ClientEntity BuildClient(int id = 1) => new()
@@ -33,25 +32,18 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             Active = true
         };
 
-        private static ProviderEntity BuildProvider(int id = 2) => new()
-        {
-            Id = id,
-            Name = "AeroTravel",
-            Acronym = "ATR",
-            Email = "contacto@aerotravel.com",
-            Phone = "+56987654321",
-            ProviderContactName = "Ana Gómez",
-            Active = true
-        };
-
         private static CreateSaleRequest BuildValidRequest(
             decimal? requiredDeposit = null,
             string? reservationNumber = "RES-2026-001",
-            string? status = null) => new()
+            string? status = null,
+            decimal? commissionableAmount = null) => new()
         {
             ClientId = 1,
-            ProviderId = 2,
-            ReservationNumber = reservationNumber,
+            Providers = new List<SaleProviderRequest>
+            {
+                new() { ProviderId = 2, ReservationNumber = reservationNumber }
+            },
+            CommissionableAmount = commissionableAmount,
             Description = "Paquete Cancún todo incluido",
             TotalAmount = 10000m,
             IsDollar = false,
@@ -68,12 +60,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             _clientRepository
                 .GetByIdAsync(request.ClientId, Arg.Any<CancellationToken>())
                 .Returns(BuildClient());
-            _providerRepository
-                .GetByIdAsync(request.ProviderId, Arg.Any<CancellationToken>())
-                .Returns(BuildProvider());
-            _saleRepository
-                .ExistsByReservationNumberAsync(Arg.Any<string>(), Arg.Any<int?>(), Arg.Any<CancellationToken>())
-                .Returns(false);
             _saleRepository
                 .CreateAsync(Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>())
                 .Returns(c =>
@@ -99,71 +85,7 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             result.Message.Should().Be("El cliente especificado no existe");
             result.Data.Should().BeNull();
             await _clientRepository.Received(1).GetByIdAsync(1, Arg.Any<CancellationToken>());
-            await _providerRepository.DidNotReceive().GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
             await _saleRepository.DidNotReceive().CreateAsync(Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task Handle_WithNonExistentProvider_ReturnsFailureWithoutCreatingSale()
-        {
-            var request = BuildValidRequest();
-            _clientRepository
-                .GetByIdAsync(1, Arg.Any<CancellationToken>())
-                .Returns(BuildClient());
-            _providerRepository
-                .GetByIdAsync(2, Arg.Any<CancellationToken>())
-                .Returns((ProviderEntity?)null);
-
-            var result = await _handler.Handle(new CreateSaleCommand(request), CancellationToken.None);
-
-            result.IsSuccess.Should().BeFalse();
-            result.Status.Should().Be(ResultConstants.FAILURE_STATUS);
-            result.Message.Should().Be("El proveedor especificado no existe");
-            result.Data.Should().BeNull();
-            await _saleRepository.DidNotReceive().ExistsByReservationNumberAsync(Arg.Any<string>(), Arg.Any<int?>(), Arg.Any<CancellationToken>());
-            await _saleRepository.DidNotReceive().CreateAsync(Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>());
-            await _paymentRepository.DidNotReceive().CreateAsync(Arg.Any<PaymentEntity>(), Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task Handle_WithDuplicateReservationNumber_ReturnsFailureWithoutCreatingSale()
-        {
-            var request = BuildValidRequest();
-            _clientRepository
-                .GetByIdAsync(1, Arg.Any<CancellationToken>())
-                .Returns(BuildClient());
-            _providerRepository
-                .GetByIdAsync(2, Arg.Any<CancellationToken>())
-                .Returns(BuildProvider());
-            _saleRepository
-                .ExistsByReservationNumberAsync("RES-2026-001", Arg.Any<int?>(), Arg.Any<CancellationToken>())
-                .Returns(true);
-
-            var result = await _handler.Handle(new CreateSaleCommand(request), CancellationToken.None);
-
-            result.IsSuccess.Should().BeFalse();
-            result.Status.Should().Be(ResultConstants.FAILURE_STATUS);
-            result.Message.Should().Be("Ya existe una venta con ese número de reserva");
-            result.Data.Should().BeNull();
-            await _saleRepository.Received(1).ExistsByReservationNumberAsync("RES-2026-001", Arg.Any<int?>(), Arg.Any<CancellationToken>());
-            await _saleRepository.DidNotReceive().CreateAsync(Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>());
-            await _paymentRepository.DidNotReceive().CreateAsync(Arg.Any<PaymentEntity>(), Arg.Any<CancellationToken>());
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        public async Task Handle_WithNullOrWhitespaceReservationNumber_SkipsDuplicateCheck(string? reservationNumber)
-        {
-            var request = BuildValidRequest(reservationNumber: reservationNumber);
-            SetupSuccessfulCreation(request);
-
-            var result = await _handler.Handle(new CreateSaleCommand(request), CancellationToken.None);
-
-            result.IsSuccess.Should().BeTrue();
-            await _saleRepository.DidNotReceive().ExistsByReservationNumberAsync(Arg.Any<string>(), Arg.Any<int?>(), Arg.Any<CancellationToken>());
-            await _saleRepository.Received(1).CreateAsync(Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -230,8 +152,10 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             await _saleRepository.Received(1).CreateAsync(
                 Arg.Is<SaleEntity>(s =>
                     s.ClientId == 1 &&
-                    s.ProviderId == 2 &&
-                    s.ReservationNumber == "RES-2026-001" &&
+                    s.SaleProviders.Count == 1 &&
+                    s.SaleProviders.First().ProviderId == 2 &&
+                    s.SaleProviders.First().ReservationNumber == "RES-2026-001" &&
+                    s.CommissionableAmount == null &&
                     s.Description == "Paquete Cancún todo incluido" &&
                     s.TotalAmount == 10000m &&
                     !s.IsDollar &&
@@ -246,7 +170,7 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
         }
 
         [Fact]
-        public async Task Handle_OnSuccess_MapsResponseWithClientProviderAndProfit()
+        public async Task Handle_OnSuccess_MapsResponseWithClientProvidersAndProfit()
         {
             var request = BuildValidRequest();
             SetupSuccessfulCreation(request);
@@ -260,8 +184,10 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             result.Data.ClientId.Should().Be(1);
             result.Data.ClientName.Should().Be("Juan Pérez");
             result.Data.ProviderId.Should().Be(2);
-            result.Data.ProviderName.Should().Be("AeroTravel");
             result.Data.ReservationNumber.Should().Be("RES-2026-001");
+            result.Data.Providers.Should().ContainSingle(p => p.ProviderId == 2 && p.ReservationNumber == "RES-2026-001");
+            result.Data.CommissionableAmount.Should().BeNull();
+            result.Data.NonCommissionableAmount.Should().BeNull();
             result.Data.Description.Should().Be("Paquete Cancún todo incluido");
             result.Data.TotalAmount.Should().Be(10000m);
             result.Data.ProfitPercentage.Should().Be(12.5m);
@@ -271,6 +197,24 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
             result.Data.TravelDate.Should().Be(new DateTime(2026, 9, 15, 12, 0, 0, DateTimeKind.Utc));
             result.Data.ReturnDate.Should().Be(new DateTime(2026, 9, 22, 12, 0, 0, DateTimeKind.Utc));
             result.Data.Active.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Handle_WithCommissionableAmount_CalculatesProfitOnCommissionablePartOnly()
+        {
+            var request = BuildValidRequest(commissionableAmount: 4000m);
+            SetupSuccessfulCreation(request);
+
+            var result = await _handler.Handle(new CreateSaleCommand(request), CancellationToken.None);
+
+            result.IsSuccess.Should().BeTrue();
+            result.Data!.TotalAmount.Should().Be(10000m);
+            result.Data.CommissionableAmount.Should().Be(4000m);
+            result.Data.NonCommissionableAmount.Should().Be(6000m);
+            result.Data.ProfitAmount.Should().Be(500m);
+            await _saleRepository.Received(1).CreateAsync(
+                Arg.Is<SaleEntity>(s => s.CommissionableAmount == 4000m),
+                Arg.Any<CancellationToken>());
         }
 
         [Fact]

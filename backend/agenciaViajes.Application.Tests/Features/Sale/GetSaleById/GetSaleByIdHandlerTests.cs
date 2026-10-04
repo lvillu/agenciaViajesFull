@@ -54,6 +54,17 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
                 Phone = "+56944444444",
                 ProviderContactName = "Luis Ruiz",
                 Active = true
+            },
+            SaleProviders =
+            {
+                new agenciaViajes.Application.Domain.Entities.SaleProvider
+                {
+                    Id = 1,
+                    SaleId = 33,
+                    ProviderId = 2,
+                    ReservationNumber = "RES-33",
+                    Provider = new ProviderEntity { Id = 2, Name = "EuroPass", Acronym = "EUP" }
+                }
             }
         };
 
@@ -72,6 +83,23 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
             result.Data.Should().BeNull();
             await _saleRepository.Received(1).GetByIdAsync(99, Arg.Any<CancellationToken>());
             await _saleRepository.DidNotReceive().GetTotalPaidAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task Handle_WithCommissionableAmount_CalculatesProfitOnCommissionablePartOnly()
+        {
+            var sale = BuildSale();
+            sale.CommissionableAmount = 5000m;
+            _saleRepository
+                .GetByIdAsync(33, Arg.Any<CancellationToken>())
+                .Returns(sale);
+
+            var result = await _handler.Handle(new GetSaleByIdQuery(33), CancellationToken.None);
+
+            result.IsSuccess.Should().BeTrue();
+            result.Data!.CommissionableAmount.Should().Be(5000m);
+            result.Data.NonCommissionableAmount.Should().Be(15000m);
+            result.Data.ProfitAmount.Should().Be(400m);
         }
 
         [Fact]
@@ -119,6 +147,7 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
             var sale = BuildSale();
             sale.Client = null;
             sale.Provider = null;
+            sale.SaleProviders.First().Provider = null;
             _saleRepository
                 .GetByIdAsync(33, Arg.Any<CancellationToken>())
                 .Returns(sale);

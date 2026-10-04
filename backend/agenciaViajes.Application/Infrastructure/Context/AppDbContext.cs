@@ -15,6 +15,7 @@ namespace agenciaViajes.Application.Infrastructure.Context
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<AgencyInfo> AgencyInfo { get; set; } = null!;
         public DbSet<SaleProvider> SaleProviders { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

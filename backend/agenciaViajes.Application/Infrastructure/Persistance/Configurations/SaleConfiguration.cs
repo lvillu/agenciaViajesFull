@@ -69,6 +69,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasPrecision(5, 2)
                 .IsRequired(false);
 
+            builder.Property(s => s.CommissionableAmount)
+                .HasColumnName("commissionable_amount")
+                .HasPrecision(12, 2)
+                .IsRequired(false);
+
             builder.Property(s => s.RequiredDeposit)
                 .HasColumnName("required_deposit")
                 .HasPrecision(12, 2)
