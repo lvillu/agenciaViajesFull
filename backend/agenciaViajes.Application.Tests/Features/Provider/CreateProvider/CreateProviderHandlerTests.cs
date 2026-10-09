@@ -1,4 +1,5 @@
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Provider.Common.Requests;
 using agenciaViajes.Application.Features.Provider.CreateProvider;
 using FluentAssertions;
@@ -10,11 +11,13 @@ namespace agenciaViajes.Application.Tests.Features.Provider.CreateProvider;
 public class CreateProviderHandlerTests
 {
     private readonly IProviderRepository _providerRepository = Substitute.For<IProviderRepository>();
+    private readonly IAccountService _accountService = Substitute.For<IAccountService>();
     private readonly CreateProviderHandler _handler;
 
     public CreateProviderHandlerTests()
     {
-        _handler = new CreateProviderHandler(_providerRepository);
+        _accountService.AccountId.Returns(Guid.NewGuid());
+        _handler = new CreateProviderHandler(_providerRepository, _accountService);
     }
 
     private static CreateProviderRequest BuildValidRequest() => new()

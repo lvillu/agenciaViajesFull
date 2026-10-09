@@ -1,4 +1,5 @@
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.Payment.Common.Requests;
 using agenciaViajes.Application.Features.Payment.CreatePayment;
 using FluentAssertions;
@@ -13,11 +14,13 @@ public class CreatePaymentHandlerTests
 {
     private readonly IPaymentRepository _paymentRepository = Substitute.For<IPaymentRepository>();
     private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
+    private readonly IAccountService _accountService = Substitute.For<IAccountService>();
     private readonly CreatePaymentHandler _handler;
 
     public CreatePaymentHandlerTests()
     {
-        _handler = new CreatePaymentHandler(_paymentRepository, _saleRepository);
+        _accountService.AccountId.Returns(Guid.NewGuid());
+        _handler = new CreatePaymentHandler(_paymentRepository, _saleRepository, _accountService);
     }
 
     private static SaleEntity BuildSale(int id = 1, decimal total = 10000m, bool withClient = true) => new()

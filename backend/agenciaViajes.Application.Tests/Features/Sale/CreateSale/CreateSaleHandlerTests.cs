@@ -16,11 +16,13 @@ namespace agenciaViajes.Application.Tests.Features.Sale.CreateSale
         private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
         private readonly IClientRepository _clientRepository = Substitute.For<IClientRepository>();
         private readonly IPaymentRepository _paymentRepository = Substitute.For<IPaymentRepository>();
+        private readonly IAccountService _accountService = Substitute.For<IAccountService>();
         private readonly CreateSaleHandler _handler;
 
         public CreateSaleHandlerTests()
         {
-            _handler = new CreateSaleHandler(_saleRepository, _clientRepository, _paymentRepository);
+            _accountService.AccountId.Returns(Guid.NewGuid());
+            _handler = new CreateSaleHandler(_saleRepository, _clientRepository, _paymentRepository, _accountService);
         }
 
         private static ClientEntity BuildClient(int id = 1) => new()

@@ -11,11 +11,13 @@ namespace agenciaViajes.Application.Tests.Features.Client.CreateClient
     public class CreateClientHandlerTests
     {
         private readonly IClientRepository _clientRepository = Substitute.For<IClientRepository>();
+        private readonly IAccountService _accountService = Substitute.For<IAccountService>();
         private readonly CreateClientHandler _handler;
 
         public CreateClientHandlerTests()
         {
-            _handler = new CreateClientHandler(_clientRepository);
+            _accountService.AccountId.Returns(Guid.NewGuid());
+            _handler = new CreateClientHandler(_clientRepository, _accountService);
         }
 
         private static CreateClientRequest BuildValidRequest(string? email = "juan.perez@test.com") => new()

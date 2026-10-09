@@ -9,6 +9,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   rememberMe: false,
+  avatarVersion: 0,
 };
 
 const buildUser = (): UserMeResponse => ({
@@ -16,6 +17,7 @@ const buildUser = (): UserMeResponse => ({
   email: 'juan@test.com',
   userName: 'jperez',
   userIconUrl: null,
+  role: 'owner',
 });
 
 describe('authStore', () => {
