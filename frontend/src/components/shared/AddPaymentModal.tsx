@@ -72,6 +72,8 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
   });
 
   // Observar cambios en amount y exchangeRate para calcular amountMXN
+  // React Hook Form esta documentado como incompatible con React Compiler.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const amount = watch('amount');
   const exchangeRate = watch('exchangeRate');
 

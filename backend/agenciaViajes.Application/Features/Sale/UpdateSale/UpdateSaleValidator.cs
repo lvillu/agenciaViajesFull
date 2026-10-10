@@ -10,11 +10,23 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             RuleFor(x => x.ClientId)
                 .GreaterThan(0).WithMessage("Debe seleccionar un cliente");
 
-            RuleFor(x => x.ProviderId)
-                .GreaterThan(0).WithMessage("Debe seleccionar un proveedor");
+            RuleFor(x => x.Providers)
+                .NotEmpty().WithMessage("Debe seleccionar al menos un proveedor");
+
+            RuleForEach(x => x.Providers)
+                .ChildRules(provider =>
+                {
+                    provider.RuleFor(p => p.ProviderId)
+                        .GreaterThan(0).WithMessage("El proveedor es inválido");
+                });
 
             RuleFor(x => x.TotalAmount)
                 .GreaterThan(0).WithMessage("El monto total debe ser mayor a 0");
+
+            RuleFor(x => x.CommissionableAmount)
+                .GreaterThanOrEqualTo(0).WithMessage("El monto comisionable no puede ser negativo")
+                .LessThanOrEqualTo(x => x.TotalAmount).WithMessage("El monto comisionable no puede superar el monto total")
+                .When(x => x.CommissionableAmount.HasValue);
 
             RuleFor(x => x.TravelDate)
                 .GreaterThanOrEqualTo(DateTime.Today).WithMessage("La fecha de viaje debe ser mayor o igual a hoy");

@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import {
   Box,
   Typography,
@@ -19,7 +19,6 @@ import {
   Tooltip,
   Switch,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InputNumber } from 'primereact/inputnumber';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -32,6 +31,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
 import { ClientFormModal } from '@/components/shared/ClientFormModal';
+import { SaleProvidersField } from '@/components/features/sale/SaleProvidersField';
 import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
 import { useProviders } from '@/hooks/useProviders';
@@ -42,20 +42,18 @@ import {
   UpdateSaleSchema,
   type CreateSaleFormData,
   type UpdateSaleFormData,
+  type SaleProviderItem,
 } from '@/types/sale';
-import { Provider } from '@/types/provider';
 import { ClientFormData } from '@/lib/validationSchemas';
 
-function SaleFormContent() {
+function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const saleId = searchParams.get('id');
+  const saleId = saleIdProp;
   const isEditing = !!saleId;
 
   const [loading, setLoading] = useState(false);
   const [loadingSale, setLoadingSale] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [isLiquidationOverdue, setIsLiquidationOverdue] = useState(false);
 
@@ -74,12 +72,13 @@ function SaleFormContent() {
     resolver: zodResolver(isEditing ? UpdateSaleSchema : CreateSaleSchema) as any,
     defaultValues: {
       clientId: 0,
-      providerId: 0,
-      reservationNumber: '',
+      providers: [{ providerId: 0, reservationNumber: '' }],
       description: '',
       totalAmount: 0,
       isDollar: false,
       profitPercentage: undefined,
+      splitCommission: false,
+      commissionableAmount: undefined,
       exchangeRate: undefined,
       requiredDeposit: undefined,
       finalPaymentDueDate: undefined,
@@ -91,12 +90,45 @@ function SaleFormContent() {
   });
 
   // Observar cambios en campos para cálculos automáticos
-  const providerId = watch('providerId');
+  // React Hook Form esta documentado como incompatible con React Compiler;
+  // el uso de watch() suscripto a re-renders es el patrón intencional del formulario.
   const travelDate = watch('travelDate');
   const totalAmount = watch('totalAmount');
   const isDollar = watch('isDollar');
   const finalPaymentDueDate = watch('finalPaymentDueDate');
   const profitPercentage = watch('profitPercentage');
+  const splitCommission = watch('splitCommission');
+  const commissionableAmount = watch('commissionableAmount');
+  const commissionBase = splitCommission ? (commissionableAmount ?? 0) : totalAmount;
+  const nonCommissionableAmount = Math.max(0, (totalAmount || 0) - (commissionableAmount ?? 0));
+  const commissionExceedsTotal = !!splitCommission && (commissionableAmount ?? 0) > (totalAmount || 0);
+  const commissionError = commissionExceedsTotal
+    ? 'El monto comisionable no puede ser mayor al monto total'
+    : errors.commissionableAmount?.message;
+  const providersValue = watch('providers');
+  const returnDateValue = watch('returnDate');
+  const requiredDepositValue = watch('requiredDeposit');
+
+  // Reglas (depósito, liquidación, ganancia) tomadas del PRIMER proveedor agregado.
+  // Derivado reactivamente: sobrevive a altas, bajas y a la carga en modo edición.
+  const firstProvider = useMemo(() => {
+    const firstItem = (providersValue ?? []).find((p) => p.providerId > 0);
+    if (!firstItem) return null;
+    return providers.find((p) => p.id === firstItem.providerId) ?? null;
+  }, [providersValue, providers]);
+
+  // Auto-precargar % de ganancia cuando cambia el primer proveedor (solo creación,
+  // para no pisar ediciones manuales del usuario en re-renders).
+  const prevFirstProviderId = useRef<number | null>(null);
+  useEffect(() => {
+    const id = firstProvider?.id ?? null;
+    if (id !== prevFirstProviderId.current) {
+      prevFirstProviderId.current = id;
+      if (!isEditing && firstProvider?.profitPercentage !== undefined) {
+        setValue('profitPercentage', firstProvider.profitPercentage);
+      }
+    }
+  }, [firstProvider, isEditing, setValue]);
 
   // Cargar venta si está editando
   useEffect(() => {
@@ -106,12 +138,16 @@ function SaleFormContent() {
         .getById(Number(saleId))
         .then((sale) => {
           setValue('clientId', sale.clientId);
-          setValue('providerId', sale.providerId);
-          setValue('reservationNumber', sale.reservationNumber || '');
+          setValue('providers', sale.providers?.length
+            ? sale.providers.map(p => ({ providerId: p.providerId, reservationNumber: p.reservationNumber || '' }))
+            : [{ providerId: sale.providerId || 0, reservationNumber: sale.reservationNumber || '' }]
+          );
           setValue('description', sale.description || '');
           setValue('totalAmount', sale.totalAmount);
           setValue('isDollar', sale.isDollar);
           setValue('profitPercentage', sale.profitPercentage);
+          setValue('splitCommission', sale.commissionableAmount != null);
+          setValue('commissionableAmount', sale.commissionableAmount ?? undefined);
           setValue('exchangeRate', sale.exchangeRate);
           setValue('requiredDeposit', sale.requiredDeposit);
           setValue('finalPaymentDueDate', sale.finalPaymentDueDate || undefined);
@@ -129,20 +165,6 @@ function SaleFormContent() {
     }
   }, [isEditing, saleId, setValue]);
 
-  // Actualizar proveedor seleccionado cuando cambie providerId
-  useEffect(() => {
-    if (providerId > 0) {
-      const provider = providers.find((p) => p.id === providerId);
-      setSelectedProvider(provider || null);
-      // Pre-cargar % de ganancia del proveedor (solo si no estamos editando)
-      if (!isEditing && provider?.profitPercentage !== undefined) {
-        setValue('profitPercentage', provider.profitPercentage);
-      }
-    } else {
-      setSelectedProvider(null);
-    }
-  }, [providerId, providers]);
-
   // Verificar si la fecha de liquidación es pasada
   useEffect(() => {
     if (finalPaymentDueDate) {
@@ -156,18 +178,41 @@ function SaleFormContent() {
     }
   }, [finalPaymentDueDate]);
 
-  // Handler para calcular pago inicial cuando el total pierde el foco
-  const handleTotalBlur = () => {
-    if (selectedProvider && totalAmount > 0 && selectedProvider.depositPercentage) {
-      const calculatedDeposit = saleService.calculateRequiredDeposit(
-        totalAmount,
-        selectedProvider.depositPercentage
-      );
-      if (calculatedDeposit !== null && calculatedDeposit !== undefined) {
-        setValue('requiredDeposit', calculatedDeposit);
-      }
-    }
+  // Flag de edición manual: si el usuario captura el Pago Inicial a mano,
+  // los autocompletados automáticos ya no lo pisan.
+  const depositTouched = useRef(false);
+
+  // Aplica el % de anticipo del primer proveedor al Pago Inicial.
+  // Retorna true si precargó el valor.
+  const applyDepositFromFirstProvider = (total: number, currentDeposit: number | undefined) => {
+    if (!firstProvider || total <= 0 || !firstProvider.depositPercentage) return false;
+    if (currentDeposit !== undefined && currentDeposit !== null && currentDeposit > 0) return false;
+    if (depositTouched.current) return false;
+    const calculated = saleService.calculateRequiredDeposit(total, firstProvider.depositPercentage);
+    if (calculated === null || calculated === undefined) return false;
+    setValue('requiredDeposit', calculated);
+    return true;
   };
+
+  // Handler para calcular pago inicial cuando el total pierde el foco
+  // (usa las reglas del primer proveedor agregado)
+  const handleTotalBlur = () => {
+    applyDepositFromFirstProvider(totalAmount, requiredDepositValue);
+  };
+
+  // Si el total ya tiene monto y luego se agrega (o cambia) el primer proveedor,
+  // precargar el Pago Inicial con sus reglas. También cubre la carga en edición.
+  const prevDepositProviderId = useRef<number | null>(null);
+  useEffect(() => {
+    const id = firstProvider?.id ?? null;
+    if (id !== prevDepositProviderId.current) {
+      prevDepositProviderId.current = id;
+      // Cambiaron las reglas: permitir un nuevo autocompletado.
+      depositTouched.current = false;
+      applyDepositFromFirstProvider(totalAmount, requiredDepositValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstProvider, totalAmount]);
 
   // Handlers para el modal de cliente
   const handleOpenClientModal = () => {
@@ -194,14 +239,17 @@ function SaleFormContent() {
   };
 
   const onSubmit = async (data: CreateSaleFormData | UpdateSaleFormData) => {
+    if (commissionExceedsTotal) return;
     setSubmitError(null);
     setLoading(true);
 
     try {
+      const { splitCommission: split, ...rest } = data;
+      const payload = { ...rest, commissionableAmount: split ? rest.commissionableAmount : undefined };
       if (isEditing && saleId) {
-        await saleService.update(Number(saleId), data as UpdateSaleFormData);
+        await saleService.update(Number(saleId), payload as UpdateSaleFormData);
       } else {
-        await saleService.create(data as CreateSaleFormData);
+        await saleService.create(payload as CreateSaleFormData);
       }
 
       router.push('/reservas');
@@ -289,9 +337,22 @@ function SaleFormContent() {
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                {/* Cliente + botón agregar */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* Cliente titular — ancho completo (prototipo multi-proveedor) */}
                 <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                      <span className="material-symbols-outlined" style={{ color: '#8B8DA8', fontSize: '18px', lineHeight: 1 }}>
+                        person
+                      </span>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}>
+                        Cliente Titular
+                      </Typography>
+                    </Box>
+                    <Button variant="text" onClick={handleOpenClientModal} sx={{ color: '#5BA9B3', fontWeight: 600, px: 1 }}>
+                      + Nuevo Cliente Rápido
+                    </Button>
+                  </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
                     <Box sx={{ flex: 1 }}>
                       <Controller
@@ -304,59 +365,54 @@ function SaleFormContent() {
                             label="Seleccionar Cliente"
                             error={!!errors.clientId}
                             helperText={errors.clientId?.message}
-                            onChange={(e: any) => field.onChange(Number(e.target.value))}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(Number(e.target.value))}
                           >
                             <MenuItem value={0}>Buscar un cliente...</MenuItem>
                             {clients.map((client) => (
                               <MenuItem key={client.id} value={client.id}>
-                                {client.name} {client.lastName}
+                                {client.name} {client.lastName}{client.email ? ` (${client.email})` : ''}
                               </MenuItem>
                             ))}
                           </Input>
                         )}
                       />
                     </Box>
-                    <Tooltip title="Agregar nuevo cliente">
+                    <Tooltip title="Ver directorio de clientes">
                       <IconButton
-                        onClick={handleOpenClientModal}
+                        onClick={() => router.push('/clientes')}
                         sx={{
                           mb: '2px',
-                          bgcolor: '#5BA9B3',
-                          color: '#ffffff',
+                          color: '#8B8DA8',
                           width: 44,
                           height: 44,
                           borderRadius: '10px',
-                          '&:hover': { bgcolor: '#4A969F' },
+                          border: '1px solid #D8DAEA',
                           flexShrink: 0,
+                          '&:hover': { color: '#5BA9B3', borderColor: '#5BA9B3', bgcolor: 'rgba(91,169,179,0.08)' },
                         }}
                       >
-                        <AddIcon sx={{ fontSize: '20px' }} />
+                        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                          visibility
+                        </span>
                       </IconButton>
                     </Tooltip>
                   </Box>
                 </Box>
 
-                {/* Proveedor */}
+                {/* Proveedores del paquete — ancho completo */}
                 <Box>
                   <Controller
-                    name="providerId"
+                    name="providers"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        select
-                        label="Seleccionar Proveedor"
-                        error={!!errors.providerId}
-                        helperText={errors.providerId?.message}
-                        onChange={(e: any) => field.onChange(Number(e.target.value))}
-                      >
-                        <MenuItem value={0}>Buscar un proveedor...</MenuItem>
-                        {providers.map((provider) => (
-                          <MenuItem key={provider.id} value={provider.id}>
-                            {provider.name} ({provider.acronym})
-                          </MenuItem>
-                        ))}
-                      </Input>
+                      <SaleProvidersField
+                        value={field.value as SaleProviderItem[]}
+                        onChange={field.onChange}
+                        providers={providers}
+                        readOnly={isEditing}
+                        error={(errors.providers as unknown as { message?: string; root?: { message?: string } } | undefined)?.message
+                          ?? (errors.providers as unknown as { root?: { message?: string } } | undefined)?.root?.message}
+                      />
                     )}
                   />
                 </Box>
@@ -391,15 +447,6 @@ function SaleFormContent() {
               </Box>
 
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3, mb: 3 }}>
-                {/* Número de Reserva */}
-                <Input
-                  label="Número de Reserva"
-                  placeholder="Ej. RES-2024-001"
-                  {...register('reservationNumber')}
-                  error={!!errors.reservationNumber}
-                  helperText={errors.reservationNumber?.message || 'Proporcionado por el proveedor'}
-                />
-
                 {/* Total */}
                 <Controller
                   name="totalAmount"
@@ -495,6 +542,109 @@ function SaleFormContent() {
                 </Box>
               </Box>
 
+              {/* Desglose comisionable / no comisionable */}
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="splitCommission"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={!!field.value}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                            if (!e.target.checked) setValue('commissionableAmount', undefined);
+                          }}
+                          sx={{ color: '#D8DAEA', '&.Mui-checked': { color: '#5BA9B3' } }}
+                        />
+                      }
+                      label={
+                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252' }}>
+                          Desglosar monto comisionable
+                        </Typography>
+                      }
+                    />
+                  )}
+                />
+                {splitCommission && (
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3, mt: 1 }}>
+                    <Controller
+                      name="commissionableAmount"
+                      control={control}
+                      render={({ field }) => (
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography
+                            component="label"
+                            sx={{
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              color: commissionError ? '#ef4444' : '#525252',
+                              mb: 0.75,
+                              display: 'block',
+                            }}
+                          >
+                            Monto comisionable
+                          </Typography>
+                          <InputNumber
+                            value={field.value ?? null}
+                            onValueChange={(e) => field.onChange(e.value ?? undefined)}
+                            onBlur={field.onBlur}
+                            mode="decimal"
+                            prefix="$ "
+                            useGrouping
+                            minFractionDigits={2}
+                            maxFractionDigits={2}
+                            min={0}
+                            unstyled
+                            placeholder="$ 0.00"
+                            inputStyle={{
+                              width: '100%',
+                              height: '44px',
+                              borderRadius: '8px',
+                              padding: '0 12px',
+                              fontSize: '14px',
+                              fontFamily: '"Public Sans", system-ui, sans-serif',
+                              color: '#525252',
+                              boxSizing: 'border-box',
+                              border: `1px solid ${commissionError ? '#ef4444' : '#D8DAEA'}`,
+                              background: '#ffffff',
+                              outline: 'none',
+                              transition: 'border-color 0.2s, box-shadow 0.2s',
+                            }}
+                          />
+                          <FormHelperText error={!!commissionError} sx={{ mx: 0, mt: 0.5 }}>
+                            {commissionError || 'Parte del total sobre la que se calcula la comisión'}
+                          </FormHelperText>
+                        </Box>
+                      )}
+                    />
+                    <Box>
+                      <Typography
+                        sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#525252', mb: 0.75, display: 'block' }}
+                      >
+                        Monto no comisionable
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '44px',
+                          px: 1.5,
+                          bgcolor: 'rgba(189, 191, 220, 0.12)',
+                          borderRadius: '8px',
+                          border: '1px solid #D8DAEA',
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#525252' }}>
+                          {formatCurrency(nonCommissionableAmount, isDollar)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+
               {/* Descripción */}
               <Controller
                 name="description"
@@ -533,8 +683,8 @@ function SaleFormContent() {
                       error={!!(errors as any).profitPercentage}
                       helperText={
                         (errors as any).profitPercentage?.message ||
-                        (selectedProvider?.profitPercentage !== undefined
-                          ? `Precargado del proveedor (${selectedProvider.profitPercentage}%)`
+                        (firstProvider?.profitPercentage !== undefined
+                          ? `Precargado del proveedor (${firstProvider.profitPercentage}%)`
                           : 'Editable por reserva')
                       }
                       onChange={(e: any) => {
@@ -562,13 +712,13 @@ function SaleFormContent() {
                     }}
                   >
                     <Typography sx={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a' }}>
-                      {profitPercentage && totalAmount > 0
-                        ? formatCurrency(totalAmount * profitPercentage / 100, isDollar)
+                      {profitPercentage && commissionBase > 0
+                        ? formatCurrency(commissionBase * profitPercentage / 100, isDollar)
                         : '—'}
                     </Typography>
-                    {profitPercentage && totalAmount > 0 && (
+                    {profitPercentage && commissionBase > 0 && (
                       <Typography sx={{ fontSize: '0.75rem', color: '#8B8DA8', ml: 1 }}>
-                        ({profitPercentage}% de {formatCurrency(totalAmount, isDollar)})
+                        ({profitPercentage}% de {formatCurrency(commissionBase, isDollar)})
                       </Typography>
                     )}
                   </Box>
@@ -614,13 +764,19 @@ function SaleFormContent() {
                       value={field.value}
                       onChange={(val) => {
                         field.onChange(val);
-                        // Calcular fecha de liquidación automáticamente
-                        if (selectedProvider && val && selectedProvider.finalPaymentDaysBefore) {
+                        // Calcular fecha de liquidación automáticamente (reglas del primer proveedor)
+                        if (firstProvider && val && firstProvider.finalPaymentDaysBefore) {
                           const calculatedDate = saleService.calculateFinalPaymentDate(
                             val,
-                            selectedProvider.finalPaymentDaysBefore
+                            firstProvider.finalPaymentDaysBefore
                           );
                           if (calculatedDate) setValue('finalPaymentDueDate', calculatedDate);
+                        }
+                        // Precargar retorno con la fecha de viaje (si está vacío o quedó
+                        // anterior al viaje) para que el datepicker abra ubicado cerca.
+                        // Comparación lexicográfica válida para ISO YYYY-MM-DD.
+                        if (val && (!returnDateValue || returnDateValue < val)) {
+                          setValue('returnDate', val);
                         }
                       }}
                       onBlur={field.onBlur}
@@ -663,12 +819,11 @@ function SaleFormContent() {
                         error={!!errors.finalPaymentDueDate || isLiquidationOverdue}
                         helperText={
                           (errors.finalPaymentDueDate as any)?.message ||
-                          (selectedProvider?.finalPaymentDaysBefore
-                            ? `Auto: ${selectedProvider.finalPaymentDaysBefore} días antes`
+                          (firstProvider?.finalPaymentDaysBefore
+                            ? `Auto: ${firstProvider.finalPaymentDaysBefore} días antes`
                             : 'Opcional: Ajustable manualmente')
                         }
                         maxDate={travelDate ? new Date(travelDate + 'T00:00:00') : undefined}
-                        disabled={isLiquidationOverdue}
                       />
                     )}
                   />
@@ -687,19 +842,63 @@ function SaleFormContent() {
               {/* Pago Inicial (solo creación) + Tipo de Cambio */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                 {!isEditing && (
-                  <Input
-                    label="Pago Inicial"
-                    type="number"
-                    placeholder="0.00"
-                    inputProps={{ step: '0.01', min: '0' }}
-                    {...register('requiredDeposit', { valueAsNumber: true })}
-                    error={!!errors.requiredDeposit}
-                    helperText={
-                      (errors.requiredDeposit as any)?.message ||
-                      (selectedProvider?.depositPercentage
-                        ? `Calculado automáticamente (${selectedProvider.depositPercentage}%)`
-                        : 'Opcional: Se puede calcular automáticamente')
-                    }
+                  <Controller
+                    name="requiredDeposit"
+                    control={control}
+                    render={({ field }) => (
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography
+                          component="label"
+                          sx={{
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: errors.requiredDeposit ? '#ef4444' : '#525252',
+                            mb: 0.75,
+                            display: 'block',
+                          }}
+                        >
+                          Pago Inicial
+                        </Typography>
+                        <InputNumber
+                          value={field.value ?? null}
+                          onValueChange={(e) => {
+                            field.onChange(e.value ?? 0);
+                            depositTouched.current = true;
+                          }}
+                          onBlur={field.onBlur}
+                          mode="decimal"
+                          prefix="$ "
+                          useGrouping
+                          minFractionDigits={2}
+                          maxFractionDigits={2}
+                          min={0}
+                          unstyled
+                          placeholder="$ 0.00"
+                          inputStyle={{
+                            width: '100%',
+                            height: '44px',
+                            borderRadius: '8px',
+                            padding: '0 12px',
+                            fontSize: '14px',
+                            fontFamily: '"Public Sans", system-ui, sans-serif',
+                            color: '#525252',
+                            boxSizing: 'border-box',
+                            border: `1px solid ${errors.requiredDeposit ? '#ef4444' : '#D8DAEA'}`,
+                            background: '#ffffff',
+                            outline: 'none',
+                            transition: 'border-color 0.2s, box-shadow 0.2s',
+                          }}
+                        />
+                        <FormHelperText error={!!errors.requiredDeposit} sx={{ mx: 0, mt: 0.5 }}>
+                          {errors.requiredDeposit?.message ||
+                            (firstProvider
+                              ? firstProvider.depositPercentage
+                                ? `Calculado automáticamente (${firstProvider.depositPercentage}%)`
+                                : 'El proveedor no tiene % de anticipo configurado'
+                              : 'Opcional: Se puede calcular automáticamente')}
+                        </FormHelperText>
+                      </Box>
+                    )}
                   />
                 )}
                 {isDollar && (
@@ -786,6 +985,16 @@ function SaleFormContent() {
   );
 }
 
+/**
+ * Controlador que lee searchParams y fuerza remonte del formulario
+ * mediante key cuando cambia el saleId (navegación crear ↔ editar)
+ */
+function SaleFormController() {
+  const searchParams = useSearchParams();
+  const saleId = searchParams.get('id');
+  return <SaleFormContent key={saleId || 'create'} saleId={saleId} />;
+}
+
 export default function SaleFormPage() {
   return (
     <Suspense fallback={
@@ -797,7 +1006,7 @@ export default function SaleFormPage() {
         <Footer />
       </Box>
     }>
-      <SaleFormContent />
+      <SaleFormController />
     </Suspense>
   );
 }

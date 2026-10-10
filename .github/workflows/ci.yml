@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  # Validación PRE-merge: este es el gate real (junto con Branch Protection)
+  pull_request:
+    branches: [dev, main]
+  # Red de seguridad POST-merge / pushes directos
+  push:
+    branches: [dev, main]
+
+# Cancela ejecuciones obsoletas si llegan pushes nuevos a la misma rama (ahorra minutos)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Privilegio mínimo: solo lectura del código
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend — Build & Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore agenciaViajes.Api/agenciaViajes.Api.csproj
+
+      - name: Build (Release)
+        run: dotnet build agenciaViajes.Api/agenciaViajes.Api.csproj -c Release --no-restore
+
+      - name: Unit Tests (gate 100%)
+        run: >
+          dotnet test agenciaViajes.Application.Tests/agenciaViajes.Application.Tests.csproj
+          -c Release --no-build
+          --logger trx --results-directory ./test-results
+
+      - name: Upload test results (solo si falla, para diagnóstico)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/**/test-results/*.trx
+          retention-days: 7
+
+  frontend-tests:
+    name: Frontend — Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit Tests (gate 100%)
+        run: npm test
+
+  frontend-build:
+    name: Frontend — Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (incluye typecheck estricto)
+        run: npm run build

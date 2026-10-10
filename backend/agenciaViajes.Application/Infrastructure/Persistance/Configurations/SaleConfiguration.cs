@@ -24,7 +24,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
 
             builder.Property(s => s.ProviderId)
                 .HasColumnName("provider_id")
-                .IsRequired();
+                .IsRequired(false);
 
             // Configurar relaciones de navegación
             builder.HasOne(s => s.Client)
@@ -35,6 +35,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.HasOne(s => s.Provider)
                 .WithMany()
                 .HasForeignKey(s => s.ProviderId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(s => s.Payments)
@@ -66,6 +67,11 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.Property(s => s.ProfitPercentage)
                 .HasColumnName("profit_percentage")
                 .HasPrecision(5, 2)
+                .IsRequired(false);
+
+            builder.Property(s => s.CommissionableAmount)
+                .HasColumnName("commissionable_amount")
+                .HasPrecision(12, 2)
                 .IsRequired(false);
 
             builder.Property(s => s.RequiredDeposit)
@@ -113,9 +119,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             // Índices
             builder.HasIndex(s => s.ClientId)
                 .HasDatabaseName("idx_sales_client_id");
-
-            builder.HasIndex(s => s.ProviderId)
-                .HasDatabaseName("idx_sales_provider_id");
 
             builder.HasIndex(s => s.ReservationNumber)
                 .HasDatabaseName("idx_sales_reservation_number");

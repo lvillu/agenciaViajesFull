@@ -2,6 +2,11 @@
 name: frontend-styles-agent
 description: Revisa y corrige los estilos de los archivos frontend para que cumplan con el sistema de diseño TravelAgency. Siempre es el último paso de cualquier feature frontend.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en coherencia visual para el proyecto agenciaViajes.

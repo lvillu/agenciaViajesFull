@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace agenciaViajes.Application.Infrastructure.Persistance
@@ -21,38 +22,46 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             _context = context;
         }
 
-        public async Task<(User? user, string token)> AuthLoginAsync(string username, string password, CancellationToken cancellationToken = default)
+        public async Task<(User? user, string token, string refreshToken)> AuthLoginAsync(string username, string password, bool rememberMe, CancellationToken cancellationToken = default)
         {
             // Obtener el usuario de la base de datos
             var user = await GetUserByUserNameAsync(username, cancellationToken);
-            
+
             if (user == null)
             {
-                return (null, string.Empty);
+                return (null, string.Empty, string.Empty);
             }
 
             // Verificar la contraseña
             if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
-                return (null, string.Empty);
+                return (null, string.Empty, string.Empty);
             }
 
-            // Generar refresh token y guardarlo
+            // Limpiar sesiones ya vencidas del usuario (no aportan nada)
+            var expiredSessions = await _context.RefreshTokens
+                .Where(rt => rt.UserId == user.Id && rt.ExpiresAt < DateTime.UtcNow)
+                .ToListAsync(cancellationToken);
+            _context.RefreshTokens.RemoveRange(expiredSessions);
+
+            // Crear una nueva sesión (una fila por dispositivo)
             var refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = GenerateRefreshTokenExpires();
+            var lifetime = GetRefreshTokenLifetime(rememberMe);
+            _context.RefreshTokens.Add(new RefreshToken
+            {
+                UserId = user.Id,
+                TokenHash = HashToken(refreshToken),
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.Add(lifetime),
+                IsRevoked = false
+            });
             await _context.SaveChangesAsync(cancellationToken);
 
-            var token = GenerateToken(user, refreshToken);
-            return (user, token);
+            var token = GenerateToken(user);
+            return (user, token, refreshToken);
         }
 
-        public bool AuthLogOut(string token)
-        {
-            return true;
-        }
-
-        public string GenerateToken(User user, string refreshToken)
+        public string GenerateToken(User user)
         {
             var claims = new[]
             {
@@ -61,7 +70,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 new Claim("email", user.Email),
                 new Claim("userIcon", user.UserIconUrl ?? ""),
                 new Claim(ClaimTypes.Name, user.UserName),  // Mantener para compatibilidad
-                new Claim("RefreshToken", refreshToken),
                 // Account isolation claims
                 new Claim("accountId", user.AccountId.ToString()),
                 new Claim("userId", user.Id.ToString()),
@@ -78,6 +86,68 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<RefreshToken?> GetRefreshTokenWithUserAsync(string refreshToken, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return null;
+
+            var tokenHash = HashToken(refreshToken);
+            return await _context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash, cancellationToken);
+        }
+
+        public async Task<string> RotateRefreshTokenAsync(RefreshToken current, CancellationToken cancellationToken = default)
+        {
+            var now = DateTime.UtcNow;
+
+            // Conserva la ventana original de la sesión (7 días o 30 con "Recordarme")
+            var window = current.ExpiresAt - current.CreatedAt;
+            if (window <= TimeSpan.Zero)
+                window = GetRefreshTokenLifetime(false);
+
+            current.IsRevoked = true;
+
+            var newRefreshToken = GenerateRefreshToken();
+            _context.RefreshTokens.Add(new RefreshToken
+            {
+                UserId = current.UserId,
+                TokenHash = HashToken(newRefreshToken),
+                CreatedAt = now,
+                ExpiresAt = now.Add(window),
+                IsRevoked = false
+            });
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return newRefreshToken;
+        }
+
+        public async Task<bool> RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return false;
+
+            var tokenHash = HashToken(refreshToken);
+            var stored = await _context.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash, cancellationToken);
+
+            if (stored == null || stored.IsRevoked)
+                return false;
+
+            stored.IsRevoked = true;
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+        public TimeSpan GetRefreshTokenLifetime(bool rememberMe)
+        {
+            var minutes = rememberMe
+                ? _settings.RememberMeRefreshTokenExpiresInMinutes
+                : _settings.RefreshTokenExpiresInMinutes;
+
+            return TimeSpan.FromMinutes(minutes);
         }
 
         public async Task<User> CreateUserAsync(User user, CancellationToken cancellationToken = default)
@@ -99,20 +169,16 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .FirstOrDefaultAsync(u => u.UserName == userName, cancellationToken);
         }
 
-        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
-        {
-            return await _context.Users
-                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken, cancellationToken);
-        }
-
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
             return Guid.NewGuid().ToString();
         }
 
-        public DateTime GenerateRefreshTokenExpires()
+        // El refresh token nunca se guarda en claro: solo su hash SHA-256
+        private static string HashToken(string token)
         {
-            return DateTime.UtcNow.AddMinutes(_settings.RefreshTokenExpiresInMinutes);
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToHexString(hash).ToLowerInvariant();
         }
     }
 }

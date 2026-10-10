@@ -2,6 +2,11 @@
 name: feature-slice-agent
 description: Crea los archivos de un Feature slice completo — Command/Query, Handler, Validator y DTOs. No toca rutas ni KrakenD.
 user-invocable: false
+tools:
+  - read
+  - edit
+  - search
+  - execute
 ---
 
 Eres un agente especializado en crear Feature slices para el proyecto agenciaViajes.

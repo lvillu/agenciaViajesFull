@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -16,11 +16,30 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { loginSchema, type LoginFormData } from '@/lib/validationSchemas';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
+import { setSessionHint } from '@/lib/sessionHint';
 import Image from 'next/image';
+
+// Ruta de retorno tras login. Solo rutas internas (evita open redirect).
+function getSafeReturnTo(): string {
+  if (typeof window === 'undefined') return '/';
+  const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+  if (
+    returnTo &&
+    returnTo.startsWith('/') &&
+    !returnTo.startsWith('//') &&
+    !returnTo.startsWith('/login') &&
+    !returnTo.startsWith('/signup')
+  ) {
+    return returnTo;
+  }
+  return '/';
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, loading, error } = useAuth();
+  const { isAuthenticated, rememberMe: storedRememberMe } = useAuthStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -33,11 +52,23 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Si ya hay sesión (login manual o redirect del middleware), se repara el
+  // cookie-hint si faltaba y se vuelve a la ruta original.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setSessionHint(storedRememberMe);
+    router.replace(getSafeReturnTo());
+  }, [isAuthenticated, storedRememberMe, router]);
+
   const onSubmit = async (data: LoginFormData) => {
     setSubmitError(null);
     try {
-      await login(data);
-      router.push('/');
+      await login({
+        userName: data.userName,
+        password: data.password,
+        rememberMe,
+      });
+      // La navegación la resuelve el efecto de arriba (isAuthenticated)
     } catch (err: any) {
       setSubmitError(err.message || 'Error al iniciar sesión');
     }
@@ -317,7 +348,7 @@ export default function LoginPage() {
                 textShadow: '0 1px 4px rgba(0,0,0,0.25)',
               }}
             >
-              "El mundo es un libro y los que no viajan solo leen una página."
+              &quot;El mundo es un libro y los que no viajan solo leen una página.&quot;
             </Typography>
 
             {/* Progress dots */}

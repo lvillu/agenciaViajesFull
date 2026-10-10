@@ -182,7 +182,6 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
                 {...register('email')}
                 error={!!errors.email}
                 helperText={errors.email?.message}
-                required
               />
             </Box>
 

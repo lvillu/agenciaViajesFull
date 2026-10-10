@@ -15,7 +15,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
     {
         public static IServiceCollection ConfigureCors(this IServiceCollection services)
         {
-            var allowedOrigins = (Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? "http://localhost:3000,http://localhost:3001")
+            var allowedOrigins = (Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? "http://localhost:3000,http://localhost:3001,http://localhost:3100")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             services.AddCors(options =>
@@ -72,6 +72,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                     };
                 });

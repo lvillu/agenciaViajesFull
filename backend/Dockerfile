@@ -4,7 +4,7 @@
 # ============================================================
 
 # ---- Etapa 1: Restore (cacheada) ----
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS restore
 
 WORKDIR /src
 
@@ -31,7 +31,7 @@ RUN dotnet publish agenciaViajes.Api/agenciaViajes.Api.csproj \
     /p:UseAppHost=false
 
 # ---- Etapa 3: Runtime (imagen mínima) ----
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 
 # Instalar solo lo necesario (wget para healthcheck, icu para globalización)
 RUN apk add --no-cache wget icu-libs

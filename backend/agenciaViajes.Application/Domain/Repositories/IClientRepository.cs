@@ -9,6 +9,6 @@ namespace agenciaViajes.Application.Domain.Repositories
         Task<Client> CreateAsync(Client client, CancellationToken cancellationToken = default);
         Task<Client> UpdateAsync(Client client, CancellationToken cancellationToken = default);
         Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
-        Task<bool> ExistsByEmailAsync(string email, int? excludeId = null, CancellationToken cancellationToken = default);
+        Task<bool> ExistsByEmailAsync(string? email, int? excludeId = null, CancellationToken cancellationToken = default);
     }
 }

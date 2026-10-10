@@ -9,10 +9,10 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 # Solo copiar manifiestos para aprovechar cache de capas
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
-# Actualizar npm a v11 para consistencia con el lockfile generado localmente
-RUN npm install -g npm@^11
+# Usa el npm incluido en node:22-alpine (10.9.8): misma version que el stage runner,
+# sin rangos flotantes de instalacion global, para builds reproducibles.
 
 # Instalar dependencias con cache mount para acelerar rebuilds
 RUN --mount=type=cache,target=/root/.npm \

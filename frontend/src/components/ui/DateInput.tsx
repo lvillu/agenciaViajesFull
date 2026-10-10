@@ -101,6 +101,9 @@ export const DateInput: React.FC<DateInputProps> = ({
 
   // Sync parent value → local state (e.g. when form resets or edits arrive)
   useEffect(() => {
+    // Patron canonico "ajustar estado cuando cambia una prop" (react.dev/learn):
+    // sincroniza el Date interno con el string del formulario.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInternalDate(toDate(value));
   }, [value]);
 

@@ -6,7 +6,7 @@
 
         public int ClientId { get; set; }
 
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
 
         public string? ReservationNumber { get; set; }
 
@@ -17,6 +17,13 @@
         public bool IsDollar { get; set; }
 
         public decimal? ProfitPercentage { get; set; }
+
+        // Null = todo el total es comisionable
+        public decimal? CommissionableAmount { get; set; }
+
+        public decimal CommissionBase => CommissionableAmount ?? TotalAmount;
+
+        public decimal? NonCommissionableAmount => CommissionableAmount.HasValue ? TotalAmount - CommissionableAmount.Value : null;
 
         public decimal? RequiredDeposit { get; set; }
 
@@ -41,5 +48,6 @@
         public Client? Client { get; set; }
         public Provider? Provider { get; set; }
         public ICollection<Payment>? Payments { get; set; }
+        public ICollection<SaleProvider> SaleProviders { get; set; } = new List<SaleProvider>();
     }
 }

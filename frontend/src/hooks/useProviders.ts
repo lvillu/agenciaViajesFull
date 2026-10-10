@@ -101,6 +101,8 @@ export const useProviders = () => {
 
   // Cargar proveedores al montar el componente
   useEffect(() => {
+    // Convencion del proyecto: carga inicial con funcion de refresh compartida.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProviders();
   }, [fetchProviders]);
 

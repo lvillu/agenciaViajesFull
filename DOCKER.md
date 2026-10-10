@@ -2,7 +2,7 @@
 
 ## 📋 Descripción
 Esta configuración de Docker Compose levanta toda la infraestructura necesaria para la aplicación Agencia Viajes:
-- **Frontend Next.js** - React 19 (Puerto 3000)
+- **Frontend Next.js** - React 19 (Puerto 3100)
 - **API .NET 8** - Backend en C# (Puerto 8080)
 - **KrakenD** - API Gateway (Puerto 5050)
 - **PostgreSQL** - Base de datos (Puerto 5432)
@@ -62,7 +62,7 @@ docker-compose --env-file .env.development.local logs -f
 
 | Servicio | URL | Descripción |
 |----------|-----|-------------|
-| Frontend | `http://localhost:3000` | Next.js + React 19 |
+| Frontend | `http://localhost:3100` | Next.js + React 19 |
 | API | `http://localhost:8080` | .NET API Backend |
 | KrakenD Gateway | `http://localhost:5050` | API Gateway (expone `/login`, `/signup`, `/users/me`, etc.) |
 | PostgreSQL | `localhost:5432` | Base de datos
@@ -174,7 +174,7 @@ docker-compose --env-file .env.development.local down -v
 ## 🔗 Flujo de comunicación
 
 ```
-Frontend (localhost:3000)
+Frontend (localhost:3100)
     ↓
     └─→ KrakenD Gateway (localhost:5050)
         ↓
@@ -199,13 +199,13 @@ Los servicios se inician en el siguiente orden (automáticamente con depends_on)
 # Cambiar el puerto en docker-compose.yml o matar el proceso
 
 # Windows
-netstat -ano | findstr :3000    # Frontend
+netstat -ano | findstr :3100    # Frontend
 netstat -ano | findstr :5050    # KrakenD
 netstat -ano | findstr :8080    # API
 netstat -ano | findstr :5432    # PostgreSQL
 
 # Linux/Mac
-lsof -i :3000    # Frontend
+lsof -i :3100    # Frontend
 lsof -i :5050    # KrakenD
 lsof -i :8080    # API
 lsof -i :5432    # PostgreSQL

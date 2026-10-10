@@ -1,5 +1,4 @@
-﻿using agenciaViajes.Application.Domain.Repositories;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +19,7 @@ namespace agenciaViajes.Application.Domain.Middleware
             _configuration = configuration;
         }
 
-        public async Task InvokeAsync(HttpContext context, IAuthRepository tokenService)
+        public async Task InvokeAsync(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             var isSecureApi = context.GetEndpoint()?.Metadata?.GetMetadata<AuthorizeAttribute>() != null;
@@ -31,12 +30,13 @@ namespace agenciaViajes.Application.Domain.Middleware
                 return;
             }
 
-            if (token == null && isSecureApi)
+            if (token == null)
             {
                 context.Response.StatusCode = 401; // Unauthorized
                 GeneraExcepcion(context, "No tienes acceso a la informacion.");
                 return;
             }
+
             // Verifica el token actual
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -58,60 +58,16 @@ namespace agenciaViajes.Application.Domain.Middleware
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 }, out SecurityToken validatedToken);
             }
             catch (SecurityTokenExpiredException)
             {
-                var jwtSecurityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-
-                if (jwtSecurityToken == null)
-                {
-                    context.Response.StatusCode = 401;
-                    GeneraExcepcion(context, "Token invalido.");
-                    return;
-                }
-
-                // Si el token ha expirado, intenta refrescarlo con el refresh token
-                // Obtener el refresh token directamente desde el JWT (en los claims)
-                var refreshToken = jwtSecurityToken.Claims.FirstOrDefault(c => c.Type == "RefreshToken")?.Value;
-
-                if (string.IsNullOrEmpty(refreshToken))
-                {
-                    context.Response.StatusCode = 401; // Unauthorized
-                    GeneraExcepcion(context, "No hay refresh token.");
-                    return;
-                }
-
-                // Obtener el usuario de la base de datos a partir del refreshToken
-                var user = await tokenService.GetUserByRefreshTokenAsync(refreshToken);
-                if (user == null)
-                {
-                    context.Response.StatusCode = 401; // Unauthorized
-                    GeneraExcepcion(context, "Refresh token invalido.");
-                    return;
-                }
-
-                // Validar el tiempo de expiración del Refresh Token
-                if(user.RefreshTokenExpiryTime != null && user.RefreshTokenExpiryTime < DateTime.UtcNow)
-                {
-                    context.Response.StatusCode = 401; // Unauthorized
-                    GeneraExcepcion(context, "Refresh Token expiro.");
-                    return;
-                }
-
-                // Generar nuevo refresh token y guardarlo
-                var newRefreshToken = Guid.NewGuid().ToString();
-                user.RefreshToken = newRefreshToken;
-                user.RefreshTokenExpiryTime = tokenService.GenerateRefreshTokenExpires();
-                
-                // Generar nuevo token en base al usuario obtenido
-                var newToken = tokenService.GenerateToken(user, newRefreshToken);
-                // Cambiar el encabezado de autorización con el nuevo token
-                context.Request.Headers["New-Auth-Header"] = $"Bearer {newToken}";
-                // Ahora llamamos al siguiente middleware o API
-                await _next(context);
-                return; // Evitar más procesamiento después de pasar la solicitud
+                // El cliente debe renovar el access token via POST /api/Auth/refresh
+                context.Response.StatusCode = 401; // Unauthorized
+                GeneraExcepcion(context, "Tu sesión ha expirado.");
+                return;
             }
             catch (Exception)
             {

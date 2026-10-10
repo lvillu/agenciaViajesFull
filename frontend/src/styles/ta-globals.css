@@ -1,5 +1,10 @@
 ﻿/* TravelAgency - Global utility styles */
 
+/* SweetAlert2: z-index sobre MUI Dialogs (1300) */
+.swal2-container {
+  z-index: 9999 !important;
+}
+
 /* Input generico */
 .ta-input:focus {
   outline: none;
