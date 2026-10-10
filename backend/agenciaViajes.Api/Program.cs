@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Fail-fast de seguridad: sin clave JWT válida no se arranca (Fase 1).
+JwtSettingsValidator.Validate(builder.Configuration);
+
 builder.Services.ConfigureCors() // Registrar el servicio de CORS
     .AddFluentValidationConfig() // Configuracion de fluent validation
     .AddBehaivorConfig() // Se registran los pipelines

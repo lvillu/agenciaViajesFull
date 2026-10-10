@@ -41,7 +41,7 @@ namespace agenciaViajes.Application.Domain.Middleware
             string errMessage = "Error(es) de validacion: " + String.Join(" ", ex.Errors.Select(e => e.ErrorMessage));
 
             var result = JsonSerializer.Serialize(Result<string>.Failure(errMessage));
-            //logger.LogError(ex, errMessage);
+            logger.LogWarning(ex, "Error de validación: {Message}", errMessage);
             return context.Response.WriteAsync(result);
         }
 
@@ -50,13 +50,18 @@ namespace agenciaViajes.Application.Domain.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+            // Nunca exponer el detalle interno al cliente (puede contener
+            // nombres de tablas/columnas o datos de conexión). Se devuelve una
+            // referencia para correlacionar con los logs del servidor.
+            var reference = context.TraceIdentifier;
+            logger.LogError(ex, "Error no controlado. Ref: {Reference} {Method} {Path}",
+                reference, context.Request.Method, context.Request.Path);
+
             var result = JsonSerializer.Serialize(new
             {
                 success = false,
-                message = ex.Message
+                message = "Ocurrió un error inesperado. Ref: " + reference
             });
-
-            //logger.LogError(ex, ex.Message);
 
             return context.Response.WriteAsync(result);
         }
