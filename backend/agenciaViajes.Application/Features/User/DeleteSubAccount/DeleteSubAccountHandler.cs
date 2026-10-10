@@ -7,13 +7,16 @@ namespace agenciaViajes.Application.Features.User.DeleteSubAccount
     public class DeleteSubAccountHandler : IRequestHandler<DeleteSubAccountCommand, Result>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAuthRepository _authRepository;
         private readonly IAccountService _accountService;
 
         public DeleteSubAccountHandler(
             IUserRepository userRepository,
+            IAuthRepository authRepository,
             IAccountService accountService)
         {
             _userRepository = userRepository;
+            _authRepository = authRepository;
             _accountService = accountService;
         }
 
@@ -47,6 +50,9 @@ namespace agenciaViajes.Application.Features.User.DeleteSubAccount
             // Soft delete
             subAccount.Active = false;
             await _userRepository.UpdateAsync(subAccount, cancellationToken);
+
+            // Revocar todas las sesiones activas de la subcuenta
+            await _authRepository.RevokeAllUserTokensAsync(subAccount.Id, cancellationToken);
 
             return Result.Success();
         }

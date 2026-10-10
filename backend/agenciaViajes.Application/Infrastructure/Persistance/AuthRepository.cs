@@ -38,6 +38,12 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 return (null, string.Empty, string.Empty);
             }
 
+            // Usuarios desactivados (p. ej. subcuentas eliminadas) no pueden iniciar sesión
+            if (!user.Active)
+            {
+                return (null, string.Empty, string.Empty);
+            }
+
             // Limpiar sesiones ya vencidas del usuario (no aportan nada)
             var expiredSessions = await _context.RefreshTokens
                 .Where(rt => rt.UserId == user.Id && rt.ExpiresAt < DateTime.UtcNow)
@@ -148,6 +154,19 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 : _settings.RefreshTokenExpiresInMinutes;
 
             return TimeSpan.FromMinutes(minutes);
+        }
+
+        public async Task<int> RevokeAllUserTokensAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+                .ToListAsync(cancellationToken);
+
+            foreach (var token in activeTokens)
+                token.IsRevoked = true;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return activeTokens.Count;
         }
 
         public async Task<User> CreateUserAsync(User user, CancellationToken cancellationToken = default)

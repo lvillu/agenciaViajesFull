@@ -15,5 +15,8 @@ namespace agenciaViajes.Application.Domain.Entities
         public string? Instagram { get; set; }
         public string? LogoUrl { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Tenant: cada cuenta tiene su propia información de agencia
+        public Guid AccountId { get; set; }
     }
 }

@@ -35,6 +35,7 @@ namespace agenciaViajes.Application.Infrastructure.Context
             modelBuilder.Entity<Provider>().HasQueryFilter(e => e.AccountId == _accountService.AccountId);
             modelBuilder.Entity<Sale>().HasQueryFilter(e => e.AccountId == _accountService.AccountId);
             modelBuilder.Entity<Payment>().HasQueryFilter(e => e.AccountId == _accountService.AccountId);
+            modelBuilder.Entity<AgencyInfo>().HasQueryFilter(e => e.AccountId == _accountService.AccountId);
 
             base.OnModelCreating(modelBuilder);
         }

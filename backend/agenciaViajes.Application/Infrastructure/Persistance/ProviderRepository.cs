@@ -1,5 +1,6 @@
 using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +9,20 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
     public class ProviderRepository : IProviderRepository
     {
         private readonly AppDbContext _context;
+        private readonly IAccountService _accountService;
 
-        public ProviderRepository(AppDbContext context)
+        public ProviderRepository(AppDbContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
+
+        // Tenant actual resuelto desde el JWT (claim accountId).
+        private Guid AccountId => _accountService.AccountId;
 
         public async Task<List<Provider>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default)
         {
-            var query = _context.Providers.AsQueryable();
+            var query = _context.Providers.Where(p => p.AccountId == AccountId);
 
             if (!includeInactive)
             {
@@ -31,7 +37,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<Provider?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Providers
-                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == id && p.AccountId == AccountId, cancellationToken);
         }
 
         public async Task<Provider> CreateAsync(Provider provider, CancellationToken cancellationToken = default)
@@ -64,7 +70,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
         public async Task<bool> ExistsByNameAsync(string name, int? excludeId = null, CancellationToken cancellationToken = default)
         {
-            var query = _context.Providers.Where(p => p.Name.ToLower() == name.ToLower());
+            var query = _context.Providers
+                .Where(p => p.AccountId == AccountId && p.Name.ToLower() == name.ToLower());
 
             if (excludeId.HasValue)
             {

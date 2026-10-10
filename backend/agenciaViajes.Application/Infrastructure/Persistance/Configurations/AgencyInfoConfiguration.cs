@@ -13,7 +13,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.HasKey(a => a.Id);
             builder.Property(a => a.Id)
                 .HasColumnName("id")
-                .ValueGeneratedNever(); // Id fijo = 1 (singleton)
+                .ValueGeneratedOnAdd(); // Una fila por cuenta (tenant)
 
             builder.Property(a => a.Name)
                 .HasColumnName("name")
@@ -73,6 +73,15 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             builder.Property(a => a.UpdatedAt)
                 .HasColumnName("updated_at")
                 .IsRequired();
+
+            // Tenant: una fila de agencia por cuenta
+            builder.Property(a => a.AccountId)
+                .HasColumnName("account_id")
+                .IsRequired();
+
+            builder.HasIndex(a => a.AccountId)
+                .IsUnique()
+                .HasDatabaseName("idx_agency_info_account_id");
         }
     }
 }

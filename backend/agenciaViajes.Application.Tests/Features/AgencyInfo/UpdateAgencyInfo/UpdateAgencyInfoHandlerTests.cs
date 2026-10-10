@@ -1,4 +1,5 @@
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Features.AgencyInfo.Common.Requests;
 using agenciaViajes.Application.Features.AgencyInfo.UpdateAgencyInfo;
 using FluentAssertions;
@@ -10,11 +11,13 @@ namespace agenciaViajes.Application.Tests.Features.AgencyInfo.UpdateAgencyInfo;
 public class UpdateAgencyInfoHandlerTests
 {
     private readonly IAgencyInfoRepository _agencyInfoRepository = Substitute.For<IAgencyInfoRepository>();
+    private readonly IAccountService _accountService = Substitute.For<IAccountService>();
     private readonly UpdateAgencyInfoHandler _handler;
 
     public UpdateAgencyInfoHandlerTests()
     {
-        _handler = new UpdateAgencyInfoHandler(_agencyInfoRepository);
+        _accountService.Role.Returns("owner");
+        _handler = new UpdateAgencyInfoHandler(_agencyInfoRepository, _accountService);
     }
 
     private static UpdateAgencyInfoRequest BuildValidRequest() => new()
@@ -69,5 +72,17 @@ public class UpdateAgencyInfoHandlerTests
                 a.Email == request.Email &&
                 a.SecturReg == request.SecturReg),
             Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WhenNotOwner_ReturnsFailureWithoutUpserting()
+    {
+        _accountService.Role.Returns("subaccount");
+
+        var result = await _handler.Handle(new UpdateAgencyInfoCommand(BuildValidRequest()), CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        await _agencyInfoRepository.DidNotReceive().UpsertAsync(
+            Arg.Any<AgencyInfoEntity>(), Arg.Any<CancellationToken>());
     }
 }

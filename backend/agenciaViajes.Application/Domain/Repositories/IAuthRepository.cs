@@ -11,6 +11,7 @@ namespace agenciaViajes.Application.Domain.Repositories
         Task<RefreshToken?> GetRefreshTokenWithUserAsync(string refreshToken, CancellationToken cancellationToken = default);
         Task<string> RotateRefreshTokenAsync(RefreshToken current, CancellationToken cancellationToken = default);
         Task<bool> RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+        Task<int> RevokeAllUserTokensAsync(int userId, CancellationToken cancellationToken = default);
         TimeSpan GetRefreshTokenLifetime(bool rememberMe);
 
         // Métodos para Sign Up

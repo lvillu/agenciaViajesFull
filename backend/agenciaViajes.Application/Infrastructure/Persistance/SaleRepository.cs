@@ -1,5 +1,6 @@
 using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +9,21 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
     public class SaleRepository : ISaleRepository
     {
         private readonly AppDbContext _context;
+        private readonly IAccountService _accountService;
 
-        public SaleRepository(AppDbContext context)
+        public SaleRepository(AppDbContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
+
+        // Tenant actual resuelto desde el JWT (claim accountId).
+        private Guid AccountId => _accountService.AccountId;
 
         public async Task<List<Sale>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default)
         {
             var query = _context.Sales
+                .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
                 .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
@@ -37,6 +44,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<Sale?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Sales
+                .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
                 .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
@@ -48,6 +56,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<List<Sale>> GetByClientIdAsync(int clientId, CancellationToken cancellationToken = default)
         {
             return await _context.Sales
+                .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
@@ -60,6 +69,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<List<Sale>> GetByProviderIdAsync(int providerId, CancellationToken cancellationToken = default)
         {
             return await _context.Sales
+                .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
@@ -102,7 +112,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
         public async Task<bool> ExistsByReservationNumberAsync(string reservationNumber, int? excludeId = null, CancellationToken cancellationToken = default)
         {
-            var query = _context.Sales.Where(s => s.ReservationNumber == reservationNumber);
+            var query = _context.Sales
+                .Where(s => s.AccountId == AccountId && s.ReservationNumber == reservationNumber);
 
             if (excludeId.HasValue)
             {
@@ -115,14 +126,14 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<decimal> GetTotalPaidAsync(int saleId, CancellationToken cancellationToken = default)
         {
             return await _context.Payments
-                .Where(p => p.SaleId == saleId)
+                .Where(p => p.SaleId == saleId && p.AccountId == AccountId)
                 .SumAsync(p => p.Amount, cancellationToken);
         }
 
         public async Task<decimal> GetRemainingBalanceAsync(int saleId, CancellationToken cancellationToken = default)
         {
             var sale = await _context.Sales
-                .FirstOrDefaultAsync(s => s.Id == saleId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == saleId && s.AccountId == AccountId, cancellationToken);
 
             if (sale == null)
                 return 0;

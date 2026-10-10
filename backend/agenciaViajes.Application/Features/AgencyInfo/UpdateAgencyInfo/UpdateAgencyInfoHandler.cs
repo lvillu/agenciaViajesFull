@@ -8,14 +8,24 @@ namespace agenciaViajes.Application.Features.AgencyInfo.UpdateAgencyInfo
     public class UpdateAgencyInfoHandler : IRequestHandler<UpdateAgencyInfoCommand, Result<AgencyInfoResponse>>
     {
         private readonly IAgencyInfoRepository _agencyInfoRepository;
+        private readonly IAccountService _accountService;
 
-        public UpdateAgencyInfoHandler(IAgencyInfoRepository agencyInfoRepository)
+        public UpdateAgencyInfoHandler(
+            IAgencyInfoRepository agencyInfoRepository,
+            IAccountService accountService)
         {
             _agencyInfoRepository = agencyInfoRepository;
+            _accountService = accountService;
         }
 
         public async Task<Result<AgencyInfoResponse>> Handle(UpdateAgencyInfoCommand request, CancellationToken cancellationToken)
         {
+            // Solo el titular puede editar la información de su cuenta
+            if (_accountService.Role != "owner")
+            {
+                return Result<AgencyInfoResponse>.Failure("Solo el titular de la cuenta puede editar la información de la agencia");
+            }
+
             var agencyInfo = new Domain.Entities.AgencyInfo
             {
                 Name = request.Request.Name,

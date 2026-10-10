@@ -1,5 +1,6 @@
 using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,11 +9,16 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
     public class DashboardRepository : IDashboardRepository
     {
         private readonly AppDbContext _context;
+        private readonly IAccountService _accountService;
 
-        public DashboardRepository(AppDbContext context)
+        public DashboardRepository(AppDbContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
+
+        // Tenant actual resuelto desde el JWT (claim accountId).
+        private Guid AccountId => _accountService.AccountId;
 
         /// <summary>
         /// Ganancias estimadas para ventas cuya fecha de viaje cae en el mes en curso.
@@ -25,6 +31,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             var sales = await _context.Sales
                 .Include(s => s.Payments)
                 .Where(s => s.Active
+                    && s.AccountId == AccountId
                     && s.TravelDate.Year == today.Year
                     && s.TravelDate.Month == today.Month
                     && s.ProfitPercentage.HasValue)
@@ -53,6 +60,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Include(s => s.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.Active
+                    && s.AccountId == AccountId
                     && s.FinalPaymentDueDate.HasValue
                     && s.FinalPaymentDueDate.Value.Year == today.Year
                     && s.FinalPaymentDueDate.Value.Month == today.Month)
@@ -78,6 +86,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Include(s => s.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.Active
+                    && s.AccountId == AccountId
                     && s.FinalPaymentDueDate.HasValue
                     && s.FinalPaymentDueDate.Value.Date >= today
                     && s.FinalPaymentDueDate.Value.Date <= limitDate)
@@ -102,7 +111,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return await _context.Sales
                 .Include(s => s.Provider)
                 .Include(s => s.Payments)
-                .Where(s => s.Active && s.CreatedAt >= startDate)
+                .Where(s => s.Active && s.AccountId == AccountId && s.CreatedAt >= startDate)
                 .ToListAsync(cancellationToken);
         }
 

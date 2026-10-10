@@ -1,5 +1,6 @@
 using agenciaViajes.Application.Domain.Entities;
 using agenciaViajes.Application.Domain.Repositories;
+using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +9,21 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
     public class ClientRepository : IClientRepository
     {
         private readonly AppDbContext _context;
+        private readonly IAccountService _accountService;
 
-        public ClientRepository(AppDbContext context)
+        public ClientRepository(AppDbContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
+
+        // Tenant actual resuelto desde el JWT (claim accountId). Todas las lecturas
+        // se filtran por cuenta: el cliente nunca envía ni ve el accountId.
+        private Guid AccountId => _accountService.AccountId;
 
         public async Task<List<Client>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default)
         {
-            var query = _context.Clients.AsQueryable();
+            var query = _context.Clients.Where(c => c.AccountId == AccountId);
 
             if (!includeInactive)
             {
@@ -32,7 +39,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<Client?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Clients
-                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(c => c.Id == id && c.AccountId == AccountId, cancellationToken);
         }
 
         public async Task<Client> CreateAsync(Client client, CancellationToken cancellationToken = default)
@@ -68,7 +75,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             if (string.IsNullOrEmpty(email))
                 return false;
 
-            var query = _context.Clients.Where(c => c.Email != null && c.Email.ToLower() == email.ToLower());
+            var query = _context.Clients
+                .Where(c => c.AccountId == AccountId && c.Email != null && c.Email.ToLower() == email.ToLower());
 
             if (excludeId.HasValue)
             {
