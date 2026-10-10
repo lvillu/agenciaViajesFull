@@ -52,7 +52,10 @@ namespace agenciaViajes.Application.Infrastructure.Services
             {
                 try
                 {
-                    return _httpContextAccessor.HttpContext?.User?.FindFirst("role")?.Value ?? string.Empty;
+                    // "role" (nombre emitido) o ClaimTypes.Role (si algún emisor usa el URI largo)
+                    return _httpContextAccessor.HttpContext?.User?.FindFirst("role")?.Value
+                        ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value
+                        ?? string.Empty;
                 }
                 catch
                 {

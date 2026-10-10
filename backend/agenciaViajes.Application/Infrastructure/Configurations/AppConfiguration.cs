@@ -60,6 +60,10 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
 
         public static IServiceCollection AddAuthenticationAuthorization(this IServiceCollection services, IConfiguration config)
         {
+            // Los claims se emiten con nombres cortos (accountId, userId, role) y el
+            // código los lee con esos mismos nombres. Sin esto, el handler JWT remapea
+            // "role" al URI largo de ClaimTypes.Role y AccountService.Role queda vacío.
+            System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
