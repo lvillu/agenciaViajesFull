@@ -5,6 +5,7 @@ namespace agenciaViajes.Application.Domain.Repositories
     public interface IProviderRepository
     {
         Task<List<Provider>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default);
+        Task<(List<Provider> Items, int Total)> GetPagedAsync(int page, int pageSize, bool includeInactive = false, CancellationToken cancellationToken = default);
         Task<Provider?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<Provider> CreateAsync(Provider provider, CancellationToken cancellationToken = default);
         Task<Provider> UpdateAsync(Provider provider, CancellationToken cancellationToken = default);

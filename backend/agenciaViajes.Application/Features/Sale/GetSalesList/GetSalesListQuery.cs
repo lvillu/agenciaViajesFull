@@ -4,5 +4,5 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Sale.GetSalesList
 {
-    public sealed record GetSalesListQuery(bool IncludeInactive = false) : IRequest<Result<List<SaleResponse>>> { }
+    public sealed record GetSalesListQuery(bool IncludeInactive = false, int Page = 1, int PageSize = 20) : IRequest<Result<PagedResponse<SaleResponse>>> { }
 }

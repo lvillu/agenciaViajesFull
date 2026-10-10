@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from './apiClient';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse, PagedResponse, PagedQuery, DEFAULT_PAGE_SIZE } from '@/types/api';
 import {
   Payment,
   CreatePaymentRequest,
@@ -14,11 +14,15 @@ import { PAYMENT_ENDPOINTS } from '@/lib/constants';
 
 export const paymentService = {
   /**
-   * Obtiene la lista de todos los pagos
+   * Obtiene la página de pagos (backend paginado, Fase 3)
    */
-  async getAll(): Promise<Payment[]> {
-    const response = await apiClient.get<ApiResponse<Payment[]>>(
-      PAYMENT_ENDPOINTS.LIST
+  async getAll(query: PagedQuery = {}): Promise<PagedResponse<Payment>> {
+    const { page = 1, pageSize = DEFAULT_PAGE_SIZE } = query;
+    const response = await apiClient.get<ApiResponse<PagedResponse<Payment>>>(
+      PAYMENT_ENDPOINTS.LIST,
+      {
+        params: { page, pageSize },
+      }
     );
 
     if (!response.data.isSuccess) {
@@ -29,13 +33,14 @@ export const paymentService = {
   },
 
   /**
-   * Obtiene los pagos de una venta específica
+   * Obtiene los pagos de una venta específica (paginado)
    */
-  async getBySale(saleId: number): Promise<Payment[]> {
-    const response = await apiClient.get<ApiResponse<Payment[]>>(
+  async getBySale(saleId: number, query: PagedQuery = {}): Promise<PagedResponse<Payment>> {
+    const { page = 1, pageSize = DEFAULT_PAGE_SIZE } = query;
+    const response = await apiClient.get<ApiResponse<PagedResponse<Payment>>>(
       PAYMENT_ENDPOINTS.LIST,
       {
-        params: { saleId },
+        params: { saleId, page, pageSize },
       }
     );
 

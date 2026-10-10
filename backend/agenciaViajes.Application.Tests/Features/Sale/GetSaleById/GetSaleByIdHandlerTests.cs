@@ -4,6 +4,7 @@ using NSubstitute;
 using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using ClientEntity = agenciaViajes.Application.Domain.Entities.Client;
+using PaymentEntity = agenciaViajes.Application.Domain.Entities.Payment;
 using ProviderEntity = agenciaViajes.Application.Domain.Entities.Provider;
 using SaleEntity = agenciaViajes.Application.Domain.Entities.Sale;
 
@@ -106,12 +107,14 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
         public async Task Handle_WithExistingSale_MapsResponseIncludingTotalsAndProfit()
         {
             var sale = BuildSale();
+            sale.Payments = new List<PaymentEntity>
+            {
+                new() { Id = 1, SaleId = 33, Amount = 5000m },
+                new() { Id = 2, SaleId = 33, Amount = 2500m }
+            };
             _saleRepository
                 .GetByIdAsync(33, Arg.Any<CancellationToken>())
                 .Returns(sale);
-            _saleRepository
-                .GetTotalPaidAsync(33, Arg.Any<CancellationToken>())
-                .Returns(7500m);
 
             var result = await _handler.Handle(new GetSaleByIdQuery(33), CancellationToken.None);
 

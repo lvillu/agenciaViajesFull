@@ -5,6 +5,7 @@ namespace agenciaViajes.Application.Domain.Repositories
     public interface ISaleRepository
     {
         Task<List<Sale>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default);
+        Task<(List<Sale> Items, int Total)> GetPagedAsync(int page, int pageSize, bool includeInactive = false, CancellationToken cancellationToken = default);
         Task<Sale?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<List<Sale>> GetByClientIdAsync(int clientId, CancellationToken cancellationToken = default);
         Task<List<Sale>> GetByProviderIdAsync(int providerId, CancellationToken cancellationToken = default);

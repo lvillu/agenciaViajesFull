@@ -17,28 +17,31 @@ public class GetPaymentsListHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithoutSaleId_UsesGetAll()
+    public async Task Handle_WithoutSaleId_UsesGetPaged()
     {
-        _paymentRepository.GetAllAsync(Arg.Any<CancellationToken>()).Returns([]);
+        _paymentRepository.GetPagedAsync(1, 20, Arg.Any<CancellationToken>())
+            .Returns((new List<PaymentEntity>(), 0));
 
         var result = await _handler.Handle(new GetPaymentsListQuery(), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Data!.Should().BeEmpty();
-        await _paymentRepository.Received(1).GetAllAsync(Arg.Any<CancellationToken>());
-        await _paymentRepository.DidNotReceive().GetBySaleIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+        result.Data!.Items.Should().BeEmpty();
+        result.Data.Total.Should().Be(0);
+        await _paymentRepository.Received(1).GetPagedAsync(1, 20, Arg.Any<CancellationToken>());
+        await _paymentRepository.DidNotReceive().GetPagedBySaleIdAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_WithSaleId_UsesGetBySaleId()
+    public async Task Handle_WithSaleId_UsesGetPagedBySaleId()
     {
-        _paymentRepository.GetBySaleIdAsync(5, Arg.Any<CancellationToken>()).Returns([]);
+        _paymentRepository.GetPagedBySaleIdAsync(5, 1, 20, Arg.Any<CancellationToken>())
+            .Returns((new List<PaymentEntity>(), 0));
 
         var result = await _handler.Handle(new GetPaymentsListQuery(5), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        await _paymentRepository.Received(1).GetBySaleIdAsync(5, Arg.Any<CancellationToken>());
-        await _paymentRepository.DidNotReceive().GetAllAsync(Arg.Any<CancellationToken>());
+        await _paymentRepository.Received(1).GetPagedBySaleIdAsync(5, 1, 20, Arg.Any<CancellationToken>());
+        await _paymentRepository.DidNotReceive().GetPagedAsync(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -64,18 +67,49 @@ public class GetPaymentsListHandlerTests
                 Amount = 800m, Sale = null
             }
         };
-        _paymentRepository.GetAllAsync(Arg.Any<CancellationToken>()).Returns(payments);
+        _paymentRepository.GetPagedAsync(1, 20, Arg.Any<CancellationToken>())
+            .Returns((payments, 2));
 
         var result = await _handler.Handle(new GetPaymentsListQuery(), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Data.Should().HaveCount(2);
-        result.Data![0].Id.Should().Be(1);
-        result.Data[0].FolioNumber.Should().Be(10);
-        result.Data[0].SaleReservationNumber.Should().Be("RES-100");
-        result.Data[0].ClientName.Should().Be("Ana Ruiz");
-        result.Data[1].Id.Should().Be(2);
-        result.Data[1].SaleReservationNumber.Should().BeNull();
-        result.Data[1].ClientName.Should().BeNull();
+        result.Data!.Items.Should().HaveCount(2);
+        result.Data.Total.Should().Be(2);
+        result.Data.Items[0].Id.Should().Be(1);
+        result.Data.Items[0].FolioNumber.Should().Be(10);
+        result.Data.Items[0].SaleReservationNumber.Should().Be("RES-100");
+        result.Data.Items[0].ClientName.Should().Be("Ana Ruiz");
+        result.Data.Items[1].Id.Should().Be(2);
+        result.Data.Items[1].SaleReservationNumber.Should().BeNull();
+        result.Data.Items[1].ClientName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Handle_WhenSaleHasProviders_PrefersProviderReservationNumber()
+    {
+        var payments = new List<PaymentEntity>
+        {
+            new()
+            {
+                Id = 1, SaleId = 3, FolioNumber = 10,
+                PaymentType = agenciaViajes.Application.Domain.Entities.PaymentType.Anticipo,
+                Amount = 1500m,
+                Sale = new agenciaViajes.Application.Domain.Entities.Sale
+                {
+                    Id = 3, ReservationNumber = "LEGACY",
+                    SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                    {
+                        new() { Id = 1, ProviderId = 7, ReservationNumber = "RES-MULTI" }
+                    }
+                }
+            }
+        };
+        _paymentRepository.GetPagedAsync(1, 20, Arg.Any<CancellationToken>())
+            .Returns((payments, 1));
+
+        var result = await _handler.Handle(new GetPaymentsListQuery(), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Items[0].SaleReservationNumber.Should().Be("RES-MULTI");
     }
 }

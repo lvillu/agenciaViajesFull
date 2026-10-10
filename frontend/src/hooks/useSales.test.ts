@@ -23,10 +23,18 @@ const buildSale = (id: number) => ({
   active: true,
 });
 
+const buildPage = (ids: number[], total?: number) => ({
+  items: ids.map(buildSale),
+  total: total ?? ids.length,
+  page: 1,
+  pageSize: 20,
+  totalPages: 1,
+});
+
 describe('useSales', () => {
   beforeEach(() => {
     Object.values(mocked).forEach((fn) => fn.mockReset());
-    mocked.getAll.mockResolvedValue([buildSale(1), buildSale(2)]);
+    mocked.getAll.mockResolvedValue(buildPage([1, 2]));
   });
 
   it('carga ventas al montar', async () => {
@@ -35,21 +43,37 @@ describe('useSales', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.sales).toHaveLength(2);
+    expect(result.current.total).toBe(2);
     expect(result.current.error).toBeNull();
-    expect(mocked.getAll).toHaveBeenCalledWith(false);
+    expect(mocked.getAll).toHaveBeenCalledWith(false, { page: 1 });
   });
 
   it('respeta includeInactive al montar', async () => {
     renderHook(() => useSales(true));
 
-    await waitFor(() => expect(mocked.getAll).toHaveBeenCalledWith(true));
+    await waitFor(() => expect(mocked.getAll).toHaveBeenCalledWith(true, { page: 1 }));
   });
 
-  it('deleteSale elimina de la lista y retorna true', async () => {
+  it('setPage recarga la página indicada', async () => {
+    const { result } = renderHook(() => useSales());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    mocked.getAll.mockResolvedValueOnce(buildPage([3]));
+
+    await act(async () => {
+      result.current.setPage(2);
+    });
+    await waitFor(() => expect(result.current.sales).toHaveLength(1));
+
+    expect(mocked.getAll).toHaveBeenLastCalledWith(false, { page: 2 });
+  });
+
+  it('deleteSale recarga y retorna true', async () => {
     const { result } = renderHook(() => useSales());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     mocked.delete.mockResolvedValue(undefined);
+    mocked.getAll.mockResolvedValueOnce(buildPage([2], 1));
 
     let ok = false;
     await act(async () => {

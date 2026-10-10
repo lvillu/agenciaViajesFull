@@ -4,19 +4,23 @@
  */
 
 import { apiClient } from './apiClient';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse, PagedResponse, PagedQuery, DEFAULT_PAGE_SIZE } from '@/types/api';
 import { Client, CreateClientRequest, UpdateClientRequest } from '@/types/client';
 import { CLIENT_ENDPOINTS } from '@/lib/constants';
 
 export const clientService = {
   /**
-   * Obtiene la lista de todos los clientes
+   * Obtiene la página de clientes (backend paginado, Fase 3)
    */
-  async getAll(includeInactive: boolean = false): Promise<Client[]> {
-    const response = await apiClient.get<ApiResponse<Client[]>>(
+  async getAll(
+    includeInactive: boolean = false,
+    query: PagedQuery = {}
+  ): Promise<PagedResponse<Client>> {
+    const { page = 1, pageSize = DEFAULT_PAGE_SIZE } = query;
+    const response = await apiClient.get<ApiResponse<PagedResponse<Client>>>(
       CLIENT_ENDPOINTS.LIST,
       {
-        params: { includeInactive },
+        params: { includeInactive, page, pageSize },
       }
     );
 

@@ -46,6 +46,10 @@ import { ClientFormData } from '@/lib/validationSchemas';
 export default function ClientesPage() {
   const {
     clients,
+    page,
+    setPage,
+    totalPages,
+    total,
     loading,
     createClient,
     updateClient,
@@ -59,10 +63,9 @@ export default function ClientesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
+  const rowsPerPage = 20;
 
-  // Filtrar clientes según el término de búsqueda
+  // Filtrar clientes de la página actual según el término de búsqueda
   const filteredClients = useMemo(() => {
     if (!searchTerm.trim()) return clients;
 
@@ -77,8 +80,8 @@ export default function ClientesPage() {
     );
   }, [clients, searchTerm]);
 
-  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
-  const paginatedClients = filteredClients.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  // Paginación del servidor (Fase 3); el filtro de búsqueda aplica a la página actual
+  const paginatedClients = filteredClients;
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -210,7 +213,7 @@ export default function ClientesPage() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setPage(0);
+              setPage(1);
             }}
             slotProps={{
               input: {
@@ -371,16 +374,16 @@ export default function ClientesPage() {
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {filteredClients.length > 0
-                  ? `Mostrando ${page * rowsPerPage + 1} a ${Math.min((page + 1) * rowsPerPage, filteredClients.length)} de ${filteredClients.length} clientes`
+                {total > 0
+                  ? `Mostrando ${(page - 1) * rowsPerPage + 1} a ${Math.min(page * rowsPerPage, total)} de ${total} clientes`
                   : 'Sin resultados'}
               </Typography>
               {totalPages > 1 && (
                 <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
                   <IconButton
                     size="small"
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page === 0}
+                    onClick={() => setPage(page - 1)}
+                    disabled={page <= 1}
                     sx={{
                       width: 36, height: 36, borderRadius: 1.5,
                       border: '1px solid', borderColor: 'divider',
@@ -394,17 +397,17 @@ export default function ClientesPage() {
                     <IconButton
                       key={i}
                       size="small"
-                      onClick={() => setPage(i)}
+                      onClick={() => setPage(i + 1)}
                       sx={{
                         width: 36, height: 36, borderRadius: 1.5,
                         border: '1px solid',
-                        borderColor: page === i ? 'primary.main' : 'divider',
-                        bgcolor: page === i ? 'primary.main' : 'background.paper',
-                        color: page === i ? 'white' : 'text.secondary',
-                        fontWeight: page === i ? 700 : 400,
+                        borderColor: page === i + 1 ? 'primary.main' : 'divider',
+                        bgcolor: page === i + 1 ? 'primary.main' : 'background.paper',
+                        color: page === i + 1 ? 'white' : 'text.secondary',
+                        fontWeight: page === i + 1 ? 700 : 400,
                         fontSize: '14px',
                         '&:hover': {
-                          bgcolor: page === i ? 'primary.dark' : '#f1f5f9',
+                          bgcolor: page === i + 1 ? 'primary.dark' : '#f1f5f9',
                         },
                       }}
                     >
@@ -413,8 +416,8 @@ export default function ClientesPage() {
                   ))}
                   <IconButton
                     size="small"
-                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={page >= totalPages - 1}
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages}
                     sx={{
                       width: 36, height: 36, borderRadius: 1.5,
                       border: '1px solid', borderColor: 'divider',

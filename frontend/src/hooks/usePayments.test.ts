@@ -21,10 +21,18 @@ const buildPayment = (id: number, amount: number) => ({
   active: true,
 });
 
+const buildPage = (entries: Array<{ id: number; amount: number }>, total?: number) => ({
+  items: entries.map((e) => buildPayment(e.id, e.amount)),
+  total: total ?? entries.length,
+  page: 1,
+  pageSize: 20,
+  totalPages: 1,
+});
+
 describe('usePayments', () => {
   beforeEach(() => {
     Object.values(mocked).forEach((fn) => fn.mockReset());
-    mocked.getBySale.mockResolvedValue([buildPayment(1, 1000), buildPayment(2, 2500)]);
+    mocked.getBySale.mockResolvedValue(buildPage([{ id: 1, amount: 1000 }, { id: 2, amount: 2500 }]));
   });
 
   it('carga los pagos de la venta al montar', async () => {
@@ -33,7 +41,8 @@ describe('usePayments', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.payments).toHaveLength(2);
-    expect(mocked.getBySale).toHaveBeenCalledWith(10);
+    expect(result.current.total).toBe(2);
+    expect(mocked.getBySale).toHaveBeenCalledWith(10, { page: 1 });
   });
 
   it('no llama al servicio cuando saleId es null', async () => {
@@ -54,11 +63,12 @@ describe('usePayments', () => {
     expect(result.current.getTotalPaid()).toBe(3500);
   });
 
-  it('deletePayment elimina de la lista y retorna true', async () => {
+  it('deletePayment recarga y retorna true', async () => {
     const { result } = renderHook(() => usePayments(10));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     mocked.delete.mockResolvedValue(undefined);
+    mocked.getBySale.mockResolvedValueOnce(buildPage([{ id: 2, amount: 2500 }], 1));
 
     let ok = false;
     await act(async () => {

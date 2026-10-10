@@ -5,7 +5,7 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Payment.GetPaymentsList
 {
-    public class GetPaymentsListHandler : IRequestHandler<GetPaymentsListQuery, Result<List<PaymentResponse>>>
+    public class GetPaymentsListHandler : IRequestHandler<GetPaymentsListQuery, Result<PagedResponse<PaymentResponse>>>
     {
         private readonly IPaymentRepository _paymentRepository;
 
@@ -14,20 +14,22 @@ namespace agenciaViajes.Application.Features.Payment.GetPaymentsList
             _paymentRepository = paymentRepository;
         }
 
-        public async Task<Result<List<PaymentResponse>>> Handle(GetPaymentsListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<PaymentResponse>>> Handle(GetPaymentsListQuery request, CancellationToken cancellationToken)
         {
-            var payments = request.SaleId.HasValue
-                ? await _paymentRepository.GetBySaleIdAsync(request.SaleId.Value, cancellationToken)
-                : await _paymentRepository.GetAllAsync(cancellationToken);
+            var (page, pageSize) = Paging.Normalize(request.Page, request.PageSize);
+            var (items, total) = request.SaleId.HasValue
+                ? await _paymentRepository.GetPagedBySaleIdAsync(request.SaleId.Value, page, pageSize, cancellationToken)
+                : await _paymentRepository.GetPagedAsync(page, pageSize, cancellationToken);
 
-            var responses = payments.Select(payment => new PaymentResponse
+            var responses = items.Select(payment => new PaymentResponse
             {
                 Id = payment.Id,
                 SaleId = payment.SaleId,
                 FolioNumber = payment.FolioNumber,
                 PaymentType = (int)payment.PaymentType,
                 PaymentTypeName = payment.PaymentType.ToString(),
-                SaleReservationNumber = payment.Sale?.ReservationNumber,
+                SaleReservationNumber = payment.Sale?.SaleProviders.FirstOrDefault()?.ReservationNumber
+                    ?? payment.Sale?.ReservationNumber,
                 ClientName = payment.Sale?.Client != null ? $"{payment.Sale.Client.Name} {payment.Sale.Client.LastName}" : null,
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,
@@ -39,7 +41,13 @@ namespace agenciaViajes.Application.Features.Payment.GetPaymentsList
                 ModifiedAt = payment.ModifiedAt
             }).ToList();
 
-            return Result<List<PaymentResponse>>.Success(responses);
+            return Result<PagedResponse<PaymentResponse>>.Success(new PagedResponse<PaymentResponse>
+            {
+                Items = responses,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            });
         }
     }
 }

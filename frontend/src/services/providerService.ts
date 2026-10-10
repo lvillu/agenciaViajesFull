@@ -4,19 +4,23 @@
  */
 
 import { apiClient } from './apiClient';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse, PagedResponse, PagedQuery, DEFAULT_PAGE_SIZE } from '@/types/api';
 import { Provider, CreateProviderRequest, UpdateProviderRequest } from '@/types/provider';
 import { PROVIDER_ENDPOINTS } from '@/lib/constants';
 
 export const providerService = {
   /**
-   * Obtiene la lista de todos los proveedores
+   * Obtiene la página de proveedores (backend paginado, Fase 3)
    */
-  async getAll(includeInactive: boolean = false): Promise<Provider[]> {
-    const response = await apiClient.get<ApiResponse<Provider[]>>(
+  async getAll(
+    includeInactive: boolean = false,
+    query: PagedQuery = {}
+  ): Promise<PagedResponse<Provider>> {
+    const { page = 1, pageSize = DEFAULT_PAGE_SIZE } = query;
+    const response = await apiClient.get<ApiResponse<PagedResponse<Provider>>>(
       PROVIDER_ENDPOINTS.LIST,
       {
-        params: { includeInactive },
+        params: { includeInactive, page, pageSize },
       }
     );
 

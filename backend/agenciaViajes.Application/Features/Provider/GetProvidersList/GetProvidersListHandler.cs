@@ -5,7 +5,7 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Provider.GetProvidersList
 {
-    public class GetProvidersListHandler : IRequestHandler<GetProvidersListQuery, Result<List<ProviderResponse>>>
+    public class GetProvidersListHandler : IRequestHandler<GetProvidersListQuery, Result<PagedResponse<ProviderResponse>>>
     {
         private readonly IProviderRepository _providerRepository;
 
@@ -14,11 +14,12 @@ namespace agenciaViajes.Application.Features.Provider.GetProvidersList
             _providerRepository = providerRepository;
         }
 
-        public async Task<Result<List<ProviderResponse>>> Handle(GetProvidersListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<ProviderResponse>>> Handle(GetProvidersListQuery request, CancellationToken cancellationToken)
         {
-            var providers = await _providerRepository.GetAllAsync(request.IncludeInactive, cancellationToken);
+            var (page, pageSize) = Paging.Normalize(request.Page, request.PageSize);
+            var (items, total) = await _providerRepository.GetPagedAsync(page, pageSize, request.IncludeInactive, cancellationToken);
 
-            var response = providers.Select(p => new ProviderResponse
+            var response = items.Select(p => new ProviderResponse
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -32,7 +33,13 @@ namespace agenciaViajes.Application.Features.Provider.GetProvidersList
                 Active = p.Active
             }).ToList();
 
-            return Result<List<ProviderResponse>>.Success(response);
+            return Result<PagedResponse<ProviderResponse>>.Success(new PagedResponse<ProviderResponse>
+            {
+                Items = response,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            });
         }
     }
 }

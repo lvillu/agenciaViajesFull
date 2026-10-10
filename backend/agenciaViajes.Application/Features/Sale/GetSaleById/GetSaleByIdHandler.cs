@@ -23,7 +23,8 @@ namespace agenciaViajes.Application.Features.Sale.GetSaleById
                 return Result<SaleResponse>.Failure("Venta no encontrada");
             }
 
-            var totalPaid = await _saleRepository.GetTotalPaidAsync(sale.Id, cancellationToken);
+            // TotalPaid desde los pagos ya incluidos (sin query adicional N+1)
+            var totalPaid = sale.Payments?.Sum(p => p.Amount) ?? 0m;
             var remainingBalance = sale.TotalAmount - totalPaid;
 
             var response = new SaleResponse

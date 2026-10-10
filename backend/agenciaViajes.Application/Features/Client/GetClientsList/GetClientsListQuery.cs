@@ -4,5 +4,5 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Client.GetClientsList
 {
-    public sealed record GetClientsListQuery(bool IncludeInactive = false) : IRequest<Result<List<ClientResponse>>> { }
+    public sealed record GetClientsListQuery(bool IncludeInactive = false, int Page = 1, int PageSize = 20) : IRequest<Result<PagedResponse<ClientResponse>>> { }
 }

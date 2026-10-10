@@ -1,39 +1,52 @@
 /**
  * useClients Hook
- * Hook personalizado para gestión de clientes
+ * Hook personalizado para gestión de clientes (listado paginado, Fase 3)
  */
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { clientService } from '@/services/clientService';
 import { Client, CreateClientRequest, UpdateClientRequest } from '@/types/client';
 
 export const useClients = () => {
   const [clients, setClients] = useState<Client[]>([]);
+  const [page, setPageState] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Obtiene la lista de clientes
+   * Obtiene la página actual de clientes
    */
-  const fetchClients = useCallback(async (includeInactive: boolean = false) => {
+  const fetchClients = async (includeInactive: boolean = false) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await clientService.getAll(includeInactive);
-      setClients(data);
+      const data = await clientService.getAll(includeInactive, { page });
+      setClients(data.items);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
+      // Si la página quedó vacía (p. ej. tras eliminar), retroceder
+      if (data.items.length === 0 && data.page > 1) {
+        setPageState(data.page - 1);
+      }
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
+
+  const setPage = (p: number) => {
+    setPageState(Math.max(1, p));
+  };
 
   /**
    * Obtiene un cliente por ID
    */
-  const getClientById = useCallback(async (id: number): Promise<Client | null> => {
+  const getClientById = async (id: number): Promise<Client | null> => {
     try {
       const client = await clientService.getById(id);
       return client;
@@ -41,26 +54,26 @@ export const useClients = () => {
       setError(err.message || 'Error al cargar cliente');
       return null;
     }
-  }, []);
+  };
 
   /**
-   * Crea un nuevo cliente
+   * Crea un nuevo cliente y recarga la página actual
    */
-  const createClient = useCallback(async (client: CreateClientRequest): Promise<Client> => {
+  const createClient = async (client: CreateClientRequest): Promise<Client> => {
     setLoading(true);
     try {
       const newClient = await clientService.create(client);
-      setClients((prev) => [...prev, newClient]);
+      await fetchClients();
       return newClient;
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
    * Actualiza un cliente existente
    */
-  const updateClient = useCallback(async (id: number, client: UpdateClientRequest): Promise<Client> => {
+  const updateClient = async (id: number, client: UpdateClientRequest): Promise<Client> => {
     setLoading(true);
     try {
       const updatedClient = await clientService.update(id, client);
@@ -71,17 +84,17 @@ export const useClients = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
-   * Elimina (da de baja) un cliente
+   * Elimina (da de baja) un cliente y recarga la página actual
    */
-  const deleteClient = useCallback(async (id: number): Promise<boolean> => {
+  const deleteClient = async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
       await clientService.delete(id);
-      setClients((prev) => prev.filter((c) => c.id !== id));
+      await fetchClients();
       return true;
     } catch (err: any) {
       setError(err.message || 'Error al eliminar cliente');
@@ -89,17 +102,20 @@ export const useClients = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    // Carga inicial al montar con la funcion de refresh compartida (convencion del
-    // proyecto); el setLoading sincrono es intencional y no se ejecuta durante el render.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Carga inicial y refetch al cambiar de página.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchClients();
-  }, [fetchClients]);
+  }, [page]);
 
   return {
     clients,
+    page,
+    setPage,
+    totalPages,
+    total,
     loading,
     error,
     fetchClients,

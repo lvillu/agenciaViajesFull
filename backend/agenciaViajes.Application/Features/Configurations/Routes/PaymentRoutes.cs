@@ -33,9 +33,11 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
         private static async Task<IResult> GetPaymentsList(
             ISender sender,
             [FromQuery] int? saleId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
             CancellationToken cancellationToken = default)
         {
-            var response = await sender.Send(new GetPaymentsListQuery(saleId), cancellationToken);
+            var response = await sender.Send(new GetPaymentsListQuery(saleId, page, pageSize), cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
         }
 

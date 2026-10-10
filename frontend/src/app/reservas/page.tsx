@@ -36,6 +36,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import PaymentIcon from '@mui/icons-material/Payment';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
@@ -51,7 +53,7 @@ import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function ReservasPage() {
   const router = useRouter();
-  const { sales, loading, error, deleteSale, fetchSales } = useSales();
+  const { sales, page, setPage, totalPages, total, loading, error, deleteSale, fetchSales } = useSales();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
@@ -227,7 +229,7 @@ export default function ReservasPage() {
                 variant="standard"
                 placeholder="Buscar por cliente, proveedor, clave de reserva o descripción..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
                 slotProps={{
                   input: {
                     disableUnderline: true,
@@ -420,6 +422,58 @@ export default function ReservasPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+            {/* Paginación del servidor (Fase 3) */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 3,
+                py: 1.5,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'rgba(189, 191, 220, 0.15)',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {total > 0
+                  ? `Mostrando ${(page - 1) * 20 + 1} a ${Math.min(page * 20, total)} de ${total} reservas`
+                  : 'Sin resultados'}
+              </Typography>
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage(page - 1)}
+                    disabled={page <= 1}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronLeftIcon fontSize="small" />
+                  </IconButton>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 90, textAlign: 'center' }}>
+                    Página {page} de {totalPages}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages}
+                    sx={{
+                      width: 36, height: 36, borderRadius: 1.5,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '&.Mui-disabled': { opacity: 0.4 },
+                    }}
+                  >
+                    <ChevronRightIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
           </CardContent>
         </Card>
 

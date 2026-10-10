@@ -5,7 +5,7 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Sale.GetSalesList
 {
-    public class GetSalesListHandler : IRequestHandler<GetSalesListQuery, Result<List<SaleResponse>>>
+    public class GetSalesListHandler : IRequestHandler<GetSalesListQuery, Result<PagedResponse<SaleResponse>>>
     {
         private readonly ISaleRepository _saleRepository;
 
@@ -14,18 +14,18 @@ namespace agenciaViajes.Application.Features.Sale.GetSalesList
             _saleRepository = saleRepository;
         }
 
-        public async Task<Result<List<SaleResponse>>> Handle(GetSalesListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<SaleResponse>>> Handle(GetSalesListQuery request, CancellationToken cancellationToken)
         {
-            var sales = await _saleRepository.GetAllAsync(request.IncludeInactive, cancellationToken);
+            var (page, pageSize) = Paging.Normalize(request.Page, request.PageSize);
+            var (items, total) = await _saleRepository.GetPagedAsync(page, pageSize, request.IncludeInactive, cancellationToken);
 
-            var responses = new List<SaleResponse>();
-
-            foreach (var sale in sales)
+            var responses = items.Select(sale =>
             {
-                var totalPaid = await _saleRepository.GetTotalPaidAsync(sale.Id, cancellationToken);
+                // TotalPaid desde los pagos ya incluidos (sin query adicional N+1)
+                var totalPaid = sale.Payments?.Sum(p => p.Amount) ?? 0m;
                 var remainingBalance = sale.TotalAmount - totalPaid;
 
-                responses.Add(new SaleResponse
+                return new SaleResponse
                 {
                     Id = sale.Id,
                     ClientId = sale.ClientId,
@@ -58,10 +58,16 @@ namespace agenciaViajes.Application.Features.Sale.GetSalesList
                         ProviderAcronym = sp.Provider?.Acronym,
                         ReservationNumber = sp.ReservationNumber
                     }).ToList()
-                });
-            }
+                };
+            }).ToList();
 
-            return Result<List<SaleResponse>>.Success(responses);
+            return Result<PagedResponse<SaleResponse>>.Success(new PagedResponse<SaleResponse>
+            {
+                Items = responses,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            });
         }
     }
 }

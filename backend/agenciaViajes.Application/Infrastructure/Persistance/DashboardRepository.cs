@@ -3,6 +3,7 @@ using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace agenciaViajes.Application.Infrastructure.Persistance
 {
@@ -10,11 +11,13 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
     {
         private readonly AppDbContext _context;
         private readonly IAccountService _accountService;
+        private readonly IMemoryCache _cache;
 
-        public DashboardRepository(AppDbContext context, IAccountService accountService)
+        public DashboardRepository(AppDbContext context, IAccountService accountService, IMemoryCache cache)
         {
             _context = context;
             _accountService = accountService;
+            _cache = cache;
         }
 
         // Tenant actual resuelto desde el JWT (claim accountId).
@@ -103,16 +106,31 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         /// Ventas activas de los últimos 12 meses (desde el inicio del mes actual menos 11 meses).
         /// Incluye pagos para la conversión de tipo de cambio.
         /// </summary>
+        /// <summary>
+        /// Ventas activas de los últimos 12 meses. Los 3 endpoints de charts
+        /// consumen este mismo método: se cachea 60s por cuenta para no
+        /// repetir la carga pesada en cada gráfico.
+        /// </summary>
         public async Task<List<Sale>> GetSalesLast12MonthsAsync(CancellationToken cancellationToken = default)
         {
+            var cacheKey = $"dashboard-12m-{AccountId}";
+            if (_cache.TryGetValue(cacheKey, out List<Sale>? cached) && cached is not null)
+            {
+                return cached;
+            }
+
             var today = DateTime.UtcNow;
             var startDate = DateTime.SpecifyKind(new DateTime(today.Year, today.Month, 1).AddMonths(-11), DateTimeKind.Utc);
 
-            return await _context.Sales
+            var sales = await _context.Sales
+                .AsNoTracking()
                 .Include(s => s.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.Active && s.AccountId == AccountId && s.CreatedAt >= startDate)
                 .ToListAsync(cancellationToken);
+
+            _cache.Set(cacheKey, sales, TimeSpan.FromSeconds(60));
+            return sales;
         }
 
         // ─────────────────────────────────────────────────────────

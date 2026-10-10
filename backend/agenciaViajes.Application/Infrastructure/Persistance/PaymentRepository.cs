@@ -87,6 +87,47 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return true;
         }
 
+        public async Task<(List<Payment> Items, int Total)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Payments
+                .Where(p => p.AccountId == AccountId)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s.Client)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s!.SaleProviders)
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var items = await query
+                .OrderByDescending(p => p.PaymentDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, total);
+        }
+
+        public async Task<(List<Payment> Items, int Total)> GetPagedBySaleIdAsync(int saleId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Payments
+                .Where(p => p.AccountId == AccountId)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s.Client)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s!.SaleProviders)
+                .Where(p => p.SaleId == saleId)
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var items = await query
+                .OrderByDescending(p => p.PaymentDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, total);
+        }
+
         public async Task<decimal> GetTotalBySaleIdAsync(int saleId, CancellationToken cancellationToken = default)
         {
             return await _context.Payments

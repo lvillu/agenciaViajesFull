@@ -36,6 +36,26 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<(List<Client> Items, int Total)> GetPagedAsync(int page, int pageSize, bool includeInactive = false, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Clients.Where(c => c.AccountId == AccountId);
+
+            if (!includeInactive)
+            {
+                query = query.Where(c => c.Active);
+            }
+
+            var total = await query.CountAsync(cancellationToken);
+            var items = await query
+                .OrderBy(c => c.LastName)
+                .ThenBy(c => c.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, total);
+        }
+
         public async Task<Client?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Clients

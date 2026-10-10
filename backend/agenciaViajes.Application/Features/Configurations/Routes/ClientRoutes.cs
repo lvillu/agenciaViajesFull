@@ -32,9 +32,11 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
         private static async Task<IResult> GetClientsList(
             ISender sender,
             bool includeInactive = false,
+            int page = 1,
+            int pageSize = 20,
             CancellationToken cancellationToken = default)
         {
-            var response = await sender.Send(new GetClientsListQuery(includeInactive), cancellationToken);
+            var response = await sender.Send(new GetClientsListQuery(includeInactive, page, pageSize), cancellationToken);
             return response.IsSuccess ? Results.Ok(response) : Results.BadRequest(response);
         }
 

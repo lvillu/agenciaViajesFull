@@ -47,6 +47,10 @@ import { ProviderFormData } from '@/lib/validationSchemas';
 export default function ProveedoresPage() {
   const {
     providers,
+    page,
+    setPage,
+    totalPages,
+    total,
     loading,
     error,
     createProvider,
@@ -61,8 +65,7 @@ export default function ProveedoresPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<Provider | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
+  const rowsPerPage = 20;
 
   // Filtrar proveedores según el término de búsqueda
   const filteredProviders = useMemo(() => {
@@ -79,8 +82,8 @@ export default function ProveedoresPage() {
     );
   }, [providers, searchTerm]);
 
-  const totalPages = Math.ceil(filteredProviders.length / rowsPerPage);
-  const paginatedProviders = filteredProviders.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  // Paginación del servidor (Fase 3); el filtro de búsqueda aplica a la página actual
+  const paginatedProviders = filteredProviders;
 
   // Abrir modal para crear
   const handleOpenCreate = () => {
@@ -210,7 +213,7 @@ export default function ProveedoresPage() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setPage(0);
+              setPage(1);
             }}
             slotProps={{
               input: {
@@ -410,16 +413,16 @@ export default function ProveedoresPage() {
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {filteredProviders.length > 0
-                  ? `Mostrando ${page * rowsPerPage + 1} a ${Math.min((page + 1) * rowsPerPage, filteredProviders.length)} de ${filteredProviders.length} proveedores`
+                {total > 0
+                  ? `Mostrando ${(page - 1) * rowsPerPage + 1} a ${Math.min(page * rowsPerPage, total)} de ${total} proveedores`
                   : 'Sin resultados'}
               </Typography>
               {totalPages > 1 && (
                 <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
                   <IconButton
                     size="small"
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page === 0}
+                    onClick={() => setPage(page - 1)}
+                    disabled={page <= 1}
                     sx={{
                       width: 36, height: 36, borderRadius: 1.5,
                       border: '1px solid', borderColor: 'divider',
@@ -433,17 +436,17 @@ export default function ProveedoresPage() {
                     <IconButton
                       key={i}
                       size="small"
-                      onClick={() => setPage(i)}
+                      onClick={() => setPage(i + 1)}
                       sx={{
                         width: 36, height: 36, borderRadius: 1.5,
                         border: '1px solid',
-                        borderColor: page === i ? 'primary.main' : 'divider',
-                        bgcolor: page === i ? 'primary.main' : 'background.paper',
-                        color: page === i ? 'white' : 'text.secondary',
-                        fontWeight: page === i ? 700 : 400,
+                        borderColor: page === i + 1 ? 'primary.main' : 'divider',
+                        bgcolor: page === i + 1 ? 'primary.main' : 'background.paper',
+                        color: page === i + 1 ? 'white' : 'text.secondary',
+                        fontWeight: page === i + 1 ? 700 : 400,
                         fontSize: '14px',
                         '&:hover': {
-                          bgcolor: page === i ? 'primary.dark' : 'rgba(189, 191, 220, 0.15)',
+                          bgcolor: page === i + 1 ? 'primary.dark' : 'rgba(189, 191, 220, 0.15)',
                         },
                       }}
                     >
@@ -452,8 +455,8 @@ export default function ProveedoresPage() {
                   ))}
                   <IconButton
                     size="small"
-                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={page >= totalPages - 1}
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages}
                     sx={{
                       width: 36, height: 36, borderRadius: 1.5,
                       border: '1px solid', borderColor: 'divider',

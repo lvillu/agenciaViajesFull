@@ -15,6 +15,9 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
             // HttpContext accessor (required by AccountService)
             services.AddHttpContextAccessor();
 
+            // Caché en memoria (dashboard 12 meses por cuenta)
+            services.AddMemoryCache();
+
             // Account isolation service
             services.AddScoped<IAccountService, AccountService>();
 

@@ -1,39 +1,51 @@
 /**
  * useProviders Hook
- * Hook personalizado para gestión de proveedores
+ * Hook personalizado para gestión de proveedores (listado paginado, Fase 3)
  */
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { providerService } from '@/services/providerService';
 import { Provider, CreateProviderRequest, UpdateProviderRequest } from '@/types/provider';
 
 export const useProviders = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [page, setPageState] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Obtiene la lista de proveedores
+   * Obtiene la página actual de proveedores
    */
-  const fetchProviders = useCallback(async (includeInactive: boolean = false) => {
+  const fetchProviders = async (includeInactive: boolean = false) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await providerService.getAll(includeInactive);
-      setProviders(data);
+      const data = await providerService.getAll(includeInactive, { page });
+      setProviders(data.items);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
+      if (data.items.length === 0 && data.page > 1) {
+        setPageState(data.page - 1);
+      }
     } catch (err: any) {
       setError(err.message || 'Error al cargar proveedores');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
+
+  const setPage = (p: number) => {
+    setPageState(Math.max(1, p));
+  };
 
   /**
    * Obtiene un proveedor por ID
    */
-  const getProviderById = useCallback(async (id: number): Promise<Provider | null> => {
+  const getProviderById = async (id: number): Promise<Provider | null> => {
     try {
       const provider = await providerService.getById(id);
       return provider;
@@ -41,17 +53,17 @@ export const useProviders = () => {
       setError(err.message || 'Error al cargar proveedor');
       return null;
     }
-  }, []);
+  };
 
   /**
-   * Crea un nuevo proveedor
+   * Crea un nuevo proveedor y recarga la página actual
    */
-  const createProvider = useCallback(async (provider: CreateProviderRequest): Promise<Provider | null> => {
+  const createProvider = async (provider: CreateProviderRequest): Promise<Provider | null> => {
     setLoading(true);
     setError(null);
     try {
       const newProvider = await providerService.create(provider);
-      setProviders((prev) => [...prev, newProvider]);
+      await fetchProviders();
       return newProvider;
     } catch (err: any) {
       setError(err.message || 'Error al crear proveedor');
@@ -59,12 +71,12 @@ export const useProviders = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
    * Actualiza un proveedor existente
    */
-  const updateProvider = useCallback(async (id: number, provider: UpdateProviderRequest): Promise<Provider | null> => {
+  const updateProvider = async (id: number, provider: UpdateProviderRequest): Promise<Provider | null> => {
     setLoading(true);
     setError(null);
     try {
@@ -79,17 +91,17 @@ export const useProviders = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /**
-   * Elimina (da de baja) un proveedor
+   * Elimina (da de baja) un proveedor y recarga la página actual
    */
-  const deleteProvider = useCallback(async (id: number): Promise<boolean> => {
+  const deleteProvider = async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
       await providerService.delete(id);
-      setProviders((prev) => prev.filter((p) => p.id !== id));
+      await fetchProviders();
       return true;
     } catch (err: any) {
       setError(err.message || 'Error al eliminar proveedor');
@@ -97,17 +109,20 @@ export const useProviders = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  // Cargar proveedores al montar el componente
+  // Carga inicial y refetch al cambiar de página
   useEffect(() => {
-    // Convencion del proyecto: carga inicial con funcion de refresh compartida.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchProviders();
-  }, [fetchProviders]);
+  }, [page]);
 
   return {
     providers,
+    page,
+    setPage,
+    totalPages,
+    total,
     loading,
     error,
     fetchProviders,

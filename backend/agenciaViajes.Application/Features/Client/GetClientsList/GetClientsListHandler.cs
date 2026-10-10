@@ -5,7 +5,7 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Client.GetClientsList
 {
-    public class GetClientsListHandler : IRequestHandler<GetClientsListQuery, Result<List<ClientResponse>>>
+    public class GetClientsListHandler : IRequestHandler<GetClientsListQuery, Result<PagedResponse<ClientResponse>>>
     {
         private readonly IClientRepository _clientRepository;
 
@@ -14,11 +14,12 @@ namespace agenciaViajes.Application.Features.Client.GetClientsList
             _clientRepository = clientRepository;
         }
 
-        public async Task<Result<List<ClientResponse>>> Handle(GetClientsListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<ClientResponse>>> Handle(GetClientsListQuery request, CancellationToken cancellationToken)
         {
-            var clients = await _clientRepository.GetAllAsync(request.IncludeInactive, cancellationToken);
+            var (page, pageSize) = Paging.Normalize(request.Page, request.PageSize);
+            var (items, total) = await _clientRepository.GetPagedAsync(page, pageSize, request.IncludeInactive, cancellationToken);
 
-            var response = clients.Select(c => new ClientResponse
+            var response = items.Select(c => new ClientResponse
             {
                 Id = c.Id,
                 Name = c.Name,
@@ -30,7 +31,13 @@ namespace agenciaViajes.Application.Features.Client.GetClientsList
                 Active = c.Active
             }).ToList();
 
-            return Result<List<ClientResponse>>.Success(response);
+            return Result<PagedResponse<ClientResponse>>.Success(new PagedResponse<ClientResponse>
+            {
+                Items = response,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            });
         }
     }
 }

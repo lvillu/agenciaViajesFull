@@ -4,5 +4,5 @@ using MediatR;
 
 namespace agenciaViajes.Application.Features.Provider.GetProvidersList
 {
-    public sealed record GetProvidersListQuery(bool IncludeInactive = false) : IRequest<Result<List<ProviderResponse>>> { }
+    public sealed record GetProvidersListQuery(bool IncludeInactive = false, int Page = 1, int PageSize = 20) : IRequest<Result<PagedResponse<ProviderResponse>>> { }
 }

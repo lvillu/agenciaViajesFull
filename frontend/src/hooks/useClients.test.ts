@@ -26,10 +26,18 @@ const buildClient = (id: number) => ({
   active: true,
 });
 
+const buildPage = (ids: number[], total?: number) => ({
+  items: ids.map(buildClient),
+  total: total ?? ids.length,
+  page: 1,
+  pageSize: 20,
+  totalPages: 1,
+});
+
 describe('useClients', () => {
   beforeEach(() => {
     Object.values(mocked).forEach((fn) => fn.mockReset());
-    mocked.getAll.mockResolvedValue([buildClient(1), buildClient(2)]);
+    mocked.getAll.mockResolvedValue(buildPage([1, 2]));
   });
 
   it('carga clientes al montar', async () => {
@@ -38,8 +46,10 @@ describe('useClients', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.clients).toHaveLength(2);
+    expect(result.current.total).toBe(2);
+    expect(result.current.page).toBe(1);
     expect(result.current.error).toBeNull();
-    expect(mocked.getAll).toHaveBeenCalledWith(false);
+    expect(mocked.getAll).toHaveBeenCalledWith(false, { page: 1 });
   });
 
   it('fetchClients con includeInactive lo propaga al servicio', async () => {
@@ -50,7 +60,22 @@ describe('useClients', () => {
       await result.current.fetchClients(true);
     });
 
-    expect(mocked.getAll).toHaveBeenLastCalledWith(true);
+    expect(mocked.getAll).toHaveBeenLastCalledWith(true, { page: 1 });
+  });
+
+  it('setPage recarga la página indicada', async () => {
+    const { result } = renderHook(() => useClients());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    mocked.getAll.mockResolvedValueOnce(buildPage([3]));
+
+    await act(async () => {
+      result.current.setPage(2);
+    });
+    await waitFor(() => expect(result.current.clients).toHaveLength(1));
+
+    expect(mocked.getAll).toHaveBeenLastCalledWith(false, { page: 2 });
+    expect(result.current.clients[0].id).toBe(3);
   });
 
   it('getClientById retorna el cliente', async () => {
@@ -68,12 +93,13 @@ describe('useClients', () => {
     expect((client as { id: number }).id).toBe(7);
   });
 
-  it('createClient agrega el cliente a la lista', async () => {
+  it('createClient recarga y muestra la lista actualizada', async () => {
     const { result } = renderHook(() => useClients());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     const nuevo = buildClient(3);
     mocked.create.mockResolvedValue(nuevo);
+    mocked.getAll.mockResolvedValueOnce(buildPage([1, 2, 3], 3));
 
     await act(async () => {
       await result.current.createClient({ name: 'Cliente 3' } as never);
@@ -97,11 +123,12 @@ describe('useClients', () => {
     expect(result.current.clients.find((c) => c.id === 1)?.name).toBe('Modificado');
   });
 
-  it('deleteClient elimina de la lista y retorna true', async () => {
+  it('deleteClient recarga y retorna true', async () => {
     const { result } = renderHook(() => useClients());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     mocked.delete.mockResolvedValue(undefined);
+    mocked.getAll.mockResolvedValueOnce(buildPage([2], 1));
 
     let ok = false;
     await act(async () => {

@@ -26,10 +26,18 @@ const buildProvider = (id: number) => ({
   active: true,
 });
 
+const buildPage = (ids: number[], total?: number) => ({
+  items: ids.map(buildProvider),
+  total: total ?? ids.length,
+  page: 1,
+  pageSize: 20,
+  totalPages: 1,
+});
+
 describe('useProviders', () => {
   beforeEach(() => {
     Object.values(mocked).forEach((fn) => fn.mockReset());
-    mocked.getAll.mockResolvedValue([buildProvider(1), buildProvider(2)]);
+    mocked.getAll.mockResolvedValue(buildPage([1, 2]));
   });
 
   it('carga proveedores al montar', async () => {
@@ -38,16 +46,18 @@ describe('useProviders', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.providers).toHaveLength(2);
+    expect(result.current.total).toBe(2);
     expect(result.current.error).toBeNull();
-    expect(mocked.getAll).toHaveBeenCalledWith(false);
+    expect(mocked.getAll).toHaveBeenCalledWith(false, { page: 1 });
   });
 
-  it('createProvider agrega a la lista y lo retorna', async () => {
+  it('createProvider recarga y lo retorna', async () => {
     const { result } = renderHook(() => useProviders());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     const nuevo = buildProvider(3);
     mocked.create.mockResolvedValue(nuevo);
+    mocked.getAll.mockResolvedValueOnce(buildPage([1, 2, 3], 3));
 
     let creado: unknown;
     await act(async () => {
@@ -73,11 +83,12 @@ describe('useProviders', () => {
     expect(result.current.providers.find((p) => p.id === 1)?.name).toBe('Actualizado');
   });
 
-  it('deleteProvider elimina de la lista y retorna true', async () => {
+  it('deleteProvider recarga y retorna true', async () => {
     const { result } = renderHook(() => useProviders());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     mocked.delete.mockResolvedValue(undefined);
+    mocked.getAll.mockResolvedValueOnce(buildPage([1], 1));
 
     let ok = false;
     await act(async () => {
