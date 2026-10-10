@@ -42,8 +42,8 @@ namespace agenciaViajes.Application.Features.Dashboard.GetDashboardCards
             {
                 Id = sale.Id,
                 ClientName = sale.Client != null ? $"{sale.Client.Name} {sale.Client.LastName}" : null,
-                ProviderName = sale.Provider?.Name,
-                ReservationNumber = sale.ReservationNumber,
+                ProviderName = sale.SaleProviders.FirstOrDefault()?.Provider?.Name,
+                ReservationNumber = sale.SaleProviders.FirstOrDefault()?.ReservationNumber,
                 Description = sale.Description,
                 TotalAmount = sale.TotalAmount,
                 IsDollar = sale.IsDollar,

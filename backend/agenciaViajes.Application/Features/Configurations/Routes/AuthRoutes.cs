@@ -35,20 +35,27 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             var response = await sender.Send(new LoginCommand(command), cancellationToken);
             if (!response.IsSuccess || response.Data == null)
             {
-                return Results.NoContent();
+                // Fase 4: 401 con envelope en vez de 204 vacío (contrato consistente)
+                return Results.Json(response, statusCode: StatusCodes.Status401Unauthorized);
             }
 
             AppendRefreshCookie(context, response.Data.refreshToken, response.Data.refreshTokenExpiresInSeconds, appSettings.Value);
             return Results.Ok(response);
         }
 
-        private static async Task<IResult> Logout(HttpContext context, ISender sender, CancellationToken cancellationToken)
+        private static async Task<IResult> Logout(HttpContext context, ISender sender, IOptions<AppSettings> appSettings, CancellationToken cancellationToken)
         {
             var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var refreshToken = context.Request.Cookies[REFRESH_COOKIE_NAME];
 
-            // La cookie se limpia siempre; el refresh token se revoca si existe
-            context.Response.Cookies.Delete(REFRESH_COOKIE_NAME, new CookieOptions { Path = "/" });
+            // La cookie se limpia siempre (mismo Path/Secure/SameSite con que se creó);
+            // el refresh token se revoca si existe
+            context.Response.Cookies.Delete(REFRESH_COOKIE_NAME, new CookieOptions
+            {
+                Path = "/",
+                Secure = appSettings.Value.CookieSecure,
+                SameSite = SameSiteMode.Lax
+            });
 
             var response = await sender.Send(new LogoutCommand(token, refreshToken), cancellationToken);
             return Results.Ok(response);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace agenciaViajes.Application.Infrastructure.Configurations
@@ -46,12 +47,12 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
 
         public static WebApplication ConfigureSwaggerExplorer(this WebApplication app)
         {
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            app.UseSwagger();
-            app.UseSwaggerUI();
-            //}
+            // Fase 4: Swagger solo en desarrollo (exponía el esquema completo en prod)
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             return app;
         }

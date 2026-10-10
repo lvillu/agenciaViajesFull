@@ -3,6 +3,7 @@ using agenciaViajes.Application.Domain.Repositories;
 using agenciaViajes.Application.Domain.Shared;
 using agenciaViajes.Application.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace agenciaViajes.Application.Infrastructure.Persistance
 {
@@ -26,6 +27,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Where(p => p.AccountId == AccountId)
                 .Include(p => p.Sale)
                     .ThenInclude(s => s.Client)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s!.SaleProviders)
                 .OrderByDescending(p => p.PaymentDate)
                 .ToListAsync(cancellationToken);
         }
@@ -36,6 +39,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
                 .Where(p => p.AccountId == AccountId)
                 .Include(p => p.Sale)
                     .ThenInclude(s => s.Client)
+                .Include(p => p.Sale)
+                    .ThenInclude(s => s!.SaleProviders)
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
@@ -53,17 +58,61 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         public async Task<Payment> CreateAsync(Payment payment, CancellationToken cancellationToken = default)
         {
             payment.CreatedAt = DateTime.UtcNow;
-
-            // Ensure FolioNumber is assigned using per-account sequence
-            if (payment.FolioNumber == 0)
-            {
-                var folioStart = await GetAccountFolioStartAsync(payment.AccountId, cancellationToken);
-                payment.FolioNumber = await GetNextFolioNumberAsync(payment.AccountId, folioStart, cancellationToken);
-            }
-
             _context.Payments.Add(payment);
-            await _context.SaveChangesAsync(cancellationToken);
-            return payment;
+
+            // Reintento ante colisión de folio: dos requests concurrentes pueden
+            // calcular el mismo MAX+1; el índice único (account_id, folio_number)
+            // lo detecta y se recalcula en vez de devolver 500.
+            // Nota: los handlers corren dentro de una transacción explícita
+            // (TransactionBehaivor) donde un error aborta la transacción; por eso
+            // el reintento usa SAVEPOINT para no arrastrar el aborto.
+            // El presupuesto es amplio (20) porque con N contendientes se ganan
+            // ~1 folio por ronda; cada ronda son 2 selects indexados + 1 insert.
+            const int maxAttempts = 20;
+            const string savepoint = "folio_retry";
+            var transaction = _context.Database.CurrentTransaction;
+
+            for (var attempt = 1; ; attempt++)
+            {
+                // Ensure FolioNumber is assigned using per-account sequence
+                if (payment.FolioNumber == 0)
+                {
+                    var folioStart = await GetAccountFolioStartAsync(payment.AccountId, cancellationToken);
+                    payment.FolioNumber = await GetNextFolioNumberAsync(payment.AccountId, folioStart, cancellationToken);
+                }
+
+                if (transaction is not null)
+                {
+                    await transaction.CreateSavepointAsync(savepoint, cancellationToken);
+                }
+
+                try
+                {
+                    await _context.SaveChangesAsync(cancellationToken);
+
+                    if (transaction is not null)
+                    {
+                        await transaction.ReleaseSavepointAsync(savepoint, cancellationToken);
+                    }
+
+                    return payment;
+                }
+                catch (DbUpdateException ex) when (IsUniqueViolation(ex) && attempt < maxAttempts)
+                {
+                    if (transaction is not null)
+                    {
+                        await transaction.RollbackToSavepointAsync(savepoint, cancellationToken);
+                    }
+
+                    payment.FolioNumber = 0;
+                }
+            }
+        }
+
+        private static bool IsUniqueViolation(DbUpdateException ex)
+        {
+            return ex.InnerException is Npgsql.PostgresException pg
+                && pg.SqlState == Npgsql.PostgresErrorCodes.UniqueViolation;
         }
 
         public async Task<Payment> UpdateAsync(Payment payment, CancellationToken cancellationToken = default)

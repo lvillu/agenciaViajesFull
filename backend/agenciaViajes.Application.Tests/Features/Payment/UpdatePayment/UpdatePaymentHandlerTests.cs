@@ -111,7 +111,10 @@ public class UpdatePaymentHandlerTests
         {
             Id = 2,
             TotalAmount = 300m,
-            ReservationNumber = "RES-002",
+            SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+            {
+                new() { ProviderId = 2, ReservationNumber = "RES-002" }
+            },
             Client = new agenciaViajes.Application.Domain.Entities.Client { Name = "Sofía", LastName = "Díaz" }
         };
         _paymentRepository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(payment);

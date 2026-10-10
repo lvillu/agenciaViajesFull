@@ -153,6 +153,17 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return true;
         }
 
+        public async Task<int> PurgeExpiredTokensAsync(DateTime olderThan, CancellationToken cancellationToken = default)
+        {
+            var stale = await _context.RefreshTokens
+                .Where(rt => rt.ExpiresAt < olderThan)
+                .ToListAsync(cancellationToken);
+
+            _context.RefreshTokens.RemoveRange(stale);
+            await _context.SaveChangesAsync(cancellationToken);
+            return stale.Count;
+        }
+
         public TimeSpan GetRefreshTokenLifetime(bool rememberMe)
         {
             var minutes = rememberMe

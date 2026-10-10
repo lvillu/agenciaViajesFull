@@ -24,8 +24,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
         {
             Id = 33,
             ClientId = 1,
-            ProviderId = 2,
-            ReservationNumber = "RES-33",
             Description = "Tour Europeo",
             TotalAmount = 20000m,
             IsDollar = true,
@@ -44,16 +42,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
                 Name = "María",
                 LastName = "López",
                 Phone = "+56955555555",
-                Active = true
-            },
-            Provider = new ProviderEntity
-            {
-                Id = 2,
-                Name = "EuroPass",
-                Acronym = "EUP",
-                Email = "info@europass.com",
-                Phone = "+56944444444",
-                ProviderContactName = "Luis Ruiz",
                 Active = true
             },
             SaleProviders =
@@ -149,7 +137,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSaleById
         {
             var sale = BuildSale();
             sale.Client = null;
-            sale.Provider = null;
             sale.SaleProviders.First().Provider = null;
             _saleRepository
                 .GetByIdAsync(33, Arg.Any<CancellationToken>())

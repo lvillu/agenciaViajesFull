@@ -34,6 +34,9 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
 
             services.AddScoped<TransactionHelper>();
 
+            // Purga periódica de refresh tokens vencidos (Fase 4)
+            services.AddHostedService<TokenCleanupService>();
+
             //Esta entidad toma los valores del app.setting
             services.AddScoped<AppSettings>();
 

@@ -234,5 +234,24 @@ namespace agenciaViajes.Application.Tests.Features.Sale.UpdateSale
                 Arg.Is<SaleEntity>(s => s.Status == null),
                 Arg.Any<CancellationToken>());
         }
+
+        [Fact]
+        public async Task Handle_WithChangedProviders_ReturnsFailureWithoutUpdating()
+        {
+            var request = BuildValidUpdateRequest();
+            request.Providers = new List<SaleProviderRequest>
+            {
+                new() { ProviderId = 9, ReservationNumber = "RES-OTHER" }
+            };
+            SetupSuccessfulUpdate(request);
+
+            var result = await _handler.Handle(new UpdateSaleCommand(50, request), CancellationToken.None);
+
+            result.IsSuccess.Should().BeFalse();
+            result.Message.Should().Contain("proveedores");
+            result.Data.Should().BeNull();
+            await _saleRepository.DidNotReceive().UpdateAsync(
+                Arg.Any<SaleEntity>(), Arg.Any<CancellationToken>());
+        }
     }
 }

@@ -6,10 +6,6 @@
 
         public int ClientId { get; set; }
 
-        public int? ProviderId { get; set; }
-
-        public string? ReservationNumber { get; set; }
-
         public string? Description { get; set; }
 
         public decimal TotalAmount { get; set; }
@@ -46,7 +42,6 @@
 
         // Navigation properties
         public Client? Client { get; set; }
-        public Provider? Provider { get; set; }
         public ICollection<Payment>? Payments { get; set; }
         public ICollection<SaleProvider> SaleProviders { get; set; } = new List<SaleProvider>();
     }

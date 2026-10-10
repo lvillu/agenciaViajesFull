@@ -56,7 +56,11 @@ public class GetPaymentsListHandlerTests
                 Amount = 1500m, Notes = "Enganche",
                 Sale = new agenciaViajes.Application.Domain.Entities.Sale
                 {
-                    Id = 3, ReservationNumber = "RES-100",
+                    Id = 3,
+                    SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                    {
+                        new() { ProviderId = 5, ReservationNumber = "RES-100" }
+                    },
                     Client = new agenciaViajes.Application.Domain.Entities.Client { Name = "Ana", LastName = "Ruiz" }
                 }
             },
@@ -96,7 +100,7 @@ public class GetPaymentsListHandlerTests
                 Amount = 1500m,
                 Sale = new agenciaViajes.Application.Domain.Entities.Sale
                 {
-                    Id = 3, ReservationNumber = "LEGACY",
+                    Id = 3,
                     SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
                     {
                         new() { Id = 1, ProviderId = 7, ReservationNumber = "RES-MULTI" }

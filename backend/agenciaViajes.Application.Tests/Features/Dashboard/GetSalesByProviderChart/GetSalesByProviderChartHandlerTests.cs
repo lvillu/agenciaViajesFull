@@ -36,17 +36,36 @@ public class GetSalesByProviderChartHandlerTests
 
         var sales = new List<SaleEntity>
         {
-            new() { Id = 1, TotalAmount = 1000m, Provider = alpha },
-            new() { Id = 2, TotalAmount = 500m, Provider = alpha },
+            new()
+            {
+                Id = 1,
+                TotalAmount = 1000m,
+                SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                {
+                    new() { ProviderId = 1, Provider = alpha }
+                }
+            },
+            new()
+            {
+                Id = 2,
+                TotalAmount = 500m,
+                SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                {
+                    new() { ProviderId = 1, Provider = alpha }
+                }
+            },
             new()
             {
                 Id = 3,
                 TotalAmount = 100m,
                 IsDollar = true,
-                Provider = beta,
+                SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                {
+                    new() { ProviderId = 2, Provider = beta }
+                },
                 Payments = new List<agenciaViajes.Application.Domain.Entities.Payment> { new() { ExchangeRate = 10m } }
             },
-            new() { Id = 4, TotalAmount = 50m, Provider = null }
+            new() { Id = 4, TotalAmount = 50m }
         };
         _dashboardRepository.GetSalesLast12MonthsAsync(Arg.Any<CancellationToken>()).Returns(sales);
 

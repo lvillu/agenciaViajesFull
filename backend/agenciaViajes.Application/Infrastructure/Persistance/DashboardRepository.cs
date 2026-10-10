@@ -60,7 +60,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
             var sales = await _context.Sales
                 .Include(s => s.Client)
-                .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.Active
                     && s.AccountId == AccountId
@@ -86,7 +87,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
             var sales = await _context.Sales
                 .Include(s => s.Client)
-                .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
                 .Where(s => s.Active
                     && s.AccountId == AccountId
@@ -121,12 +123,13 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
             var today = DateTime.UtcNow;
             var startDate = DateTime.SpecifyKind(new DateTime(today.Year, today.Month, 1).AddMonths(-11), DateTimeKind.Utc);
-
             var sales = await _context.Sales
                 .AsNoTracking()
-                .Include(s => s.Provider)
+                .Include(s => s.SaleProviders)
+                    .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
-                .Where(s => s.Active && s.AccountId == AccountId && s.CreatedAt >= startDate)
+                .Where(s => s.Active && s.AccountId == AccountId &&
+s.CreatedAt >= startDate)
                 .ToListAsync(cancellationToken);
 
             _cache.Set(cacheKey, sales, TimeSpan.FromSeconds(60));

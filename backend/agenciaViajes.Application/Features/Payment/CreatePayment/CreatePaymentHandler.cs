@@ -72,7 +72,7 @@ namespace agenciaViajes.Application.Features.Payment.CreatePayment
                 FolioNumber = payment.FolioNumber,
                 PaymentType = (int)payment.PaymentType,
                 PaymentTypeName = payment.PaymentType.ToString(),
-                SaleReservationNumber = sale.ReservationNumber,
+                SaleReservationNumber = sale.SaleProviders.FirstOrDefault()?.ReservationNumber,
                 ClientName = sale.Client != null ? $"{sale.Client.Name} {sale.Client.LastName}" : null,
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,

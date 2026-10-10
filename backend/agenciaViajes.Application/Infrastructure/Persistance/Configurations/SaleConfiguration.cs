@@ -22,20 +22,12 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .HasColumnName("client_id")
                 .IsRequired();
 
-            builder.Property(s => s.ProviderId)
-                .HasColumnName("provider_id")
-                .IsRequired(false);
-
             // Configurar relaciones de navegación
+            // (Fase 4: la relación legacy Sale -> Provider único se eliminó;
+            // los proveedores viven en sale_providers)
             builder.HasOne(s => s.Client)
                 .WithMany()
                 .HasForeignKey(s => s.ClientId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne(s => s.Provider)
-                .WithMany()
-                .HasForeignKey(s => s.ProviderId)
-                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(s => s.Payments)
@@ -44,11 +36,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Propiedades
-            builder.Property(s => s.ReservationNumber)
-                .HasColumnName("reservation_number")
-                .HasMaxLength(100)
-                .IsRequired(false);
-
             builder.Property(s => s.Description)
                 .HasColumnName("description")
                 .HasMaxLength(1000)
@@ -119,9 +106,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance.Configurations
             // Índices
             builder.HasIndex(s => s.ClientId)
                 .HasDatabaseName("idx_sales_client_id");
-
-            builder.HasIndex(s => s.ReservationNumber)
-                .HasDatabaseName("idx_sales_reservation_number");
 
             builder.HasIndex(s => s.TravelDate)
                 .HasDatabaseName("idx_sales_travel_date");

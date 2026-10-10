@@ -25,7 +25,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             var query = _context.Sales
                 .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
-                .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
@@ -46,7 +45,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             var query = _context.Sales
                 .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
-                .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
@@ -72,7 +70,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             return await _context.Sales
                 .Where(s => s.AccountId == AccountId)
                 .Include(s => s.Client)
-                .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
@@ -83,7 +80,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         {
             return await _context.Sales
                 .Where(s => s.AccountId == AccountId)
-                .Include(s => s.Provider)
                 .Include(s => s.SaleProviders)
                     .ThenInclude(sp => sp.Provider)
                 .Include(s => s.Payments)
@@ -134,19 +130,6 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
             await _context.SaveChangesAsync(cancellationToken);
 
             return true;
-        }
-
-        public async Task<bool> ExistsByReservationNumberAsync(string reservationNumber, int? excludeId = null, CancellationToken cancellationToken = default)
-        {
-            var query = _context.Sales
-                .Where(s => s.AccountId == AccountId && s.ReservationNumber == reservationNumber);
-
-            if (excludeId.HasValue)
-            {
-                query = query.Where(s => s.Id != excludeId.Value);
-            }
-
-            return await query.AnyAsync(cancellationToken);
         }
 
         public async Task<decimal> GetTotalPaidAsync(int saleId, CancellationToken cancellationToken = default)

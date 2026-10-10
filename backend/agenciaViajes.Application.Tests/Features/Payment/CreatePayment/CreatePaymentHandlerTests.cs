@@ -26,8 +26,11 @@ public class CreatePaymentHandlerTests
     private static SaleEntity BuildSale(int id = 1, decimal total = 10000m, bool withClient = true) => new()
     {
         Id = id,
-        ReservationNumber = "RES-001",
         TotalAmount = total,
+        SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+        {
+            new() { ProviderId = 2, ReservationNumber = "RES-001" }
+        },
         Client = withClient
             ? new agenciaViajes.Application.Domain.Entities.Client { Id = 5, Name = "Laura", LastName = "García" }
             : null

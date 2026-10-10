@@ -44,7 +44,10 @@ public class GetPaymentByIdHandlerTests
             Sale = new agenciaViajes.Application.Domain.Entities.Sale
             {
                 Id = 3,
-                ReservationNumber = "RES-300",
+                SaleProviders = new List<agenciaViajes.Application.Domain.Entities.SaleProvider>
+                {
+                    new() { ProviderId = 2, ReservationNumber = "RES-300" }
+                },
                 Client = new agenciaViajes.Application.Domain.Entities.Client { Name = "Mario", LastName = "López" }
             }
         };

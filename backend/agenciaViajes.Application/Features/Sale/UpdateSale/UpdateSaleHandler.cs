@@ -50,7 +50,24 @@ namespace agenciaViajes.Application.Features.Sale.UpdateSale
             sale.Active = request.Request.Active;
 
             // Los proveedores de una venta NO se modifican en la actualización:
-            // ni se agregan, ni se eliminan, ni se editan. Se conservan los existentes.
+            // ni se agregan, ni se eliminan, ni se editan. Si el request trae un
+            // conjunto distinto al almacenado se rechaza explícitamente en vez
+            // de ignorarlo en silencio (Fase 4).
+            var currentProviders = sale.SaleProviders
+                .Select(sp => (sp.ProviderId, sp.ReservationNumber))
+                .OrderBy(x => x.ProviderId)
+                .ThenBy(x => x.ReservationNumber)
+                .ToList();
+            var incomingProviders = request.Request.Providers
+                .Select(p => (p.ProviderId, p.ReservationNumber))
+                .OrderBy(x => x.ProviderId)
+                .ThenBy(x => x.ReservationNumber)
+                .ToList();
+
+            if (!currentProviders.SequenceEqual(incomingProviders))
+            {
+                return Result<SaleResponse>.Failure("Los proveedores de una venta no se pueden modificar en la actualización");
+            }
 
             sale = await _saleRepository.UpdateAsync(sale, cancellationToken);
 

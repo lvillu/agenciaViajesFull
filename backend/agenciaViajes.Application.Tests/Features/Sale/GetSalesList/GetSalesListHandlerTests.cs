@@ -24,8 +24,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSalesList
         {
             Id = id,
             ClientId = 1,
-            ProviderId = 2,
-            ReservationNumber = reservationNumber,
             Description = $"Venta {reservationNumber}",
             TotalAmount = totalAmount,
             IsDollar = false,
@@ -43,16 +41,6 @@ namespace agenciaViajes.Application.Tests.Features.Sale.GetSalesList
                 Name = "Juan",
                 LastName = "Pérez",
                 Phone = "+56912345678",
-                Active = true
-            },
-            Provider = new ProviderEntity
-            {
-                Id = 2,
-                Name = "AeroTravel",
-                Acronym = "ATR",
-                Email = "contacto@aerotravel.com",
-                Phone = "+56987654321",
-                ProviderContactName = "Ana Gómez",
                 Active = true
             },
             SaleProviders =

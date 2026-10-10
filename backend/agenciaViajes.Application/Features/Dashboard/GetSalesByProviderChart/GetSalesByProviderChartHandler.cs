@@ -29,9 +29,9 @@ namespace agenciaViajes.Application.Features.Dashboard.GetSalesByProviderChart
         {
             var sales = await _dashboardRepository.GetSalesLast12MonthsAsync(cancellationToken);
 
-            // Agrupar por proveedor sumando montos en MXN
+            // Agrupar por proveedor (primero de la venta) sumando montos en MXN
             var byProvider = sales
-                .GroupBy(s => s.Provider?.Name ?? "Sin proveedor")
+                .GroupBy(s => s.SaleProviders.FirstOrDefault()?.Provider?.Name ?? "Sin proveedor")
                 .Select(g => new
                 {
                     ProviderName = g.Key,
