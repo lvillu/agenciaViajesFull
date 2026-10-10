@@ -24,10 +24,10 @@ namespace agenciaViajes.Application.Features.Configurations.Routes
             var authGroup = app.MapGroup(BASE_URL)
                 .WithTags(ROUTE_TAGS);
 
-            authGroup.MapPost("/login", Login);
+            authGroup.MapPost("/login", Login).RequireRateLimiting("auth");
             authGroup.MapPost("/logout", Logout);
-            authGroup.MapPost("/signup", SignUp);
-            authGroup.MapPost("/refresh", Refresh);
+            authGroup.MapPost("/signup", SignUp).RequireRateLimiting("auth");
+            authGroup.MapPost("/refresh", Refresh).RequireRateLimiting("auth");
         }
 
         private static async Task<IResult> Login(AuthRequest command, ISender sender, HttpContext context, IOptions<AppSettings> appSettings, CancellationToken cancellationToken)

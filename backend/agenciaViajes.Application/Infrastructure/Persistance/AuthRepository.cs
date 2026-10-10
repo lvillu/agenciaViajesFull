@@ -16,6 +16,10 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
         private readonly AppSettings _settings;
         private readonly AppDbContext _context;
 
+        // Hash fijo para igualar el costo de BCrypt cuando el usuario no existe.
+        // Sin esto, la diferencia de tiempos permite enumerar usernames válidos.
+        private static readonly string DummyHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
+
         public AuthRepository(IOptions<AppSettings> settings, AppDbContext context)
         {
             _settings = settings.Value;
@@ -29,6 +33,8 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
             if (user == null)
             {
+                // Mismo costo que un intento real: no revelar si el usuario existe
+                BCrypt.Net.BCrypt.Verify(password, DummyHash);
                 return (null, string.Empty, string.Empty);
             }
 

@@ -1,3 +1,4 @@
+using agenciaViajes.Api;
 using agenciaViajes.Application.Domain.Middleware;
 using agenciaViajes.Application.Features.Configurations;
 using agenciaViajes.Application.Features.Configurations.Modules;
@@ -20,6 +21,7 @@ builder.Services.ConfigureCors() // Registrar el servicio de CORS
     .AddSwagerExplorer() // Configuracion de swagger
     .AddAuthenticationAuthorization(builder.Configuration) // Configuracion de la autenticacion y autorizacion
     .AddApplication() //MediatR
+    .AddAuthRateLimiting() // Límite de intentos en login/signup/refresh (Fase 2)
     .AddAppConfig(builder.Configuration) // Toma parametros de AppSettings
     .InjectDbContext(builder.Configuration); // Coneccion a base de datos
 
@@ -124,6 +126,8 @@ app.ConfigureSwaggerExplorer();
 
 //app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
+
+app.UseRateLimiter();
 
 app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAuthentication();
