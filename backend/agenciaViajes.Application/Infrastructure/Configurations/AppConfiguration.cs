@@ -44,7 +44,7 @@ namespace agenciaViajes.Application.Infrastructure.Configurations
 
         public static IServiceCollection AddFluentValidationConfig(this IServiceCollection services)
         {
-            services.AddValidatorsFromAssembly(typeof(Class1).Assembly);
+            services.AddValidatorsFromAssembly(typeof(AppConfiguration).Assembly);
             return services;
         }
 

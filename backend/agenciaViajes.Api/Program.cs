@@ -1,5 +1,6 @@
 using agenciaViajes.Api;
 using agenciaViajes.Application.Domain.Middleware;
+using Serilog;
 using agenciaViajes.Application.Features.Configurations;
 using agenciaViajes.Application.Features.Configurations.Modules;
 using agenciaViajes.Application.Infrastructure.Configurations;
@@ -27,8 +28,7 @@ builder.Services.ConfigureCors() // Registrar el servicio de CORS
 
 
 Logging.AddLogging();
-
-//builder.Host.UseSerilog();
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -40,8 +40,13 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<AppDbContext>();
 
-        // List migrations available in the assembly
-        var migrationsAssembly = services.GetService<IMigrationsAssembly>();
+        // Diagnóstico verboso solo con MIGRATION_VERBOSE=true (Fase 5)
+        var verbose = Environment.GetEnvironmentVariable("MIGRATION_VERBOSE") == "true";
+
+        if (verbose)
+        {
+            // List migrations available in the assembly
+            var migrationsAssembly = services.GetService<IMigrationsAssembly>();
         if (migrationsAssembly == null)
         {
             // try to obtain it from the DbContext internal services (fallback)
@@ -64,6 +69,7 @@ using (var scope = app.Services.CreateScope())
             var migrationTypes = appAssembly.GetTypes().Where(t => typeof(Migration).IsAssignableFrom(t)).Select(t => t.FullName);
             Console.WriteLine("[ASSEMBLY] Migration types found in App assembly: " + (migrationTypes.Any() ? string.Join(", ", migrationTypes) : "(none)"));
         }
+        } // if (verbose)
 
         // Applied and pending migrations
         var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
@@ -72,8 +78,10 @@ using (var scope = app.Services.CreateScope())
         var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
         Console.WriteLine("[MIGRATIONS] Pending migrations: " + (pendingMigrations.Any() ? string.Join(", ", pendingMigrations) : "(none)"));
 
-        // Log model entity primary keys and any custom attributes on those PK properties
-        var model = context.Model;
+        if (verbose)
+        {
+            // Log model entity primary keys and any custom attributes on those PK properties
+            var model = context.Model;
         foreach (var entityType in model.GetEntityTypes())
         {
             var clrType = entityType.ClrType;
@@ -102,6 +110,7 @@ using (var scope = app.Services.CreateScope())
                 }
             }
         }
+        } // if (verbose)
 
         if (pendingMigrations.Any())
         {

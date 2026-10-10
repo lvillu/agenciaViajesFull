@@ -26,7 +26,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__IbarraTravelDB: "Host=${RDS_HOST};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Require;Trust Server Certificate=true;"
       AppSettings__SecretKey: ${SECRET_KEY}
-      AppSettings__ExperiesInMinutes: ${EXPIRES_IN_MINUTES:-30}
+      AppSettings__ExpiresInMinutes: ${EXPIRES_IN_MINUTES:-30}
       AppSettings__RefreshTokenExpiresInMinutes: ${REFRESH_TOKEN_EXPIRES_IN_MINUTES:-10080}
       AppSettings__RememberMeRefreshTokenExpiresInMinutes: ${REMEMBER_ME_REFRESH_TOKEN_EXPIRES_IN_MINUTES:-43200}
       # true solo si el acceso al browser es HTTPS (si no, el browser descarta la cookie)

@@ -90,7 +90,7 @@ namespace agenciaViajes.Application.Infrastructure.Persistance
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(_settings.ExperiesInMinutes);
+            var expires = DateTime.UtcNow.AddMinutes(_settings.ExpiresInMinutes);
 
             var token = new JwtSecurityToken(
                 claims: claims,
