@@ -1,0 +1,104 @@
+# ============================================================
+# Agencia Viajes - 01 Red serverless
+# VPC solo-privada (sin IGW/NAT): App Runner entra por su URL pública
+# gestionada y sale a Aurora por el VPC Connector. ECR, Secrets y
+# CloudWatch los resuelve el plano de control (sin endpoints).
+# Despliegue: deploy/aws/README.md
+# ============================================================
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Agencia Viajes - VPC privada + VPC Connector para App Runner
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: prod
+    Description: Prefijo de nombres (dev | prod)
+
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-vpc
+
+  PrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-private-a
+
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-private-b
+
+  AppRunnerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Egress de App Runner hacia Aurora
+      VpcId: !Ref Vpc
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-apprunner-sg
+
+  RdsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Aurora, solo desde App Runner
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref AppRunnerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-rds-sg
+
+  VpcConnector:
+    Type: AWS::AppRunner::VpcConnector
+    Properties:
+      Subnets:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      SecurityGroups:
+        - !Ref AppRunnerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-vpc-connector
+
+Outputs:
+  VpcId:
+    Value: !Ref Vpc
+    Export:
+      Name: !Sub ${EnvironmentName}-VpcId
+  PrivateSubnets:
+    Value: !Join [',', [!Ref PrivateSubnetA, !Ref PrivateSubnetB]]
+    Export:
+      Name: !Sub ${EnvironmentName}-PrivateSubnets
+  VpcConnectorArn:
+    Value: !Ref VpcConnector
+    Export:
+      Name: !Sub ${EnvironmentName}-VpcConnectorArn
+  RdsSecurityGroupId:
+    Value: !Ref RdsSecurityGroup
+    Export:
+      Name: !Sub ${EnvironmentName}-RdsSecurityGroupId

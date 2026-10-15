@@ -1,0 +1,112 @@
+# ============================================================
+# Agencia Viajes - 02 Datos (Aurora Serverless v2, por uso real)
+# MinCapacity 0 = auto-pause: sin tráfico la BD baja a 0 ACU (~$0).
+# Requiere motor con auto-pause (PG 15.5+/16.x). Ajustar EngineVersion
+# a la 16.x vigente. Tras crear, tunear pausa con:
+#   aws rds modify-db-cluster --db-cluster-identifier <id> \
+#     --serverless-v2-scaling-configuration MinCapacity=0,MaxCapacity=4,SecondsUntilAutoPause=1800
+# El secreto de app se rellena en el paso 3 del README (el host aún
+# no existe al crear el stack).
+# ============================================================
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Agencia Viajes - Aurora Serverless v2 (min 0 ACU) + secretos
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: prod
+  VpcSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  MinCapacity:
+    Type: Number
+    Default: 0
+    Description: 0 = auto-pause (por uso). Producción exigente: 0.5
+  MaxCapacity:
+    Type: Number
+    Default: 4
+  MasterUsername:
+    Type: String
+    Default: postgres
+
+Resources:
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets privadas de Aurora
+      SubnetIds: !Ref PrivateSubnetIds
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-db-subnets
+
+  MasterSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub /agencia/${EnvironmentName}/db-master
+      Description: Password maestra de Aurora (generada)
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${MasterUsername}"}'
+        GenerateStringKey: password
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\''
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-db-master
+
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora-postgresql
+      EngineVersion: '16.4'
+      DatabaseName: ibarratravel
+      MasterUsername: !Sub '{{resolve:secretsmanager:${MasterSecret}:SecretString:username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${MasterSecret}:SecretString:password}}'
+      VpcSecurityGroupIds:
+        - !Ref VpcSecurityGroupId
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: !Ref MinCapacity
+        MaxCapacity: !Ref MaxCapacity
+      BackupRetentionPeriod: 7
+      StorageEncrypted: true
+      DeletionProtection: true
+      EnablePerformanceInsights: true
+      PerformanceInsightsRetentionPeriod: 7
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-aurora
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref DBCluster
+      DBInstanceClass: db.serverless
+      Engine: aurora-postgresql
+      PubliclyAccessible: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-aurora-writer
+
+  AppSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub /agencia/${EnvironmentName}/app
+      Description: Connection string + SECRET_KEY (rellenar según README paso 3)
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-app
+
+Outputs:
+  ClusterEndpoint:
+    Value: !GetAtt DBCluster.Endpoint
+    Export:
+      Name: !Sub ${EnvironmentName}-ClusterEndpoint
+  MasterSecretArn:
+    Value: !Ref MasterSecret
+    Export:
+      Name: !Sub ${EnvironmentName}-MasterSecretArn
+  AppSecretArn:
+    Value: !Ref AppSecret
+    Export:
+      Name: !Sub ${EnvironmentName}-AppSecretArn

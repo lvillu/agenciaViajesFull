@@ -1,7 +1,10 @@
 # E2E SaaS: aislamiento multi-tenant via API Gateway (http://localhost:5050)
 # 2 tenants, 3 proveedores c/u, 5 ventas + bateria de seguridad cross-tenant.
 $ErrorActionPreference = "Stop"
-$Base = "http://localhost:5050"
+# Base configurable para correr contra cualquier ambiente:
+#   $env:E2E_BASE_URL = "https://<apprunner-url>" (default: gateway local)
+$Base = $env:E2E_BASE_URL
+if ([string]::IsNullOrWhiteSpace($Base)) { $Base = "http://localhost:5050" }
 $S = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 $global:pass = 0; $global:fail = 0
 function Check([string]$name, [bool]$cond, [string]$detail = "") {

@@ -1,0 +1,138 @@
+# ============================================================
+# Agencia Viajes - 03 App (ECR + App Runner con auto-deploy = CD)
+# AutoDeploymentsEnabled=true: cada push a ECR del tag indicado
+# redespliega solo (Opción B). Health check en /health: si falla,
+# la revisión nueva NO recibe tráfico.
+# Precio aprox: 0.25vCPU/0.5GB provisioned ~$7.50/mes por servicio.
+# ============================================================
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Agencia Viajes - ECR + App Runner API (auto-deploy)
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: prod
+  ImageTag:
+    Type: String
+    Default: latest
+    Description: Tag que sigue el servicio (dev | latest)
+  AppSecretArn:
+    Type: String
+    Description: ARN del secreto /agencia/<env>/app (JSON con las claves)
+  VpcConnectorArn:
+    Type: String
+  CorsOrigins:
+    Type: String
+    Default: https://app.tudominio.com
+    Description: Orígenes permitidos (coma-separados)
+
+Resources:
+  ApiRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub agencia-api-${EnvironmentName}
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Conservar últimas 10 imágenes",
+                "selection": { "tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 10 },
+                "action": { "type": "expire" }
+              }
+            ]
+          }
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-ecr-api
+
+  EcrAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-apprunner-ecr-access
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-ecr-access-role
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-apprunner-instance
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: tasks.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: secrets-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref AppSecretArn
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-instance-role
+
+  ApiService:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: !Sub agencia-api-${EnvironmentName}
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          AccessRoleArn: !GetAtt EcrAccessRole.Arn
+        AutoDeploymentsEnabled: true
+        ImageRepository:
+          ImageIdentifier: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/agencia-api-${EnvironmentName}:${ImageTag}'
+          ImageRepositoryType: ECR
+          ImageConfiguration:
+            Port: '8080'
+            RuntimeEnvironmentSecrets:
+              ConnectionStrings__IbarraTravelDB: !Sub '${AppSecretArn}:ConnectionStrings__IbarraTravelDB::'
+              AppSettings__SecretKey: !Sub '${AppSecretArn}:AppSettings__SecretKey::'
+            RuntimeEnvironmentVariables:
+              ASPNETCORE_ENVIRONMENT: Production
+              CORS_ALLOWED_ORIGINS: !Ref CorsOrigins
+      InstanceConfiguration:
+        Cpu: 0.25 vCPU
+        Memory: 0.5 GB
+        InstanceRoleArn: !GetAtt InstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /health
+        Interval: 10
+        Timeout: 5
+        HealthyThreshold: 1
+        UnhealthyThreshold: 5
+      NetworkConfiguration:
+        EgressConfiguration:
+          EgressType: VPC
+          VpcConnectorArn: !Ref VpcConnectorArn
+        IngressConfiguration:
+          IsPubliclyAccessible: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-api
+
+Outputs:
+  ServiceUrl:
+    Value: !GetAtt ApiService.ServiceUrl
+  ServiceArn:
+    Value: !Ref ApiService
+  EcrUri:
+    Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/agencia-api-${EnvironmentName}'

@@ -1,0 +1,20 @@
+# Amplify Hosting - frontend Next.js (ver deploy/aws/README.md paso 5).
+# NEXT_PUBLIC_API_URL se define POR RAMA en la consola de Amplify
+# (dev -> https://<apprunner-dev>..., main -> dominio prod).
+# No cambiar next.config.js: Amplify compila con `next build` estándar.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --no-audit --no-fund
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*

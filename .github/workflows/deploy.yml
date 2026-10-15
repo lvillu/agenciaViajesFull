@@ -1,0 +1,84 @@
+# ============================================================
+# CD Opción B: push a dev/main -> tests -> imagen ECR -> App Runner
+# auto-despliega (AutoDeploymentsEnabled). Requiere:
+#   - Rol IAM para OIDC en la variable de repo: AWS_DEPLOY_ROLE_ARN
+#     (ver deploy/aws/README.md paso 0; política: ECR push + PassRole nulo)
+#   - Tags: dev -> :dev (servicio dev), main -> :latest (servicio prod)
+# Frontend: lo despliega Amplify directo de la rama (sin este workflow).
+# ============================================================
+name: CD
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  backend-test:
+    name: Backend - Tests (gate del deploy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test
+        run: dotnet test agenciaViajes.Application.Tests/agenciaViajes.Application.Tests.csproj -c Release
+
+  push-api:
+    name: Build & Push API a ECR
+    needs: backend-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolver ambiente y tag
+        id: meta
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "env=dev" >> "$GITHUB_OUTPUT"
+            echo "tag=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login a ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push (linux/amd64, como el Dockerfile)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.ecr.outputs.registry }}/agencia-api-${{ steps.meta.outputs.env }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.ecr.outputs.registry }}/agencia-api-${{ steps.meta.outputs.env }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
