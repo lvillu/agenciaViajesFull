@@ -26,9 +26,13 @@ interface SaleProvidersFieldProps {
   onChange: (providers: SaleProviderItem[]) => void;
   providers: Provider[];
   error?: string;
+  /** Errores anidados por índice (ej. providers[0].providerId) que RHF no aplana. */
+  itemError?: string;
   onProviderSelect?: (provider: Provider | null, index: number) => void;
   /** En edición los proveedores no se pueden modificar: oculta el alta y deshabilita eliminar. */
   readOnly?: boolean;
+  /** Callback para abrir el alta rápida de proveedor desde este campo. */
+  onRequestNewProvider?: () => void;
 }
 
 /** Conserva solo las claves que el backend acepta (id si venía). */
@@ -44,8 +48,10 @@ export function SaleProvidersField({
   onChange,
   providers,
   error,
+  itemError,
   onProviderSelect,
   readOnly = false,
+  onRequestNewProvider,
 }: SaleProvidersFieldProps) {
   const [draftProviderId, setDraftProviderId] = useState<number | ''>('');
   const [draftKey, setDraftKey] = useState<string>('');
@@ -316,8 +322,8 @@ export function SaleProvidersField({
             select
             value={draftProviderId}
             onChange={handleDraftProviderChange}
-            error={!!localError}
-            helperText={localError ?? undefined}
+            error={!!localError || !!itemError}
+            helperText={localError ?? itemError ?? undefined}
             InputLabelProps={{ shrink: true }}
           >
             <MenuItem value="" disabled>
@@ -355,6 +361,50 @@ export function SaleProvidersField({
         </Box>
         )}
       </Box>
+
+      {providers.length === 0 && !readOnly && (
+        <Box
+          sx={{
+            mt: 1.5,
+            p: 2,
+            borderRadius: '10px',
+            border: '1px dashed #EC5B13',
+            bgcolor: 'rgba(236, 91, 19, 0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#525252' }}>
+              No hay proveedores registrados
+            </Typography>
+            <Typography sx={{ fontSize: '0.8125rem', color: '#8B8DA8' }}>
+              Agrega el primero para poder crear la reserva.
+            </Typography>
+          </Box>
+          {onRequestNewProvider && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={onRequestNewProvider}
+              type="button"
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              Nuevo proveedor
+            </Button>
+          )}
+        </Box>
+      )}
+
+      {providers.length > 0 && !readOnly && onRequestNewProvider && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+          <Button variant="text" onClick={onRequestNewProvider} type="button" sx={{ color: '#5BA9B3', fontWeight: 600 }}>
+            + Nuevo proveedor rápido
+          </Button>
+        </Box>
+      )}
 
       {error && (
         <FormHelperText error sx={{ mt: 1 }}>

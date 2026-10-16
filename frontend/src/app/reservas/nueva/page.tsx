@@ -22,7 +22,7 @@ import {
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { InputNumber } from 'primereact/inputnumber';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
@@ -31,12 +31,21 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
 import { ClientFormModal } from '@/components/shared/ClientFormModal';
+import { ProviderFormModal } from '@/components/shared/ProviderFormModal';
+import { PendingFieldsModal } from '@/components/shared/PendingFieldsModal';
 import { SaleProvidersField } from '@/components/features/sale/SaleProvidersField';
 import { saleService } from '@/services/saleService';
 import { useClients } from '@/hooks/useClients';
 import { useProviders } from '@/hooks/useProviders';
 import { useAlert } from '@/hooks/useAlert';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { toOptionalNumber } from '@/lib/optionalNumber';
+import {
+  collectPendingFields,
+  needsProvider,
+  normalizeSalePayload,
+  type PendingField,
+} from '@/lib/saleSubmit';
 import {
   CreateSaleSchema,
   UpdateSaleSchema,
@@ -44,7 +53,7 @@ import {
   type UpdateSaleFormData,
   type SaleProviderItem,
 } from '@/types/sale';
-import { ClientFormData } from '@/lib/validationSchemas';
+import { ClientFormData, ProviderFormData } from '@/lib/validationSchemas';
 
 function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const router = useRouter();
@@ -55,10 +64,13 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
   const [loadingSale, setLoadingSale] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [providerModalOpen, setProviderModalOpen] = useState(false);
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
+  const [pendingFields, setPendingFields] = useState<PendingField[]>([]);
   const [isLiquidationOverdue, setIsLiquidationOverdue] = useState(false);
 
   const { clients, createClient, loading: clientsLoading } = useClients();
-  const { providers } = useProviders();
+  const { providers, createProvider, loading: providersLoading } = useProviders();
   const { showSuccess, showError } = useAlert();
 
   const {
@@ -66,7 +78,9 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
     handleSubmit,
     control,
     watch,
+    getValues,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateSaleFormData | UpdateSaleFormData>({
     resolver: zodResolver(isEditing ? UpdateSaleSchema : CreateSaleSchema) as any,
@@ -238,18 +252,48 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
     }
   };
 
+  // Alta rápida de proveedor sin salir del formulario.
+  // Al guardar, se agrega automáticamente a la lista de proveedores de la reserva.
+  const handleOpenProviderModal = () => {
+    setPendingModalOpen(false);
+    setProviderModalOpen(true);
+  };
+
+  const handleCloseProviderModal = () => {
+    setProviderModalOpen(false);
+  };
+
+  const handleCreateProvider = async (data: ProviderFormData) => {
+    try {
+      const newProvider = await createProvider(data);
+      if (newProvider) {
+        handleCloseProviderModal();
+        const current = (getValues('providers') ?? []).filter((p) => p.providerId > 0);
+        setValue('providers', [
+          ...current,
+          { providerId: newProvider.id, reservationNumber: '' },
+        ]);
+        await showSuccess('Proveedor creado y agregado a la reserva');
+      }
+    } catch (err: any) {
+      await showError(err.message || 'Error al crear proveedor');
+      throw err; // Re-lanzar el error para que el modal no se cierre
+    }
+  };
+
   const onSubmit = async (data: CreateSaleFormData | UpdateSaleFormData) => {
     if (commissionExceedsTotal) return;
     setSubmitError(null);
     setLoading(true);
 
     try {
-      const { splitCommission: split, ...rest } = data;
-      const payload = { ...rest, commissionableAmount: split ? rest.commissionableAmount : undefined };
+      // Normaliza '' -> undefined y NaN -> undefined para que el backend
+      // (DateTime? / decimal?) no rechace el payload con 400.
+      const payload = normalizeSalePayload(data);
       if (isEditing && saleId) {
-        await saleService.update(Number(saleId), payload as UpdateSaleFormData);
+        await saleService.update(Number(saleId), payload as unknown as UpdateSaleFormData);
       } else {
-        await saleService.create(payload as CreateSaleFormData);
+        await saleService.create(payload as unknown as CreateSaleFormData);
       }
 
       router.push('/reservas');
@@ -258,6 +302,15 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // La validación Zod falló (ej. sin proveedor agregado): mostrar el modal
+  // con los campos pendientes en lugar de parecer que el botón no hace nada.
+  const onInvalid = (formErrors: FieldErrors<CreateSaleFormData | UpdateSaleFormData>) => {
+    const pending = collectPendingFields(formErrors);
+    setPendingFields(pending);
+    setSubmitError(null);
+    setPendingModalOpen(pending.length > 0);
   };
 
   const handleCancel = () => {
@@ -306,7 +359,7 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
             {/* ── Sección 1: Cliente & Proveedor ── */}
@@ -404,16 +457,30 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                   <Controller
                     name="providers"
                     control={control}
-                    render={({ field }) => (
-                      <SaleProvidersField
-                        value={field.value as SaleProviderItem[]}
-                        onChange={field.onChange}
-                        providers={providers}
-                        readOnly={isEditing}
-                        error={(errors.providers as unknown as { message?: string; root?: { message?: string } } | undefined)?.message
-                          ?? (errors.providers as unknown as { root?: { message?: string } } | undefined)?.root?.message}
-                      />
-                    )}
+                    render={({ field }) => {
+                      const providersError = errors.providers as unknown as
+                        | { message?: string; root?: { message?: string }; [index: number]: { providerId?: { message?: string } } }
+                        | undefined;
+                      const topError = providersError?.message ?? providersError?.root?.message;
+                      // Error anidado (ej. providers[0].providerId): antes no se
+                      // mostraba en ningún lado y el botón parecía no hacer nada.
+                      const itemError = Array.isArray(providersError)
+                        ? (providersError as Array<{ providerId?: { message?: string } }>)
+                            .map((item) => item?.providerId?.message)
+                            .find((msg) => !!msg)
+                        : (providersError?.[0] as { providerId?: { message?: string } } | undefined)?.providerId?.message;
+                      return (
+                        <SaleProvidersField
+                          value={field.value as SaleProviderItem[]}
+                          onChange={field.onChange}
+                          providers={providers}
+                          readOnly={isEditing}
+                          error={topError}
+                          itemError={itemError}
+                          onRequestNewProvider={handleOpenProviderModal}
+                        />
+                      );
+                    }}
                   />
                 </Box>
               </Box>
@@ -527,7 +594,16 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                       render={({ field }) => (
                         <Switch
                           checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                            // Al volver a MXN se limpia el tipo de cambio: si no,
+                            // un valor previo (o NaN) deja en error un campo que ya
+                            // no aplica, aunque el usuario vea "MXN".
+                            if (!e.target.checked) {
+                              setValue('exchangeRate', undefined);
+                              clearErrors('exchangeRate');
+                            }
+                          }}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': { color: '#5BA9B3' },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#5BA9B3' },
@@ -907,7 +983,7 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
                     type="number"
                     placeholder="Ej. 20.50"
                     inputProps={{ step: '0.01', min: '0' }}
-                    {...register('exchangeRate', { valueAsNumber: true })}
+                    {...register('exchangeRate', { setValueAs: toOptionalNumber })}
                     error={!!errors.exchangeRate}
                     helperText={errors.exchangeRate?.message || 'Ejemplo: 20.50'}
                     required
@@ -978,6 +1054,23 @@ function SaleFormContent({ saleId: saleIdProp }: { saleId: string | null }) {
         onClose={handleCloseClientModal}
         onSubmit={handleCreateClient}
         isLoading={clientsLoading}
+      />
+
+      {/* Modal para agregar proveedor sin salir del formulario */}
+      <ProviderFormModal
+        open={providerModalOpen}
+        onClose={handleCloseProviderModal}
+        onSubmit={handleCreateProvider}
+        isLoading={providersLoading}
+      />
+
+      {/* Modal con los campos pendientes de capturar */}
+      <PendingFieldsModal
+        open={pendingModalOpen}
+        onClose={() => setPendingModalOpen(false)}
+        pendingFields={pendingFields}
+        showAddProviderAction={needsProvider(pendingFields)}
+        onAddProvider={handleOpenProviderModal}
       />
 
       <Footer />

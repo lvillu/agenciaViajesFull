@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { blankToUndefined } from '@/lib/optionalNumber';
 
 /**
  * Sale Types
@@ -100,6 +101,15 @@ export interface UpdateSaleRequest {
   active: boolean;
 }
 
+/**
+ * Campo numérico opcional tolerante a inputs sin capturar.
+ * Normaliza vacío / null / NaN a `undefined` antes de validar, de modo que
+ * `.optional()` realmente lo ignore en lugar de fallar con
+ * "Invalid input: expected number, received NaN".
+ */
+const optionalNumber = <T extends z.ZodType>(schema: T) =>
+  z.preprocess(blankToUndefined, schema.optional());
+
 // Esquema de validación para crear venta
 export const CreateSaleSchema = z.object({
   clientId: z.coerce.number().min(1, 'Debe seleccionar un cliente'),
@@ -112,15 +122,19 @@ export const CreateSaleSchema = z.object({
   description: z.string().optional(),
   totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
-  profitPercentage: z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
-  exchangeRate: z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
-  requiredDeposit: z.coerce.number().min(0).optional(),
+  profitPercentage: optionalNumber(
+    z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100'),
+  ),
+  exchangeRate: optionalNumber(z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0')),
+  requiredDeposit: optionalNumber(z.coerce.number().min(0)),
   finalPaymentDueDate: z.string().optional(),
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
   status: z.string().optional(),
   splitCommission: z.boolean().optional(),
-  commissionableAmount: z.coerce.number().min(0, 'El monto comisionable no puede ser negativo').optional(),
+  commissionableAmount: optionalNumber(
+    z.coerce.number().min(0, 'El monto comisionable no puede ser negativo'),
+  ),
 }).refine((data) => {
   return !data.splitCommission || (data.commissionableAmount !== undefined && data.commissionableAmount <= data.totalAmount);
 }, {
@@ -167,16 +181,20 @@ export const UpdateSaleSchema = z.object({
   description: z.string().optional(),
   totalAmount: z.coerce.number().min(0.01, 'El monto total debe ser mayor a 0'),
   isDollar: z.boolean(),
-  profitPercentage: z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100').optional(),
-  exchangeRate: z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0').optional(),
-  requiredDeposit: z.coerce.number().min(0).optional(),
+  profitPercentage: optionalNumber(
+    z.coerce.number().min(0, 'El porcentaje debe ser mayor o igual a 0').max(100, 'El porcentaje no puede superar 100'),
+  ),
+  exchangeRate: optionalNumber(z.coerce.number().min(0.01, 'El tipo de cambio debe ser mayor a 0')),
+  requiredDeposit: optionalNumber(z.coerce.number().min(0)),
   finalPaymentDueDate: z.string().optional(),
   travelDate: z.string().min(1, 'La fecha de viaje es requerida'),
   returnDate: z.string().optional(),
   status: z.string().optional(),
   active: z.boolean(),
   splitCommission: z.boolean().optional(),
-  commissionableAmount: z.coerce.number().min(0, 'El monto comisionable no puede ser negativo').optional(),
+  commissionableAmount: optionalNumber(
+    z.coerce.number().min(0, 'El monto comisionable no puede ser negativo'),
+  ),
 }).refine((data) => {
   return !data.splitCommission || (data.commissionableAmount !== undefined && data.commissionableAmount <= data.totalAmount);
 }, {
