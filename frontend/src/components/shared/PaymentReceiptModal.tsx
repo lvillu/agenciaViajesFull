@@ -34,6 +34,13 @@ const PAYMENT_TYPE_LABEL: Record<number, string> = {
   3: 'LIQUIDACIÓN',
 };
 
+const IMPORTANT_NOTES = [
+  'Pagos no reembolsables.',
+  'Cualquier cambio o modificación puede generar cargos por servicios o ajustes de tarifa.',
+  'Es responsabilidad del pasajero contar con un pasaporte vigente por un mínimo de 3 meses a la fecha de su viaje.',
+  'Los servicios de transporte, hospedaje y demás productos son proporcionados por terceros independientes. La agencia actúa únicamente como intermediaria y no asume responsabilidad por cambios operativos, quiebras, cancelaciones o incumplimientos de esos proveedores. En caso de incidencias, la gestión de reembolsos, cambios o compensaciones dependerá de las políticas del proveedor.',
+];
+
 const formatDate = (dateString: string) => {
   if (!dateString) return '—';
   // Only append time if it's a plain date (YYYY-MM-DD) to avoid timezone shifts.
@@ -426,6 +433,47 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 >
                   {formatCurrency(Math.max(0, balance), currency)}
                 </Typography>
+              </Box>
+            </Box>
+
+            {/* Important notes */}
+            <Box
+              sx={{
+                px: 3,
+                py: 1.5,
+                borderTop: '1px solid #D8DAEA',
+                bgcolor: '#fafafa',
+                breakInside: 'avoid',
+                pageBreakInside: 'avoid',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: '#525252',
+                  mb: 0.75,
+                }}
+              >
+                Notas Importantes
+              </Typography>
+              <Box component="ul" sx={{ m: 0, pl: 2, color: '#475569' }}>
+                {IMPORTANT_NOTES.map((note) => (
+                  <Box
+                    component="li"
+                    key={note}
+                    sx={{
+                      fontSize: '0.68rem',
+                      lineHeight: 1.45,
+                      mb: 0.4,
+                      '&:last-child': { mb: 0 },
+                    }}
+                  >
+                    {note}
+                  </Box>
+                ))}
               </Box>
             </Box>
 
